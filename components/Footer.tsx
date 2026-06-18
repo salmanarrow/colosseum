@@ -48,19 +48,19 @@ export default function Footer() {
         }}
       >
         <Image
-          src="/brand/roots-logo.jpg"
-          alt="ROOTS"
-          width={24}
-          height={24}
-          style={{ borderRadius: "4px" }}
+          src="/brand/roots-logo-white.png"
+          alt="ROOTS International"
+          width={263}
+          height={70}
+          style={{ height: "22px", width: "auto" }}
         />
-        <span style={{ color: "var(--text-muted)" }}>×</span>
+        <span style={{ color: "var(--text-faint)" }}>×</span>
         <Image
-          src="/brand/miuc-logo.jpg"
+          src="/brand/miuc-logo.png"
           alt="MIUC"
-          width={24}
-          height={24}
-          style={{ borderRadius: "4px" }}
+          width={3086}
+          height={1820}
+          style={{ height: "26px", width: "auto" }}
         />
       </div>
       <p style={{ fontFamily: "var(--font-mono)" }}>

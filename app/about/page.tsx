@@ -205,14 +205,16 @@ export default function AboutPage() {
               gap: "1.5rem",
             }}
           >
-            <div className="glass" style={{ padding: "2rem", display: "flex", gap: "1.25rem", alignItems: "flex-start" }}>
-              <Image
-                src="/brand/roots-logo.jpg"
-                alt="ROOTS International Schools & Colleges"
-                width={64}
-                height={64}
-                style={{ borderRadius: "10px", objectFit: "cover", flexShrink: 0 }}
-              />
+            <div className="glass" style={{ padding: "2rem", display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+              <div style={{ height: "56px", display: "flex", alignItems: "center" }}>
+                <Image
+                  src="/brand/roots-logo-white.png"
+                  alt="ROOTS International Schools & Colleges"
+                  width={263}
+                  height={70}
+                  style={{ height: "44px", width: "auto" }}
+                />
+              </div>
               <div>
                 <h3 style={{ fontFamily: "var(--font-display)", letterSpacing: "0.04em", fontSize: "1.3rem", color: "var(--text-primary)", marginBottom: "0.5rem" }}>
                   ROOTS International
@@ -225,14 +227,16 @@ export default function AboutPage() {
               </div>
             </div>
 
-            <div className="glass" style={{ padding: "2rem", display: "flex", gap: "1.25rem", alignItems: "flex-start" }}>
-              <Image
-                src="/brand/miuc-logo.jpg"
-                alt="Metropolitan International United College"
-                width={64}
-                height={64}
-                style={{ borderRadius: "10px", objectFit: "cover", flexShrink: 0 }}
-              />
+            <div className="glass" style={{ padding: "2rem", display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+              <div style={{ height: "56px", display: "flex", alignItems: "center" }}>
+                <Image
+                  src="/brand/miuc-logo.png"
+                  alt="Metropolitan International United College"
+                  width={3086}
+                  height={1820}
+                  style={{ height: "56px", width: "auto" }}
+                />
+              </div>
               <div>
                 <h3 style={{ fontFamily: "var(--font-display)", letterSpacing: "0.04em", fontSize: "1.3rem", color: "var(--text-primary)", marginBottom: "0.5rem" }}>
                   MIUC

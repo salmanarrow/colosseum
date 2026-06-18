@@ -56,19 +56,19 @@ export default function HomePage() {
           }}
         >
           <Image
-            src="/brand/roots-logo.jpg"
+            src="/brand/roots-logo-white.png"
             alt="ROOTS International"
-            width={56}
-            height={56}
-            style={{ borderRadius: "10px", objectFit: "cover" }}
+            width={263}
+            height={70}
+            style={{ height: "40px", width: "auto" }}
           />
-          <span style={{ color: "var(--text-muted)", fontSize: "1.5rem" }}>×</span>
+          <span style={{ color: "var(--text-faint)", fontSize: "1.5rem" }}>×</span>
           <Image
-            src="/brand/miuc-logo.jpg"
+            src="/brand/miuc-logo.png"
             alt="MIUC"
-            width={56}
-            height={56}
-            style={{ borderRadius: "10px", objectFit: "cover" }}
+            width={3086}
+            height={1820}
+            style={{ height: "52px", width: "auto" }}
           />
         </div>
 

@@ -18,33 +18,23 @@ export default function Nav() {
         justifyContent: "space-between",
       }}
     >
-      <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+      <Link href="/" style={{ display: "flex", alignItems: "center", gap: "0.85rem" }}>
         <Image
-          src="/brand/roots-logo.jpg"
-          alt="ROOTS"
-          width={36}
-          height={36}
-          style={{ borderRadius: "6px", objectFit: "cover" }}
+          src="/brand/roots-logo-white.png"
+          alt="ROOTS International"
+          width={263}
+          height={70}
+          style={{ height: "26px", width: "auto" }}
         />
-        <span style={{ color: "var(--text-muted)", fontSize: "0.9rem" }}>×</span>
+        <span style={{ color: "var(--text-faint)", fontSize: "1rem" }}>×</span>
         <Image
-          src="/brand/miuc-logo.jpg"
+          src="/brand/miuc-logo.png"
           alt="MIUC"
-          width={36}
-          height={36}
-          style={{ borderRadius: "6px", objectFit: "cover" }}
+          width={3086}
+          height={1820}
+          style={{ height: "30px", width: "auto" }}
         />
-        <span
-          className="display"
-          style={{
-            fontSize: "1rem",
-            color: "var(--text-primary)",
-            marginLeft: "0.25rem",
-          }}
-        >
-          The Colosseum
-        </span>
-      </div>
+      </Link>
       <div style={{ display: "flex", gap: "0.75rem", alignItems: "center" }}>
         <Link
           href="/about"
