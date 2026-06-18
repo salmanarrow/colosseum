@@ -3,6 +3,7 @@ import Link from "next/link";
 import Nav from "@/components/Nav";
 import Countdown from "@/components/Countdown";
 import GameGrid from "@/components/GameGrid";
+import Footer from "@/components/Footer";
 
 export default function HomePage() {
   return (
@@ -181,23 +182,7 @@ export default function HomePage() {
       <GameGrid />
 
       {/* ── Footer ── */}
-      <footer
-        style={{
-          borderTop: "1px solid var(--border-glass)",
-          padding: "2rem 1.5rem",
-          textAlign: "center",
-          color: "var(--text-faint)",
-          fontSize: "0.8rem",
-          fontFamily: "var(--font-mono)",
-        }}
-      >
-        <div style={{ display: "flex", justifyContent: "center", gap: "1rem", alignItems: "center", marginBottom: "0.5rem" }}>
-          <Image src="/brand/roots-logo.jpg" alt="ROOTS" width={24} height={24} style={{ borderRadius: "4px" }} />
-          <span style={{ color: "var(--text-muted)" }}>×</span>
-          <Image src="/brand/miuc-logo.jpg" alt="MIUC" width={24} height={24} style={{ borderRadius: "4px" }} />
-        </div>
-        © 2026 ROOTS International Schools & Colleges × MIUC · thecolosseum.pk
-      </footer>
+      <Footer />
     </>
   );
 }

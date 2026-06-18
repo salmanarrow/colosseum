@@ -53,10 +53,22 @@ export default function Nav() {
           About
         </Link>
         <Link
+          href="/vision"
+          style={{ color: "var(--text-muted)", fontSize: "0.875rem" }}
+        >
+          Vision
+        </Link>
+        <Link
           href="/games"
           style={{ color: "var(--text-muted)", fontSize: "0.875rem" }}
         >
           Games
+        </Link>
+        <Link
+          href="/sponsors"
+          style={{ color: "var(--text-muted)", fontSize: "0.875rem" }}
+        >
+          Sponsors
         </Link>
         <Link href="/register" className="btn-primary" style={{ fontSize: "0.875rem", padding: "0.5rem 1.2rem" }}>
           Register
