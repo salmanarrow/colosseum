@@ -60,7 +60,7 @@ export default function Footer() {
           alt="MIUC"
           width={3086}
           height={1820}
-          style={{ height: "26px", width: "auto" }}
+          style={{ height: "34px", width: "auto" }}
         />
       </div>
       <p style={{ fontFamily: "var(--font-mono)" }}>

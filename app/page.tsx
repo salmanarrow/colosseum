@@ -68,7 +68,7 @@ export default function HomePage() {
             alt="MIUC"
             width={3086}
             height={1820}
-            style={{ height: "52px", width: "auto" }}
+            style={{ height: "66px", width: "auto" }}
           />
         </div>
 
@@ -76,27 +76,42 @@ export default function HomePage() {
           Pakistan's Premier Collegiate E-Sports Championship
         </p>
 
-        {/* Gold-foil hero wordmark */}
+        {/* Accessible heading (visually replaced by the emblem art) */}
         <h1
-          className="display text-gold-foil"
           style={{
-            fontSize: "clamp(3.5rem, 14vw, 10rem)",
-            marginBottom: "0.25rem",
-            filter: "drop-shadow(0 0 40px rgba(245,200,66,0.25))",
+            position: "absolute",
+            width: 1,
+            height: 1,
+            padding: 0,
+            margin: -1,
+            overflow: "hidden",
+            clip: "rect(0 0 0 0)",
+            whiteSpace: "nowrap",
+            border: 0,
           }}
         >
-          The
+          ROOTS × MIUC: The Colosseum — E-Sports Championship
         </h1>
-        <h1
-          className="display text-gold-foil"
+
+        {/* Colosseum emblem — gold cyber-arena wordmark */}
+        <Image
+          src="/brand/colosseum-emblem.png"
+          alt="The Colosseum E-Sports Event"
+          width={1254}
+          height={1254}
+          priority
           style={{
-            fontSize: "clamp(3rem, 12vw, 8.5rem)",
+            width: "100%",
+            maxWidth: "520px",
+            height: "auto",
             marginBottom: "1.5rem",
-            filter: "drop-shadow(0 0 40px rgba(245,200,66,0.25))",
+            filter: "drop-shadow(0 0 60px rgba(245,200,66,0.22))",
+            WebkitMaskImage:
+              "radial-gradient(ellipse 75% 75% at 50% 50%, #000 60%, transparent 92%)",
+            maskImage:
+              "radial-gradient(ellipse 75% 75% at 50% 50%, #000 60%, transparent 92%)",
           }}
-        >
-          Colosseum
-        </h1>
+        />
 
         {/* Event details pill */}
         <div

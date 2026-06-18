@@ -32,7 +32,7 @@ export default function Nav() {
           alt="MIUC"
           width={3086}
           height={1820}
-          style={{ height: "30px", width: "auto" }}
+          style={{ height: "40px", width: "auto" }}
         />
       </Link>
       <div style={{ display: "flex", gap: "0.75rem", alignItems: "center" }}>
