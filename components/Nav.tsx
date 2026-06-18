@@ -34,6 +34,21 @@ export default function Nav() {
           height={1820}
           style={{ height: "40px", width: "auto" }}
         />
+        <span
+          aria-hidden
+          style={{
+            width: "1px",
+            height: "26px",
+            background: "var(--border-glass)",
+            margin: "0 0.15rem",
+          }}
+        />
+        <span
+          className="display text-gold-foil"
+          style={{ fontSize: "1.35rem", lineHeight: 1, whiteSpace: "nowrap" }}
+        >
+          The Colosseum
+        </span>
       </Link>
       <div style={{ display: "flex", gap: "0.75rem", alignItems: "center" }}>
         <Link
