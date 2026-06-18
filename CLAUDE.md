@@ -175,7 +175,7 @@ The committee's announced flow is **not direct online payment**: students pay th
 - An admin (or a coordinator with admin access) marks the payment **approved** once the money has reached the nationwide head, which triggers ticket generation + email/WhatsApp delivery.
 - The optional `bank_transfer` + screenshot path remains available as a fallback for external teams who can't route through a coordinator.
 
-**Open question to resolve before building admin:** do campus coordinators get their own scoped login (see only their campus's registrations and mark them paid), or does only the central team approve everything? This changes whether `admins` needs a `campus` scope and a `coordinator` role. See Open Decisions.
+**RESOLVED:** Only the central team approves everything — **no scoped coordinator logins**. There are exactly **two admin accounts** (the committee lead + their supervisor / "Sir"). The `admins` table stays simple: no `campus` field, no `coordinator` role. Coordinators remain an offline concept (a participant selects their campus/coordinator at registration; payment is settled offline; one of the two admins approves it in the dashboard).
 
 ### Output
 ```
@@ -214,8 +214,8 @@ tickets
 - [ ] Captain dashboard: dedicated login to edit roster, or just an edit-link emailed to the captain?
 - [ ] Paid spectator tickets: in v1, or removed entirely? (Master Plan and Marketing Plan disagree.)
 - [ ] Early-bird discount window: dates + discount amount?
-- [ ] **Coordinator access:** do campus coordinators get a scoped login (see/approve only their campus), or does only the central team approve payments? Affects whether `admins` needs a `campus` field + `coordinator` role.
-- [ ] Number of admin staff: 2–5 confirmed → simple `admins` table is sufficient (revisit if coordinators get logins, which could push this much higher).
+- [x] **Coordinator access:** RESOLVED — only the central team approves payments. No scoped coordinator logins. `admins` stays simple (no `campus` field, no `coordinator` role).
+- [x] **Number of admin staff:** RESOLVED — exactly **two** accounts (committee lead + supervisor). Simple `admins` table is sufficient.
 
 ---
 
