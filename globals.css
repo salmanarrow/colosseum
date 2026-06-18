@@ -1,0 +1,159 @@
+/* =====================================================================
+   THE COLOSSEUM — Design System Foundation
+   Drop into app/globals.css (Next.js App Router) after the Tailwind
+   directives. Palette derived from the MIUC institutional brand
+   (teal + purple) + colosseum gold, matching the campaign poster:
+   cyber-arena, storm-lit, glassmorphism game cards, gold helmet motif.
+   ===================================================================== */
+
+@import "tailwindcss";
+
+/* ---------- Design tokens ---------- */
+:root {
+  /* Backgrounds — deep navy, near-black, with a faint arena glow */
+  --bg-base:        #0A1628;   /* page background */
+  --bg-elevated:    #0E1A2B;   /* sections, deeper panels */
+  --bg-glass:       20 35 50;  /* RGB triplet for rgba() glass surfaces */
+
+  /* Brand */
+  --teal:           #00C2A8;   /* primary action, accents */
+  --teal-bright:    #1EE0C4;   /* hover / glow */
+  --purple:         #7B5BFF;   /* decorative blobs, secondary accent */
+  --purple-bright:  #9A7CFF;
+  --gold:           #F5C842;   /* highlights, champion trim, ticket edges */
+  --gold-deep:      #C9A130;
+
+  /* Text */
+  --text-primary:   #F4F7FB;
+  --text-muted:     #93A4B8;
+  --text-faint:     #5C6F86;
+
+  /* Borders & lines */
+  --border-glass:   rgba(255, 255, 255, 0.08);
+  --border-gold:    rgba(245, 200, 66, 0.35);
+
+  /* Status (admin / payment states) */
+  --status-pending: #F5C842;
+  --status-ok:      #00C2A8;
+  --status-reject:  #FF5C7A;
+
+  /* Type scale */
+  --font-display: "Anton", "Bebas Neue", system-ui, sans-serif;  /* hero headlines */
+  --font-body:    "Space Grotesk", "Inter", system-ui, sans-serif;
+  --font-mono:    "Geist Mono", ui-monospace, monospace;          /* ticket numbers, data */
+
+  /* Radii & blur */
+  --radius-card:   18px;
+  --radius-pill:   999px;
+  --glass-blur:    16px;
+}
+
+/* ---------- Base ---------- */
+body {
+  background:
+    radial-gradient(1200px 600px at 80% -10%, rgba(123, 91, 255, 0.18), transparent 60%),
+    radial-gradient(900px 500px at -10% 20%, rgba(0, 194, 168, 0.14), transparent 55%),
+    var(--bg-base);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- Display type ---------- */
+.display {
+  font-family: var(--font-display);
+  letter-spacing: 0.04em;
+  line-height: 0.95;
+  text-transform: uppercase;
+}
+.eyebrow {
+  font-family: var(--font-body);
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  color: var(--teal);
+}
+
+/* Gold gradient text for hero wordmark (THE COLOSSEUM) */
+.text-gold-foil {
+  background: linear-gradient(180deg, #FBE9A8 0%, var(--gold) 45%, var(--gold-deep) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ---------- Glassmorphism card ---------- */
+.glass {
+  background: rgba(var(--bg-glass), 0.55);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-card);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+/* Featured / champion variant — gold-trimmed */
+.glass--gold {
+  border: 1px solid var(--border-gold);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    0 0 24px rgba(245, 200, 66, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+/* ---------- Primary CTA ---------- */
+.btn-primary {
+  background: linear-gradient(135deg, var(--teal) 0%, var(--teal-bright) 100%);
+  color: #04211D;
+  font-weight: 700;
+  border-radius: var(--radius-pill);
+  padding: 0.8rem 1.8rem;
+  border: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: 0 0 0 rgba(0, 194, 168, 0);
+}
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 24px rgba(0, 194, 168, 0.35);
+}
+.btn-ghost {
+  background: transparent;
+  color: var(--teal);
+  border: 1px solid var(--teal);
+  border-radius: var(--radius-pill);
+  padding: 0.8rem 1.8rem;
+  font-weight: 600;
+  transition: background 0.15s ease;
+}
+.btn-ghost:hover { background: rgba(0, 194, 168, 0.1); }
+
+/* ---------- Decorative arena blobs ---------- */
+/* Place behind hero/section content with position:absolute; z-index:-1 */
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.5;
+  pointer-events: none;
+}
+.blob--purple { background: var(--purple); }
+.blob--teal   { background: var(--teal); }
+
+/* ---------- Quality floor ---------- */
+:focus-visible {
+  outline: 2px solid var(--teal-bright);
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
+
+/* ---------- Font loading note ----------
+   Load via next/font in app/layout.tsx, e.g.:
+     import { Space_Grotesk } from "next/font/google";
+   Anton / Bebas Neue are also on Google Fonts. Map each to the
+   --font-* CSS variables above using the `variable` option so these
+   tokens resolve. Don't @import Google Fonts in CSS — use next/font
+   for performance and to avoid layout shift.
+------------------------------------------------------------------ */
