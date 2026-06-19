@@ -20,19 +20,19 @@ export default function Nav() {
     >
       <Link href="/" style={{ display: "flex", alignItems: "center", gap: "0.85rem" }}>
         <Image
-          src="/brand/roots-logo-white.png"
-          alt="ROOTS International"
-          width={263}
-          height={70}
-          style={{ height: "26px", width: "auto" }}
-        />
-        <span style={{ color: "var(--text-faint)", fontSize: "1rem" }}>×</span>
-        <Image
           src="/brand/miuc-logo.png"
-          alt="MIUC"
+          alt="MIUC — host & organizer"
           width={3086}
           height={1820}
           style={{ height: "40px", width: "auto" }}
+        />
+        <span style={{ color: "var(--text-faint)", fontSize: "1rem" }}>×</span>
+        <Image
+          src="/brand/roots-logo-white.png"
+          alt="ROOTS International — venue"
+          width={263}
+          height={70}
+          style={{ height: "26px", width: "auto" }}
         />
         <span
           aria-hidden

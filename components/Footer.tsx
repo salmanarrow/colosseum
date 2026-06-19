@@ -48,23 +48,23 @@ export default function Footer() {
         }}
       >
         <Image
-          src="/brand/roots-logo-white.png"
-          alt="ROOTS International"
-          width={263}
-          height={70}
-          style={{ height: "22px", width: "auto" }}
-        />
-        <span style={{ color: "var(--text-faint)" }}>×</span>
-        <Image
           src="/brand/miuc-logo.png"
-          alt="MIUC"
+          alt="MIUC — host & organizer"
           width={3086}
           height={1820}
           style={{ height: "34px", width: "auto" }}
         />
+        <span style={{ color: "var(--text-faint)" }}>×</span>
+        <Image
+          src="/brand/roots-logo-white.png"
+          alt="ROOTS International — venue"
+          width={263}
+          height={70}
+          style={{ height: "22px", width: "auto" }}
+        />
       </div>
       <p style={{ fontFamily: "var(--font-mono)" }}>
-        © 2026 ROOTS International Schools &amp; Colleges × MIUC · thecolosseum.pk
+        © 2026 The Colosseum · Organized by MIUC · Hosted at ROOTS H-8, Islamabad · thecolosseum.pk
       </p>
     </footer>
   );

@@ -67,11 +67,13 @@ export default function AboutPage() {
             }}
           >
             <strong style={{ color: "var(--text-primary)" }}>
-              ROOTS × MIUC: The Colosseum
+              The Colosseum
             </strong>{" "}
-            is a 3-day nationwide collegiate e-sports championship hosted across
-            the twin cities of Islamabad and Rawalpindi. Built for both colleges
-            and universities, it brings together Pakistan&apos;s most competitive
+            is a 3-day nationwide collegiate e-sports championship organized by{" "}
+            <strong style={{ color: "var(--text-primary)" }}>MIUC</strong>{" "}
+            (Metropolitan International United College) and hosted at the ROOTS
+            H-8 Flagship Campus in Islamabad. Built for both colleges and
+            universities, it brings together Pakistan&apos;s most competitive
             campus gamers under one roof — a gladiatorial arena where squads rise,
             rivalries ignite, and champions are crowned.
           </p>
@@ -196,7 +198,7 @@ export default function AboutPage() {
               marginBottom: "2.5rem",
             }}
           >
-            The Hosts
+            Organizer &amp; Venue
           </h2>
           <div
             style={{
@@ -205,6 +207,31 @@ export default function AboutPage() {
               gap: "1.5rem",
             }}
           >
+            <div className="glass glass--gold" style={{ padding: "2rem", display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+              <div style={{ height: "56px", display: "flex", alignItems: "center" }}>
+                <Image
+                  src="/brand/miuc-logo.png"
+                  alt="Metropolitan International United College"
+                  width={3086}
+                  height={1820}
+                  style={{ height: "56px", width: "auto" }}
+                />
+              </div>
+              <div>
+                <p className="eyebrow" style={{ color: "var(--gold)", marginBottom: "0.4rem" }}>
+                  Host &amp; Organizer
+                </p>
+                <h3 style={{ fontFamily: "var(--font-display)", letterSpacing: "0.04em", fontSize: "1.3rem", color: "var(--text-primary)", marginBottom: "0.5rem" }}>
+                  MIUC
+                </h3>
+                <p style={{ color: "var(--text-muted)", fontSize: "0.9rem", lineHeight: 1.6 }}>
+                  Metropolitan International United College conceives, organizes,
+                  and runs The Colosseum — the institution behind the championship
+                  and its teal-and-purple identity.
+                </p>
+              </div>
+            </div>
+
             <div className="glass" style={{ padding: "2rem", display: "flex", flexDirection: "column", gap: "1.25rem" }}>
               <div style={{ height: "56px", display: "flex", alignItems: "center" }}>
                 <Image
@@ -216,34 +243,15 @@ export default function AboutPage() {
                 />
               </div>
               <div>
+                <p className="eyebrow" style={{ marginBottom: "0.4rem" }}>
+                  Flagship Campus &amp; Venue
+                </p>
                 <h3 style={{ fontFamily: "var(--font-display)", letterSpacing: "0.04em", fontSize: "1.3rem", color: "var(--text-primary)", marginBottom: "0.5rem" }}>
                   ROOTS International
                 </h3>
                 <p style={{ color: "var(--text-muted)", fontSize: "0.9rem", lineHeight: 1.6 }}>
-                  Host venue and flagship campus. The ROOTS H-8 Flagship Campus in
-                  Islamabad becomes the arena floor for all three days of
-                  competition.
-                </p>
-              </div>
-            </div>
-
-            <div className="glass" style={{ padding: "2rem", display: "flex", flexDirection: "column", gap: "1.25rem" }}>
-              <div style={{ height: "56px", display: "flex", alignItems: "center" }}>
-                <Image
-                  src="/brand/miuc-logo.png"
-                  alt="Metropolitan International United College"
-                  width={3086}
-                  height={1820}
-                  style={{ height: "56px", width: "auto" }}
-                />
-              </div>
-              <div>
-                <h3 style={{ fontFamily: "var(--font-display)", letterSpacing: "0.04em", fontSize: "1.3rem", color: "var(--text-primary)", marginBottom: "0.5rem" }}>
-                  MIUC
-                </h3>
-                <p style={{ color: "var(--text-muted)", fontSize: "0.9rem", lineHeight: 1.6 }}>
-                  Metropolitan International United College — co-host and the brand
-                  behind the championship&apos;s teal-and-purple identity.
+                  Venue partner. The ROOTS H-8 Flagship Campus in Islamabad
+                  provides the arena floor for all three days of competition.
                 </p>
               </div>
             </div>

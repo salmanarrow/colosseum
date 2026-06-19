@@ -56,19 +56,19 @@ export default function HomePage() {
           }}
         >
           <Image
-            src="/brand/roots-logo-white.png"
-            alt="ROOTS International"
-            width={263}
-            height={70}
-            style={{ height: "40px", width: "auto" }}
-          />
-          <span style={{ color: "var(--text-faint)", fontSize: "1.5rem" }}>×</span>
-          <Image
             src="/brand/miuc-logo.png"
-            alt="MIUC"
+            alt="MIUC — host & organizer"
             width={3086}
             height={1820}
             style={{ height: "66px", width: "auto" }}
+          />
+          <span style={{ color: "var(--text-faint)", fontSize: "1.5rem" }}>×</span>
+          <Image
+            src="/brand/roots-logo-white.png"
+            alt="ROOTS International — venue"
+            width={263}
+            height={70}
+            style={{ height: "40px", width: "auto" }}
           />
         </div>
 
@@ -126,10 +126,12 @@ export default function HomePage() {
             color: "var(--text-muted)",
           }}
         >
-          <span style={{ color: "var(--teal)" }}>📍</span>
-          ROOTS H-8 Flagship Campus, Islamabad
+          <span style={{ color: "var(--teal)" }}>🏛️</span>
+          Organized by MIUC
           <span style={{ color: "var(--border-glass)" }}>|</span>
-          <span>3 Days · 9 Titles · 500+ Players</span>
+          <span>ROOTS H-8 Campus, Islamabad</span>
+          <span style={{ color: "var(--border-glass)" }}>|</span>
+          <span>3 Days · 9 Titles</span>
         </div>
 
         {/* Countdown */}
