@@ -8,11 +8,13 @@
 
 A registration and ticketing website for **ROOTS × MIUC: The Colosseum** — a 3-day nationwide collegiate e-sports championship hosted in Islamabad–Rawalpindi.
 
-- **Hosts:** ROOTS International Schools & Colleges + Metropolitan International United College (MIUC)
+- **Host & organizer:** Metropolitan International United College (MIUC) — MIUC conceives, organizes, and runs the event. Branding/emphasis leads with MIUC.
+- **Venue partner:** ROOTS International Schools & Colleges — provides the ROOTS H-8 Flagship Campus as the venue. (Not the organizer; don't frame ROOTS as holding the event.)
 - **Executive sponsor:** Mr. Walid Mushtaq
 - **Domain:** `thecolosseum.pk`
 - **Venue:** ROOTS H-8 Flagship Campus, Islamabad
 - **Scope:** 9 game titles (5 flagship competitive + 4 festival/legacy), 500+ players expected, 3,000–5,000 footfall
+- **Three physical zones:** ⚔️ E-sports Arena (5 prized titles) · 🎮 Casual Arena (festival titles) · 🏛️ Legacy Lounge (Chess, Ludo, Carrom). Every paid ticket grants access to all three; only Participant tickets may *compete* in the E-sports Arena.
 
 ---
 
@@ -59,7 +61,7 @@ Card surface: rgba(20, 35, 50, 0.6) with backdrop-blur
 4. **Register as a player/squad** — game selection → team builder → captain details → invite teammates → payment
 5. **Register as an institution/sponsor** — contact form for sponsors and rival-campus e-sports societies
 6. **Buy spectator tickets** — day pass or 3-day pass (TBD if paid externals are in v1)
-7. **Roots/MIUC attendance pass** — mandatory free registration for host students
+7. ~~Roots/MIUC attendance pass~~ **REMOVED — no free pass.** Everyone pays at least the base fee, including ROOTS H-8 flagship-campus students. There is no free/mandatory attendance pass. The paid **Basic ("Citizen") ticket** replaces it (all-zone access, no prized-game competition).
 8. **Sponsors** — sponsor logos/names grouped by tier (Title / Platinum / Gold / Silver / In-kind). Data-driven from the `sponsors` table so admins add sponsors as they onboard, no deploy needed. Until a logo is supplied, render the name as a styled text card. The homepage sponsor wall reads from this same table.
 9. **Admin** — login, dashboard, payment review queue, registration tables, sponsor management, scanner page for gate entry
 
@@ -71,20 +73,37 @@ Card surface: rgba(20, 35, 50, 0.6) with backdrop-blur
 
 ## Pricing matrix (from Master Event Plan §7)
 
-Three-layer model. Flat PKR 1,000 base for **everyone**, plus per-title participation fee, plus external arena surcharge for non-ROOTS/MIUC teams.
+Three-layer model. Flat PKR 1,000 base for **everyone** (no exceptions, no free pass — flagship-campus students pay too), plus per-title participation fee, plus external surcharge for teams from other colleges/universities.
 
-**What the base fee covers:** the PKR 1,000 base is the entry/participation fee *and* includes queue access to the legacy games (Chess, Ludo Star, Carrom) and board-game zone. In other words, paying the base alone lets a participant enter the event and play the legacy/casual titles. Prices increase from there: each flagship competitive title (Valorant, PUBG, Free Fire, Tekken, FC 26) stacks a participation fee on top of the base.
+### Two ticket tiers (gladiatorial naming)
+
+- **Citizen Pass** (Basic) — the PKR 1,000 base alone. Grants all-zone access: roam the E-sports Arena (spectate), play in the Casual Arena and Legacy Lounge. **Cannot compete** in the 5 prized titles. This is what a non-competing attendee buys; it also replaces the old free attendance pass.
+- **Gladiator Pass** (Participant) — base + per-title participation fee. Everything in Citizen, **plus the right to compete** in one prized title, bracket seeding, match check-in, and prize eligibility. *(Names pending final committee approval — see naming note below.)*
+
+**Tickets are per-player, not per-team.** Every roster member gets their own Gladiator Pass + QR, so each player scans individually at the game-station check-in. Team registration still happens captain-first, but issuance is per-member.
+
+**Internal vs external rate.** Internal = MIUC (all campuses) + ROOTS/RIS (all campuses), charged the same internal rate. External = other colleges/universities, charged the premium (external) column. *(Premium amount: confirm whether it's the surcharge already in the matrix or a new figure.)*
 
 | Title | Base | Participation | Total (internal) | Total (external) |
 |---|---|---|---|---|
-| Valorant (5v5, per team) | 1,000 | +1,500 | 2,500 | 3,500 |
-| PUBG Mobile (squad) | 1,000 | +1,000 | 2,000 | 2,800 |
+| Valorant (5v5, per player) | 1,000 | +1,500 | 2,500 | 3,500 |
+| PUBG Mobile (4-player squad) | 1,000 | +1,000 | 2,000 | 2,800 |
 | Free Fire MAX (squad) | 1,000 | +500 | 1,500 | 2,100 |
-| Tekken 8 / EA FC 26 (player) | 1,000 | +200 | 1,200 | 1,400 |
+| Tekken 8 / EA FC 26 (1v1 player) | 1,000 | +200 | 1,200 | 1,400 |
 | Forza / Ludo / Chess (player) | 1,000 | — | 1,000 | 1,100 |
-| ROOTS / MIUC spectator | **FREE (mandatory)** | — | — | — |
+| **Citizen Pass** (all-zone, no compete) | 1,000 | — | 1,000 | 1,100 |
 
 Wire this into the `games` table so admins can edit prices without a deploy.
+
+### Roster sizes (confirmed)
+- Valorant — 5v5 (+1 sub)
+- PUBG Mobile — 4-player squads (Day 1; ~25 squads expected)
+- Free Fire MAX — squad
+- Tekken 8 — 1v1 (solo)
+- EA Sports FC 26 — 1v1 (solo)
+
+### Naming note
+Committee wants **gladiatorial** ticket names. Working set: **Citizen Pass** (basic/all-zone) and **Gladiator Pass** (participant/compete). Alternatives floated: "Spectator's Seal" / "Champion's Seal". Lock before building the ticket PDF.
 
 ---
 
@@ -128,9 +147,9 @@ team_members
   confirmation_token, confirmed_at, invited_at
   UNIQUE(team_id, participant_id)
 
-attendance_passes                          -- Roots/MIUC free mandatory
-  id, participant_id (UNIQUE)
-  qr_token, created_at
+-- attendance_passes  -- REMOVED: no free pass. Non-competitors buy a paid
+--                       Citizen Pass instead (a `tickets` row, tier = basic,
+--                       with its own payment). No standalone free-pass table.
 
 spectator_tickets                          -- if confirmed in scope
   id, participant_id
@@ -180,29 +199,38 @@ The committee's announced flow is **not direct online payment**: students pay th
 ### Output
 ```
 tickets
-  id, ticket_number             -- e.g. COL-2026-VAL-0042
-  team_id | spectator_ticket_id | attendance_pass_id   (exactly one)
+  id, ticket_number             -- e.g. COL-2026-VAL-0042 (participant), COL-2026-GEN-1184 (citizen)
+  tier (participant | basic | spectator)  -- drives gate/station logic + ticket color
+  participant_id                -- per-PLAYER issuance (one ticket per roster member)
+  team_id (nullable)            -- set for participant tickets; carries game_id for station eligibility
+  spectator_ticket_id (nullable)
   qr_token, pdf_url
-  emailed_at, whatsapp_sent_at, scanned_at
+  emailed_at, whatsapp_sent_at
+  -- scanning: use a `ticket_scans` log (ticket_id, zone, day, scanned_at, scanned_by)
+  --           NOT a single scanned_at — 3-day re-entry needs multiple scans
   created_at
 ```
 
+### Two scan contexts (gate logic)
+- **Venue gate** — any valid ticket (basic/participant/spectator) admits to all three zones.
+- **Game-station check-in** — only a Participant ticket whose `team.game_id` matches the station is eligible to compete. Basic tickets → "spectator only" at the station.
+
 ### Schema design principles
-- **`participants` deduplicates by email.** One person can be in multiple teams across games, hold an attendance pass, and have a spectator ticket — all FK back to one participant row.
+- **`participants` deduplicates by email.** One person can hold multiple participant tickets (different games) + a basic ticket — all FK back to one participant row.
 - **Pricing is data, not code.** `games` table fields drive the checkout total.
-- **Attendance passes have no `payments` row** — they're free by design.
-- **Polymorphic via nullable FKs + CHECK constraint** (not a `type` column) so Postgres can still enforce referential integrity.
+- **No free tickets.** Every ticket (including basic/Citizen) has a `payments` row.
+- **`tickets.tier`** distinguishes basic vs participant; station eligibility reads off the `team → game` link.
 
 ---
 
 ## Registration flows (4 distinct journeys)
 
-1. **Team / squad registration** — per-game, captain-driven, email-confirmation for members. Roster sizes per title:
+1. **Gladiator Pass — team/squad registration** — per-game, captain-driven, email-confirmation for members. Issues **one ticket per player**. Roster sizes per title:
    - Valorant: 5 players + 1 sub
-   - PUBG Mobile / Free Fire: 4 players (squad)
-   - Tekken 8 / EA FC 26 / Fortnite: 1 player (still uses team flow with team-of-1 for schema uniformity)
+   - PUBG Mobile: 4 players (squad) · Free Fire MAX: squad
+   - Tekken 8 / EA FC 26: 1 player (solo; still uses team flow with team-of-1 for schema uniformity)
    - Forza / Ludo / Chess: 1 player
-2. **Roots/MIUC attendance pass** — free, mandatory. Captures name, institution, student ID. Generates QR.
+2. **Citizen Pass — basic ticket (paid)** — all-zone access, no prized-game competition. Captures name, institution, student ID. Paid (base fee), generates QR. Replaces the old free attendance pass.
 3. **Spectator ticket (paid)** — day or 3-day pass. Status pending until confirmed in scope.
 4. **Institution / sponsor inquiry** — lead-capture form, drops into admin queue.
 
