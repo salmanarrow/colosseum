@@ -18,20 +18,14 @@ export default function Nav() {
         justifyContent: "space-between",
       }}
     >
-      <Link href="/" style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
+      <Link href="/" style={{ display: "flex", alignItems: "center" }}>
         <Image
           src="/brand/colosseum-icon.png"
           alt="The Colosseum"
           width={1024}
           height={1024}
-          style={{ height: "44px", width: "auto" }}
+          style={{ height: "48px", width: "auto" }}
         />
-        <span
-          className="display text-gold-foil"
-          style={{ fontSize: "1.35rem", lineHeight: 1, whiteSpace: "nowrap" }}
-        >
-          The Colosseum
-        </span>
       </Link>
       <div style={{ display: "flex", gap: "0.75rem", alignItems: "center" }}>
         <Link
