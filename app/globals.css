@@ -139,6 +139,23 @@ body {
 .blob--purple { background: var(--purple); }
 .blob--teal   { background: var(--teal); }
 
+/* ---------- Responsive nav ---------- */
+.nav-wordmark {
+  height: 34px;
+  width: auto;
+}
+.nav-links-desktop {
+  display: flex;
+}
+.nav-burger {
+  display: none;
+}
+@media (max-width: 768px) {
+  .nav-wordmark { height: 26px; }
+  .nav-links-desktop { display: none !important; }
+  .nav-burger { display: inline-flex !important; }
+}
+
 /* ---------- Accessibility ---------- */
 :focus-visible {
   outline: 2px solid var(--teal-bright);
