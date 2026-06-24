@@ -6,20 +6,32 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.108.2",
+    "drizzle-orm": "^0.45.2",
     "framer-motion": "^12.18.0",
     "lucide-react": "^0.514.0",
     "next": "^15.3.3",
+    "postgres": "^3.4.9",
+    "qrcode": "^1.5.4",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "resend": "^6.14.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.10",
     "@types/node": "^20",
+    "@types/qrcode": "^1.5.6",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "dotenv": "^17.4.2",
+    "drizzle-kit": "^0.31.10",
     "eslint": "^9",
     "eslint-config-next": "^15.3.3",
     "postcss": "^8",

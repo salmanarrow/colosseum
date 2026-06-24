@@ -1,0 +1,11 @@
+import { createClient } from "@supabase/supabase-js";
+
+// Server-side admin client — uses service role key to bypass RLS.
+// Only import this in Server Actions / Route Handlers, never in client components.
+export function createAdminClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { autoRefreshToken: false, persistSession: false } }
+  );
+}

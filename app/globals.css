@@ -16,6 +16,8 @@
   --purple-bright:  #9A7CFF;
   --gold:           #F5C842;
   --gold-deep:      #C9A130;
+  --red-arena:      #FF2D2D;
+  --red-deep:       #8B0000;
 
   --text-primary:   #F4F7FB;
   --text-muted:     #93A4B8;
@@ -23,6 +25,7 @@
 
   --border-glass:   rgba(255, 255, 255, 0.08);
   --border-gold:    rgba(245, 200, 66, 0.35);
+  --border-teal:    rgba(0, 194, 168, 0.35);
 
   --status-pending: #F5C842;
   --status-ok:      #00C2A8;
@@ -76,6 +79,14 @@ body {
   color: transparent;
 }
 
+/* Red gradient text — for external/challenger pages */
+.text-red-foil {
+  background: linear-gradient(180deg, #FF8080 0%, var(--red-arena) 50%, var(--red-deep) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
 /* ---------- Glassmorphism card ---------- */
 .glass {
   background: rgba(var(--bg-glass), 0.55);
@@ -94,6 +105,102 @@ body {
     0 0 24px rgba(245, 200, 66, 0.15),
     inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
+.glass--teal {
+  border: 1px solid var(--border-teal);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    0 0 24px rgba(0, 194, 168, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+.glass--red {
+  border: 1px solid rgba(255, 45, 45, 0.4);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    0 0 24px rgba(255, 45, 45, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+/* ---------- Scanline / arena texture overlay ---------- */
+.scanlines {
+  position: relative;
+}
+.scanlines::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.07) 2px,
+    rgba(0, 0, 0, 0.07) 4px
+  );
+  pointer-events: none;
+  z-index: 1;
+  border-radius: inherit;
+}
+
+/* ---------- Noise grain overlay on hero ---------- */
+.hero-noise::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+  opacity: 0.4;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ---------- Glitch text effect ---------- */
+@keyframes glitch-1 {
+  0%, 100% { clip-path: inset(0 0 95% 0); transform: translateX(-4px); }
+  50%       { clip-path: inset(0 0 95% 0); transform: translateX(4px); }
+}
+@keyframes glitch-2 {
+  0%, 100% { clip-path: inset(90% 0 0 0); transform: translateX(4px); }
+  50%       { clip-path: inset(90% 0 0 0); transform: translateX(-4px); }
+}
+.glitch {
+  position: relative;
+}
+.glitch::before,
+.glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  font-family: inherit;
+  font-size: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  line-height: inherit;
+  color: inherit;
+  background: inherit;
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+.glitch::before {
+  color: var(--teal);
+  animation: glitch-1 3s infinite steps(1);
+  opacity: 0.7;
+}
+.glitch::after {
+  color: var(--red-arena);
+  animation: glitch-2 3s infinite steps(1);
+  opacity: 0.7;
+}
+
+/* ---------- Pulse ring ---------- */
+@keyframes pulse-ring {
+  0%   { transform: scale(1);   opacity: 0.6; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+.pulse-ring {
+  position: absolute;
+  border-radius: 50%;
+  animation: pulse-ring 2s ease-out infinite;
+  pointer-events: none;
+}
 
 /* ---------- Buttons ---------- */
 .btn-primary {
@@ -110,8 +217,8 @@ body {
   gap: 0.5rem;
 }
 .btn-primary:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 24px rgba(0, 194, 168, 0.35);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(0, 194, 168, 0.45);
 }
 .btn-ghost {
   background: transparent;
@@ -128,6 +235,24 @@ body {
 }
 .btn-ghost:hover { background: rgba(0, 194, 168, 0.1); }
 
+.btn-danger {
+  background: linear-gradient(135deg, var(--red-deep) 0%, var(--red-arena) 100%);
+  color: #fff;
+  font-weight: 700;
+  border-radius: var(--radius-pill);
+  padding: 0.8rem 1.8rem;
+  border: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.btn-danger:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(255, 45, 45, 0.45);
+}
+
 /* ---------- Decorative blobs ---------- */
 .blob {
   position: absolute;
@@ -138,6 +263,35 @@ body {
 }
 .blob--purple { background: var(--purple); }
 .blob--teal   { background: var(--teal); }
+.blob--red    { background: var(--red-arena); opacity: 0.3; }
+
+/* ---------- Stat / metric cards ---------- */
+.stat-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  text-align: center;
+}
+.stat-value {
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  letter-spacing: 0.04em;
+  line-height: 1;
+}
+.stat-label {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* ---------- Diagonal section divider ---------- */
+.section-slash {
+  position: relative;
+  clip-path: polygon(0 3%, 100% 0%, 100% 97%, 0% 100%);
+}
 
 /* ---------- Responsive nav ---------- */
 .nav-wordmark {

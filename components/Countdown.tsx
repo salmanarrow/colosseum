@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-const EVENT_DATE = new Date("2026-08-01T09:00:00+05:00");
+const EVENT_DATE = new Date("2026-08-07T09:00:00+05:00");
 
 function getTimeLeft() {
   const now = new Date();
