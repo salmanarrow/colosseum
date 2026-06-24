@@ -1,7 +1,13 @@
 import { Resend } from "resend";
 import { generateQRDataURL } from "./qr";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Instantiate lazily so a missing RESEND_API_KEY doesn't crash the build
+// (the constructor throws on an empty key). Only created when actually sending.
+function getResend() {
+  const key = process.env.RESEND_API_KEY;
+  if (!key) throw new Error("RESEND_API_KEY is not set");
+  return new Resend(key);
+}
 
 type TicketEmailParams = {
   to: string;
@@ -88,7 +94,7 @@ export async function sendTicketEmail(params: TicketEmailParams) {
 </body>
 </html>`;
 
-  return resend.emails.send({
+  return getResend().emails.send({
     from: "The Colosseum <tickets@thecolosseum.pk>",
     to: params.to,
     subject: `⚔️ Your ${passLabel} — The Colosseum 2026`,
