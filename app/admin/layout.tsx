@@ -9,6 +9,7 @@ import { supabase } from "@/lib/supabase";
 const NAV = [
   { href: "/admin/payments",      label: "Payment Queue",   icon: "💳" },
   { href: "/admin/registrations", label: "Registrations",   icon: "📋" },
+  { href: "/admin/scan",          label: "Gate Scanner",    icon: "📷" },
   { href: "/admin/sponsors",      label: "Sponsors",        icon: "🤝" },
 ];
 

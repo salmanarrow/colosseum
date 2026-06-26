@@ -226,6 +226,9 @@ export const payments = pgTable("payments", {
   id: uuid("id").primaryKey().defaultRandom(),
   amountPkr: integer("amount_pkr").notNull(),
   teamId: uuid("team_id").references(() => teams.id),
+  // Set for Citizen-pass (observer) payments that have no team, so a basic
+  // ticket can be issued to this participant on approval.
+  participantId: uuid("participant_id").references(() => participants.id),
   spectatorTicketId: uuid("spectator_ticket_id").references(
     () => spectatorTickets.id
   ),

@@ -9,6 +9,54 @@ import { sendTicketEmail } from "@/lib/email";
 
 // ── Payments ───────────────────────────────────────────────────────────────
 
+// Create a ticket for a participant and email it. Returns the new ticket id + token.
+async function issueAndEmailTicket(opts: {
+  participantId: string;
+  teamId: string | null;
+  tier: "participant" | "basic";
+  gameName?: string;
+  teamName?: string;
+}) {
+  const { participants } = await import("@/db/schema");
+
+  const qrToken   = randomUUID();
+  const prefix    = opts.tier === "participant" ? "GLAD" : "CIT";
+  const ticketNum = `COL-2026-${prefix}-${Date.now().toString().slice(-6)}-${Math.floor(Math.random() * 9999).toString().padStart(4, "0")}`;
+
+  const [ticket] = await db
+    .insert(tickets)
+    .values({
+      ticketNumber:  ticketNum,
+      tier:          opts.tier,
+      participantId: opts.participantId,
+      teamId:        opts.teamId ?? undefined,
+      qrToken,
+    })
+    .returning({ id: tickets.id });
+
+  const [participant] = await db
+    .select({ name: participants.fullName, email: participants.email })
+    .from(participants)
+    .where(eq(participants.id, opts.participantId))
+    .limit(1);
+
+  if (participant) {
+    await sendTicketEmail({
+      to:            participant.email,
+      recipientName: participant.name,
+      ticketNumber:  ticketNum,
+      tier:          opts.tier,
+      gameName:      opts.gameName,
+      teamName:      opts.teamName,
+      qrToken,
+    })
+      .then(() => db.update(tickets).set({ emailedAt: new Date() }).where(eq(tickets.id, ticket.id)))
+      .catch((err) => console.error("Email send failed:", err));
+  }
+
+  return { ticketId: ticket.id, qrToken, ticketNumber: ticketNum };
+}
+
 export async function approvePayment(paymentId: string) {
   try {
     const [payment] = await db
@@ -19,65 +67,50 @@ export async function approvePayment(paymentId: string) {
 
     if (!payment) return { success: false, error: "Payment not found" };
 
-    // Mark payment approved
     await db
       .update(payments)
       .set({ status: "approved", reviewedAt: new Date() })
       .where(eq(payments.id, paymentId));
 
-    // If team-based, get participants and issue tickets
-    if (payment.teamId) {
-      const { teamMembers, participants } = await import("@/db/schema");
+    const { teamMembers, games } = await import("@/db/schema");
 
+    if (payment.teamId) {
+      // Gladiator (team/squad) — issue one participant ticket per member
       const members = await db
-        .select({ participantId: teamMembers.participantId, role: teamMembers.role })
+        .select({ participantId: teamMembers.participantId })
         .from(teamMembers)
         .where(eq(teamMembers.teamId, payment.teamId));
 
       const [team] = await db
-        .select({ gameId: teams.gameId })
+        .select({ gameId: teams.gameId, teamName: teams.teamName })
         .from(teams)
         .where(eq(teams.id, payment.teamId))
         .limit(1);
 
-      // Issue one ticket per team member and email each one
-      for (const member of members) {
-        const qrToken   = randomUUID();
-        const ticketNum = `COL-2026-${Date.now()}-${Math.floor(Math.random() * 9999).toString().padStart(4, "0")}`;
-
-        await db.insert(tickets).values({
-          ticketNumber: ticketNum,
-          tier: "participant",
-          participantId: member.participantId,
-          teamId: payment.teamId,
-          qrToken,
-        });
-
-        // Fetch participant details for email
-        const { participants } = await import("@/db/schema");
-        const [participant] = await db
-          .select({ name: participants.fullName, email: participants.email })
-          .from(participants)
-          .where(eq(participants.id, member.participantId))
-          .limit(1);
-
-        if (participant) {
-          await sendTicketEmail({
-            to:            participant.email,
-            recipientName: participant.name,
-            ticketNumber:  ticketNum,
-            tier:          "participant",
-            gameName:      undefined, // fetched below
-            qrToken,
-          }).catch((err) => console.error("Email send failed:", err));
-        }
+      let gameName: string | undefined;
+      if (team?.gameId) {
+        const [g] = await db.select({ name: games.name }).from(games).where(eq(games.id, team.gameId)).limit(1);
+        gameName = g?.name;
       }
 
-      // Update team status
-      await db
-        .update(teams)
-        .set({ status: "confirmed" })
-        .where(eq(teams.id, payment.teamId));
+      for (const member of members) {
+        await issueAndEmailTicket({
+          participantId: member.participantId,
+          teamId:        payment.teamId,
+          tier:          "participant",
+          gameName,
+          teamName:      team?.teamName,
+        });
+      }
+
+      await db.update(teams).set({ status: "confirmed" }).where(eq(teams.id, payment.teamId));
+    } else if (payment.participantId) {
+      // Citizen Pass (observer) — issue a single basic ticket
+      await issueAndEmailTicket({
+        participantId: payment.participantId,
+        teamId:        null,
+        tier:          "basic",
+      });
     }
 
     revalidatePath("/admin/payments");
@@ -101,6 +134,139 @@ export async function rejectPayment(paymentId: string, reason: string) {
     console.error("rejectPayment error:", err);
     return { success: false, error: "Failed to reject payment." };
   }
+}
+
+// ── Venue scanner & upgrade ─────────────────────────────────────────────────
+
+// Map today's weekday to an event day (Aug 7–9 2026 = Fri/Sat/Sun).
+function eventDay(): "Fri" | "Sat" | "Sun" {
+  const d = new Date().getDay(); // 0 = Sun … 6 = Sat
+  if (d === 6) return "Sat";
+  if (d === 0) return "Sun";
+  return "Fri";
+}
+
+// Look up a ticket by its QR token (accepts a raw token or a full verify URL).
+export async function lookupTicketByToken(tokenOrUrl: string) {
+  const { participants, teams, games } = await import("@/db/schema");
+  const token = (tokenOrUrl.trim().split("/").filter(Boolean).pop() ?? tokenOrUrl).trim();
+
+  const [row] = await db
+    .select({
+      ticketId:        tickets.id,
+      ticketNumber:    tickets.ticketNumber,
+      tier:            tickets.tier,
+      qrToken:         tickets.qrToken,
+      participantId:   tickets.participantId,
+      participantName: participants.fullName,
+      institution:     participants.institutionName,
+      institutionType: participants.institutionType,
+      teamName:        teams.teamName,
+      gameName:        games.name,
+    })
+    .from(tickets)
+    .leftJoin(participants, eq(tickets.participantId, participants.id))
+    .leftJoin(teams,        eq(tickets.teamId,        teams.id))
+    .leftJoin(games,        eq(teams.gameId,          games.id))
+    .where(eq(tickets.qrToken, token))
+    .limit(1);
+
+  if (!row) return { found: false as const };
+  return { found: true as const, ...row };
+}
+
+// Log a gate / station scan against a ticket.
+export async function logScan(ticketId: string, zone: string) {
+  try {
+    const { ticketScans } = await import("@/db/schema");
+    await db.insert(ticketScans).values({ ticketId, zone, day: eventDay() });
+    return { success: true };
+  } catch (err) {
+    console.error("logScan error:", err);
+    return { success: false, error: "Failed to log scan." };
+  }
+}
+
+// Upgrade a Citizen Pass to a Gladiator Pass on-site: create a team-of-one for
+// the chosen game, flip the ticket to participant (same QR), and record the
+// cash difference as an approved payment.
+export async function upgradeCitizenToGladiator(ticketId: string, gameId: string) {
+  try {
+    const { participants, games, teamMembers } = await import("@/db/schema");
+
+    const [tk] = await db
+      .select({ id: tickets.id, tier: tickets.tier, participantId: tickets.participantId })
+      .from(tickets)
+      .where(eq(tickets.id, ticketId))
+      .limit(1);
+
+    if (!tk) return { success: false, error: "Ticket not found" };
+    if (tk.tier !== "basic") return { success: false, error: "Only a Citizen Pass can be upgraded." };
+
+    const [p] = await db
+      .select({
+        id: participants.id, name: participants.fullName,
+        institutionType: participants.institutionType, institutionName: participants.institutionName,
+      })
+      .from(participants)
+      .where(eq(participants.id, tk.participantId))
+      .limit(1);
+    if (!p) return { success: false, error: "Participant not found" };
+
+    const [g] = await db.select().from(games).where(eq(games.id, gameId)).limit(1);
+    if (!g) return { success: false, error: "Game not found" };
+
+    const isExternal = p.institutionType === "external_college" || p.institutionType === "external_university";
+    const difference = g.participationFeePkr + (isExternal ? g.externalSurchargePkr : 0);
+
+    // team-of-one for the chosen title
+    const [team] = await db
+      .insert(teams)
+      .values({
+        gameId,
+        teamName:             p.name,
+        captainParticipantId: p.id,
+        institutionName:      p.institutionName,
+        institutionType:      p.institutionType,
+        status:               "confirmed",
+        totalPricePkr:        g.baseFeepkr + difference,
+      })
+      .returning({ id: teams.id });
+
+    await db.insert(teamMembers).values({ teamId: team.id, participantId: p.id, role: "captain" });
+
+    // flip ticket to participant (keep the same QR — no reprint needed)
+    await db.update(tickets).set({ tier: "participant", teamId: team.id }).where(eq(tickets.id, ticketId));
+
+    // record the venue cash upsell
+    await db.insert(payments).values({
+      amountPkr:      difference,
+      teamId:         team.id,
+      method:         "other",
+      transactionRef: "venue-upgrade-cash",
+      status:         "approved",
+      reviewedAt:     new Date(),
+    });
+
+    revalidatePath("/admin/scan");
+    return { success: true, difference, gameName: g.name, isExternal };
+  } catch (err) {
+    console.error("upgradeCitizenToGladiator error:", err);
+    return { success: false, error: "Upgrade failed." };
+  }
+}
+
+// List active games for the upgrade picker (flagship titles that cost extra).
+export async function getUpgradeableGames() {
+  const { games } = await import("@/db/schema");
+  return db
+    .select({
+      id: games.id, slug: games.slug, name: games.name, category: games.category,
+      participationFeePkr: games.participationFeePkr, externalSurchargePkr: games.externalSurchargePkr,
+    })
+    .from(games)
+    .where(eq(games.active, true))
+    .orderBy(games.category, games.name);
 }
 
 // ── Sponsors ───────────────────────────────────────────────────────────────

@@ -6,24 +6,56 @@ import { submitRegistration, getGameIdBySlug } from "./actions";
 
 // ── Constants ──────────────────────────────────────────────────────────────
 
-const FLAGSHIP_INSTITUTIONS = [
-  "MIUC Main Campus",
-  "MIUC Rawalpindi Campus",
-  "ROOTS H-8 Flagship Campus",
-  "ROOTS I-8 Campus",
-  "ROOTS Satellite Town Campus",
+// Internal institutions — strictly MIUC and ROOTS International (RIS) branches.
+// Sourced from miuc.edu.pk/campus and rootsinternational.edu.pk/campuses.
+const MIUC_CAMPUSES = [
+  "Islamabad (H-8/4)",
+  "Columbia Park, Islamabad",
+  "Richmond, Islamabad (DHA-2)",
+  "Wah Cantt",
+  "Peshawar",
+  "Askari, Lahore",
+  "Abbottabad",
+  "Sialkot",
 ];
 
+const RIS_CAMPUSES = [
+  "Wellington, Islamabad",
+  "Liverpool, Islamabad",
+  "Winchester, Islamabad",
+  "Repton, Islamabad",
+  "Richmond, Islamabad",
+  "Columbia Park, Islamabad",
+  "New PWD, Islamabad",
+  "Claremont, Rawalpindi",
+  "Rawal, Rawalpindi",
+  "Gulzar-e-Quaid, Rawalpindi",
+  "Gandhara, Wah Cantt",
+  "Oakdale, Wah Cantt",
+  "Monash, Abbottabad",
+  "Zamrud, Peshawar",
+  "Riverview, Muzaffarabad (AJK)",
+  "Phoenix, Chakwal",
+  "Palm Tree, Sialkot",
+  "Askari, Lahore",
+  "Sevenoaks, Lahore",
+  "Kingswood, Karachi",
+  "Hamilton, Karachi",
+  "Gujranwala",
+];
+
+// participationFee = internal Gladiator upsell over the 1000 Citizen base.
+// externalSurcharge = added on top of the internal total for external squads.
 const GAMES = [
-  { slug: "valorant",      name: "Valorant",      format: "5v5",         category: "flagship", isTeam: true,  teamSize: 5, maxSize: 6, baseFee: 1000, participationFee: 1500, emoji: "🎯" },
-  { slug: "pubg-mobile",   name: "PUBG Mobile",   format: "4-man Squad", category: "flagship", isTeam: true,  teamSize: 4, maxSize: 4, baseFee: 1000, participationFee: 1000, emoji: "🔫" },
-  { slug: "free-fire-max", name: "Free Fire MAX", format: "Squad",       category: "flagship", isTeam: true,  teamSize: 4, maxSize: 4, baseFee: 1000, participationFee: 500,  emoji: "🔥" },
-  { slug: "tekken-8",      name: "Tekken 8",      format: "1v1",         category: "flagship", isTeam: false, teamSize: 1, maxSize: 1, baseFee: 1000, participationFee: 200,  emoji: "🥊" },
-  { slug: "ea-fc-26",      name: "EA FC 26",      format: "1v1",         category: "flagship", isTeam: false, teamSize: 1, maxSize: 1, baseFee: 1000, participationFee: 200,  emoji: "⚽" },
-  { slug: "forza",         name: "Forza",         format: "Racing",      category: "festival", isTeam: false, teamSize: 1, maxSize: 1, baseFee: 1000, participationFee: 0,    emoji: "🏎️" },
-  { slug: "chess",         name: "Chess",         format: "1v1",         category: "legacy",   isTeam: false, teamSize: 1, maxSize: 1, baseFee: 1000, participationFee: 0,    emoji: "♟️" },
-  { slug: "ludo-star",     name: "Ludo Star",     format: "Casual",      category: "legacy",   isTeam: false, teamSize: 1, maxSize: 4, baseFee: 1000, participationFee: 0,    emoji: "🎲" },
-  { slug: "carrom",        name: "Carrom",        format: "Casual",      category: "legacy",   isTeam: false, teamSize: 1, maxSize: 4, baseFee: 1000, participationFee: 0,    emoji: "🎳" },
+  { slug: "valorant",      name: "Valorant",      format: "5v5",         category: "flagship", isTeam: true,  teamSize: 5, maxSize: 6, baseFee: 1000, participationFee: 500, externalSurcharge: 500, emoji: "🎯" },
+  { slug: "pubg-mobile",   name: "PUBG Mobile",   format: "4-man Squad", category: "flagship", isTeam: true,  teamSize: 4, maxSize: 4, baseFee: 1000, participationFee: 200, externalSurcharge: 300, emoji: "🔫" },
+  { slug: "free-fire-max", name: "Free Fire MAX", format: "Squad",       category: "flagship", isTeam: true,  teamSize: 4, maxSize: 4, baseFee: 1000, participationFee: 200, externalSurcharge: 300, emoji: "🔥" },
+  { slug: "tekken-8",      name: "Tekken 8",      format: "1v1",         category: "flagship", isTeam: false, teamSize: 1, maxSize: 1, baseFee: 1000, participationFee: 500, externalSurcharge: 500, emoji: "🥊" },
+  { slug: "ea-fc-26",      name: "EA FC 26",      format: "1v1",         category: "flagship", isTeam: false, teamSize: 1, maxSize: 1, baseFee: 1000, participationFee: 0,   externalSurcharge: 500, emoji: "⚽" },
+  { slug: "forza",         name: "Forza",         format: "Racing",      category: "festival", isTeam: false, teamSize: 1, maxSize: 1, baseFee: 1000, participationFee: 0,   externalSurcharge: 0,   emoji: "🏎️" },
+  { slug: "chess",         name: "Chess",         format: "1v1",         category: "legacy",   isTeam: false, teamSize: 1, maxSize: 1, baseFee: 1000, participationFee: 0,   externalSurcharge: 0,   emoji: "♟️" },
+  { slug: "ludo-star",     name: "Ludo Star",     format: "Casual",      category: "legacy",   isTeam: false, teamSize: 1, maxSize: 4, baseFee: 1000, participationFee: 0,   externalSurcharge: 0,   emoji: "🎲" },
+  { slug: "carrom",        name: "Carrom",        format: "Casual",      category: "legacy",   isTeam: false, teamSize: 1, maxSize: 4, baseFee: 1000, participationFee: 0,   externalSurcharge: 0,   emoji: "🎳" },
 ];
 
 // ── Types ──────────────────────────────────────────────────────────────────
@@ -35,8 +67,8 @@ type FormState = {
   fullName: string;
   email: string;
   phone: string;
-  isFlagship: boolean;
-  flagshipCampus: string;
+  isInternal: boolean;            // true = MIUC/ROOTS student (any campus) → internal rate
+  internalOrg: "" | "miuc" | "roots";
   institutionName: string;
   campusName: string;
   ageConfirmed: boolean;
@@ -53,7 +85,7 @@ const EMPTY_TEAMMATE: Teammate = { fullName: "", email: "", phone: "" };
 
 const INITIAL: FormState = {
   fullName: "", email: "", phone: "",
-  isFlagship: false, flagshipCampus: "", institutionName: "", campusName: "",
+  isInternal: false, internalOrg: "", institutionName: "", campusName: "",
   ageConfirmed: false, role: "observer",
   gameSlug: "", teamName: "", teammates: [],
   transactionRef: "",
@@ -140,9 +172,10 @@ export default function RegisterForm() {
     if (!form.email.trim())      e.email    = "Required";
     if (!/\S+@\S+\.\S+/.test(form.email)) e.email = "Invalid email";
     if (!form.phone.trim())      e.phone    = "Required";
-    if (form.isFlagship && !form.flagshipCampus) e.flagshipCampus = "Select your campus";
-    if (!form.isFlagship && !form.institutionName.trim()) e.institutionName = "Required";
-    if (!form.isFlagship && !form.campusName.trim())      e.campusName      = "Required";
+    if (form.isInternal && !form.internalOrg) e.internalOrg = "Select MIUC or ROOTS";
+    if (form.isInternal && !form.campusName.trim()) e.campusName = "Required";
+    if (!form.isInternal && !form.institutionName.trim()) e.institutionName = "Required";
+    if (!form.isInternal && !form.campusName.trim())      e.campusName      = "Required";
     if (!form.ageConfirmed) e.ageConfirmed = "You must confirm your age";
     setErrors(e);
     return Object.keys(e).length === 0;
@@ -204,9 +237,12 @@ export default function RegisterForm() {
 
   // ── Fee calc ──────────────────────────────────────────────────────────
 
+  // Internal = MIUC/ROOTS student (any campus). External = any other institution.
+  const isExternal       = !form.isInternal;
   const baseFee          = 1000;
-  const participationFee = form.role === "competitor" ? (selectedGame?.participationFee ?? 0) : 0;
-  const totalFee         = baseFee + participationFee;
+  const participationFee  = form.role === "competitor" ? (selectedGame?.participationFee ?? 0) : 0;
+  const externalSurcharge = form.role === "competitor" && isExternal ? (selectedGame?.externalSurcharge ?? 0) : 0;
+  const totalFee         = baseFee + participationFee + externalSurcharge;
   const paymentStep      = form.role === "competitor" ? 3 : 2;
 
   if (submitted) {
@@ -274,30 +310,59 @@ export default function RegisterForm() {
               <label style={{ display: "flex", alignItems: "center", gap: "0.6rem", cursor: "pointer", userSelect: "none" }}>
                 <input
                   type="checkbox"
-                  checked={form.isFlagship}
-                  onChange={(e) => { set("isFlagship", e.target.checked); set("flagshipCampus", ""); set("institutionName", ""); set("campusName", ""); }}
+                  checked={form.isInternal}
+                  onChange={(e) => { set("isInternal", e.target.checked); set("internalOrg", ""); set("institutionName", ""); set("campusName", ""); }}
                   style={{ width: 18, height: 18, accentColor: "var(--teal)", cursor: "pointer" }}
                 />
                 <span style={{ color: "var(--text-primary)", fontSize: "0.9rem" }}>
-                  I am from a <strong style={{ color: "var(--teal)" }}>MIUC or ROOTS flagship campus</strong>
+                  I am a current student of <strong style={{ color: "var(--teal)" }}>MIUC or ROOTS</strong> (any campus)
                 </span>
               </label>
 
-              {form.isFlagship ? (
-                <div>
-                  <select
-                    value={form.flagshipCampus}
-                    onChange={(e) => set("flagshipCampus", e.target.value)}
-                    style={{
-                      background: "rgba(20,35,50,0.7)", border: "1px solid var(--border-glass)",
-                      borderRadius: "10px", padding: "0.75rem 1rem", color: form.flagshipCampus ? "var(--text-primary)" : "var(--text-faint)",
-                      fontSize: "0.95rem", width: "100%", fontFamily: "var(--font-body)",
-                    }}
-                  >
-                    <option value="">Select your campus</option>
-                    {FLAGSHIP_INSTITUTIONS.map((c) => <option key={c} value={c}>{c}</option>)}
-                  </select>
-                  {errors.flagshipCampus && <p style={{ color: "var(--red-arena)", fontSize: "0.78rem", marginTop: "0.35rem" }}>{errors.flagshipCampus}</p>}
+              {form.isInternal ? (
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                  <div style={{ display: "flex", gap: "0.75rem" }}>
+                    {(["miuc", "roots"] as const).map((org) => (
+                      <label
+                        key={org}
+                        style={{
+                          flex: 1, display: "flex", alignItems: "center", justifyContent: "center",
+                          padding: "0.7rem", borderRadius: "10px", cursor: "pointer",
+                          border: `1px solid ${form.internalOrg === org ? "var(--teal)" : "var(--border-glass)"}`,
+                          background: form.internalOrg === org ? "rgba(0,194,168,0.1)" : "rgba(20,35,50,0.5)",
+                          transition: "all 0.15s",
+                        }}
+                      >
+                        <input type="radio" name="internalOrg" value={org} checked={form.internalOrg === org} onChange={() => { set("internalOrg", org); set("campusName", ""); }} style={{ display: "none" }} />
+                        <span style={{ color: form.internalOrg === org ? "var(--teal)" : "var(--text-muted)", fontWeight: 700, fontSize: "0.9rem", letterSpacing: "0.05em" }}>
+                          {org.toUpperCase()}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                  {errors.internalOrg && <p style={{ color: "var(--red-arena)", fontSize: "0.78rem" }}>{errors.internalOrg}</p>}
+                  {form.internalOrg && (
+                    <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
+                      <label style={{ fontSize: "0.75rem", letterSpacing: "0.15em", textTransform: "uppercase", color: "var(--text-muted)" }}>
+                        Campus <span style={{ color: "var(--red-arena)" }}>*</span>
+                      </label>
+                      <select
+                        value={form.campusName}
+                        onChange={(e) => set("campusName", e.target.value)}
+                        style={{
+                          background: "rgba(20,35,50,0.7)", border: "1px solid var(--border-glass)",
+                          borderRadius: "10px", padding: "0.75rem 1rem", color: form.campusName ? "var(--text-primary)" : "var(--text-faint)",
+                          fontSize: "0.95rem", width: "100%", fontFamily: "var(--font-body)",
+                        }}
+                      >
+                        <option value="">Select your campus</option>
+                        {(form.internalOrg === "miuc" ? MIUC_CAMPUSES : RIS_CAMPUSES).map((c) => (
+                          <option key={c} value={c}>{c}</option>
+                        ))}
+                      </select>
+                      {errors.campusName && <p style={{ color: "var(--red-arena)", fontSize: "0.78rem" }}>{errors.campusName}</p>}
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
@@ -423,19 +488,25 @@ export default function RegisterForm() {
                 </div>
                 {selectedGame.participationFee > 0 && (
                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.4rem", fontSize: "0.875rem", color: "var(--text-muted)" }}>
-                    <span>{selectedGame.name} participation fee</span>
+                    <span>{selectedGame.name} competition fee</span>
                     <span style={{ fontFamily: "var(--font-mono)" }}>PKR {selectedGame.participationFee.toLocaleString()}</span>
+                  </div>
+                )}
+                {externalSurcharge > 0 && (
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.4rem", fontSize: "0.875rem", color: "var(--text-muted)" }}>
+                    <span>External squad surcharge</span>
+                    <span style={{ fontFamily: "var(--font-mono)" }}>PKR {externalSurcharge.toLocaleString()}</span>
                   </div>
                 )}
                 <div style={{ borderTop: "1px solid var(--border-gold)", paddingTop: "0.6rem", display: "flex", justifyContent: "space-between", fontWeight: 700 }}>
                   <span style={{ color: "var(--gold)" }}>Total per player</span>
                   <span style={{ fontFamily: "var(--font-mono)", color: "var(--gold)" }}>
-                    PKR {(baseFee + selectedGame.participationFee).toLocaleString()}
+                    PKR {totalFee.toLocaleString()}
                   </span>
                 </div>
                 {selectedGame.isTeam && (
                   <p style={{ fontSize: "0.75rem", color: "var(--text-faint)", marginTop: "0.5rem" }}>
-                    × {selectedGame.teamSize} players = PKR {((baseFee + selectedGame.participationFee) * selectedGame.teamSize).toLocaleString()} total for the team
+                    × {selectedGame.teamSize} players = PKR {(totalFee * selectedGame.teamSize).toLocaleString()} total for the team
                   </p>
                 )}
               </div>
@@ -519,8 +590,14 @@ export default function RegisterForm() {
                   </div>
                   {selectedGame && selectedGame.participationFee > 0 && (
                     <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.82rem", color: "var(--text-muted)" }}>
-                      <span>{selectedGame.name} participation fee</span>
+                      <span>{selectedGame.name} competition fee</span>
                       <span style={{ fontFamily: "var(--font-mono)" }}>PKR {selectedGame.participationFee.toLocaleString()}</span>
+                    </div>
+                  )}
+                  {externalSurcharge > 0 && (
+                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.82rem", color: "var(--text-muted)" }}>
+                      <span>External squad surcharge</span>
+                      <span style={{ fontFamily: "var(--font-mono)" }}>PKR {externalSurcharge.toLocaleString()}</span>
                     </div>
                   )}
                   <div style={{ borderTop: "1px solid var(--border-gold)", paddingTop: "0.4rem", display: "flex", justifyContent: "space-between", fontWeight: 700, fontSize: "0.9rem" }}>
@@ -625,7 +702,7 @@ export default function RegisterForm() {
                 ["Name",        form.fullName],
                 ["Email",       form.email],
                 ["Phone",       form.phone],
-                ["Institution", form.isFlagship ? form.flagshipCampus : `${form.institutionName} — ${form.campusName}`],
+                ["Institution", form.isInternal ? `${form.internalOrg.toUpperCase()} — ${form.campusName}` : `${form.institutionName} — ${form.campusName}`],
                 ["Role",        form.role === "competitor" ? "Competitor / Player" : "Observer / Spectator"],
                 ...(form.role === "competitor" && selectedGame ? [
                   ["Game",        `${selectedGame.emoji} ${selectedGame.name}`],
@@ -677,15 +754,17 @@ export default function RegisterForm() {
                     ? await getGameIdBySlug(form.gameSlug)
                     : undefined;
 
-                  const institutionType = form.isFlagship
-                    ? (form.flagshipCampus.toLowerCase().includes("miuc") ? "miuc" : "roots")
+                  const institutionType = form.isInternal
+                    ? (form.internalOrg === "miuc" ? "miuc" : "roots")
                     : "external_college";
 
                   const result = await submitRegistration({
                     fullName: form.fullName,
                     email: form.email,
                     phone: form.phone,
-                    institutionName: form.isFlagship ? form.flagshipCampus : `${form.institutionName} — ${form.campusName}`,
+                    institutionName: form.isInternal
+                      ? `${form.internalOrg.toUpperCase()} — ${form.campusName}`
+                      : `${form.institutionName} — ${form.campusName}`,
                     institutionType,
                     role: form.role,
                     gameSlug: form.gameSlug || undefined,

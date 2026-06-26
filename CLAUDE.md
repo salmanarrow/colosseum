@@ -9,11 +9,11 @@
 A registration and ticketing website for **ROOTS × MIUC: The Colosseum** — a 3-day nationwide collegiate e-sports championship hosted in Islamabad–Rawalpindi.
 
 - **Host & organizer:** Metropolitan International United College (MIUC) — MIUC conceives, organizes, and runs the event. Branding/emphasis leads with MIUC.
-- **Venue partner:** ROOTS International Schools & Colleges — provides the ROOTS H-8 Flagship Campus as the venue. (Not the organizer; don't frame ROOTS as holding the event.)
-- **Executive sponsor:** Mr. Walid Mushtaq
-- **Domain:** `thecolosseum.pk`
-- **Venue:** ROOTS H-8 Flagship Campus, Islamabad
-- **Scope:** 9 game titles (5 flagship competitive + 4 festival/legacy), 500+ players expected, 3,000–5,000 footfall
+- **Venue partner:** ROOTS International Schools & Colleges is the school subsidary of MIUC, the MIUC Flagship Campus H-8 is the venue. (frame MIUC and ROOTS as holding the event but maintain a strong emphasis on MIUC putting in the work.)
+- **CEO, Roots International Schools and Metropolitan International United College:** Mr. Walid Mushtaq
+- **Domain:** `thecolosseumpk.vercel.app`
+- **Venue:** MIUC Flagship Campus H8, Islamabad
+- **Scope:** 9 game titles (5 flagship competitive + 4 festival/legacy), 500+ players expected, 1,000–2,000 footfall
 - **Three physical zones:** ⚔️ E-sports Arena (5 prized titles) · 🎮 Casual Arena (festival titles) · 🏛️ Legacy Lounge (Chess, Ludo, Carrom). Every paid ticket grants access to all three; only Participant tickets may *compete* in the E-sports Arena.
 
 ---
@@ -71,29 +71,34 @@ Card surface: rgba(20, 35, 50, 0.6) with backdrop-blur
 
 ---
 
-## Pricing matrix (from Master Event Plan §7)
+## Pricing matrix (committee update — June 2026)
 
-Three-layer model. Flat PKR 1,000 base for **everyone** (no exceptions, no free pass — flagship-campus students pay too), plus per-title participation fee, plus external surcharge for teams from other colleges/universities.
+Citizen base is **PKR 1,000 flat for everyone**. The Gladiator Pass is a modest per-title upsell over that base, with a higher rate for external squads (other universities/schools/colleges).
 
 ### Two ticket tiers (gladiatorial naming)
 
-- **Citizen Pass** (Basic) — the PKR 1,000 base alone. Grants all-zone access: roam the E-sports Arena (spectate), play in the Casual Arena and Legacy Lounge. **Cannot compete** in the 5 prized titles. This is what a non-competing attendee buys; it also replaces the old free attendance pass.
-- **Gladiator Pass** (Participant) — base + per-title participation fee. Everything in Citizen, **plus the right to compete** in one prized title, bracket seeding, match check-in, and prize eligibility. *(Names pending final committee approval — see naming note below.)*
+- **Citizen Pass** (Basic) — PKR 1,000 flat (internal *and* external). All-zone access: spectate the E-sports Arena, play in the Casual Arena and Legacy Lounge. **Cannot compete** in the 5 prized titles. Replaces the old free attendance pass.
+- **Gladiator Pass** (Participant) — Citizen base + per-title competition upsell. Everything in Citizen, **plus the right to compete** in one prized title, bracket seeding, match check-in, and prize eligibility.
+
+**Citizen → Gladiator upgrade at the venue.** A Citizen Pass holder can upgrade to a Gladiator Pass on-site by paying only the **difference** (Gladiator price − 1,000). Staff scan the Citizen QR, pick the title, collect the difference (cash), and the ticket flips to `participant` for that game. The **same QR is kept** (upgraded in place — no reprint), and the cash is recorded as an approved `other`-method payment. See "Venue upgrade flow" below.
 
 **Tickets are per-player, not per-team.** Every roster member gets their own Gladiator Pass + QR, so each player scans individually at the game-station check-in. Team registration still happens captain-first, but issuance is per-member.
 
-**Internal vs external rate.** Internal = MIUC (all campuses) + ROOTS/RIS (all campuses), charged the same internal rate. External = other colleges/universities, charged the premium (external) column. *(Premium amount: confirm whether it's the surcharge already in the matrix or a new figure.)*
+**Internal vs external rate.** Internal = MIUC (all campuses) + ROOTS/RIS (all campuses). External = other universities, schools, or colleges.
 
-| Title | Base | Participation | Total (internal) | Total (external) |
-|---|---|---|---|---|
-| Valorant (5v5, per player) | 1,000 | +1,500 | 2,500 | 3,500 |
-| PUBG Mobile (4-player squad) | 1,000 | +1,000 | 2,000 | 2,800 |
-| Free Fire MAX (squad) | 1,000 | +500 | 1,500 | 2,100 |
-| Tekken 8 / EA FC 26 (1v1 player) | 1,000 | +200 | 1,200 | 1,400 |
-| Forza / Ludo / Chess (player) | 1,000 | — | 1,000 | 1,100 |
-| **Citizen Pass** (all-zone, no compete) | 1,000 | — | 1,000 | 1,100 |
+| Title | Citizen (all) | Gladiator — internal (MIUC/RIS) | Gladiator — external |
+|---|---|---|---|
+| Valorant (5v5, per player) | 1,000 | **1,500** | **2,000** |
+| PUBG Mobile (4-player squad) | 1,000 | **1,200** | **1,500** |
+| Free Fire MAX (squad) | 1,000 | **1,200** | **1,500** |
+| Tekken 8 (1v1) | 1,000 | **1,500** | **2,000** |
+| EA FC 26 (1v1) | 1,000 | **1,000** | **1,500** |
+| Forza / Chess / Ludo / Carrom (festival/legacy) | 1,000 | 1,000 | 1,000 |
+| **Citizen Pass** (all-zone, no compete) | **1,000** | — | — |
 
-Wire this into the `games` table so admins can edit prices without a deploy.
+Stored in the `games` table as `base_fee_pkr` (1,000), `participation_fee_pkr` (internal upsell), and `external_surcharge_pkr` (added on top of the internal total for external squads), so admins can edit prices without a deploy. Festival/legacy titles are flat 1,000 for everyone (no upsell, no surcharge).
+
+> **Venue upgrade flow (built):** `/admin/scan` (behind admin login) → camera scans the Citizen QR → if `tier = basic`, show "Upgrade to Gladiator" → pick title → display difference (internal/external auto-detected from the participant's institution; e.g. Valorant internal = 1,500 − 1,000 = **500**, external = 2,000 − 1,000 = **1,000**) → "Collect Cash & Upgrade" → ticket `tier` flips to `participant`, a team-of-one is created for the title, the same QR now grants competition, and the difference is recorded as an approved payment. The same page also logs gate entries to `ticket_scans`.
 
 ### Roster sizes (confirmed)
 - Valorant — 5v5 (+1 sub)

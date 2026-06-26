@@ -117,10 +117,13 @@ export async function submitRegistration(payload: RegistrationPayload) {
       }
     }
 
-    // 5. Create payment row
+    // 5. Create payment row.
+    //    Competitor → linked via teamId. Observer (Citizen Pass) → linked via
+    //    participantId so a basic ticket can be issued to them on approval.
     await db.insert(payments).values({
       amountPkr: payload.totalFeePkr,
       teamId: teamId ?? undefined,
+      participantId: teamId ? undefined : participantId,
       method: "bank_transfer",
       transactionRef: payload.transactionRef,
       status: "pending_review",
