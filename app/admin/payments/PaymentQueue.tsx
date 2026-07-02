@@ -2,13 +2,14 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { approvePayment, rejectPayment } from "../actions";
+import { approvePayment, rejectPayment, getScreenshotViewUrl } from "../actions";
 
 type Payment = {
   paymentId:       string;
   amount:          number;
   method:          string;
   transactionRef:  string | null;
+  screenshotUrl:   string | null;
   status:          string;
   createdAt:       Date;
   rejectionReason?: string | null;
@@ -60,6 +61,13 @@ function PaymentCard({ p, onAction }: { p: Payment; onAction: () => void }) {
     setLoading(false);
   }
 
+  async function viewReceipt() {
+    if (!p.screenshotUrl) return;
+    const res = await getScreenshotViewUrl(p.screenshotUrl);
+    if (res.success) window.open(res.url, "_blank", "noopener");
+    else setError(res.error ?? "Could not open receipt.");
+  }
+
   return (
     <div className="glass" style={{ padding: "1.5rem", display: "flex", flexDirection: "column", gap: "1rem" }}>
       {/* Header row */}
@@ -94,6 +102,20 @@ function PaymentCard({ p, onAction }: { p: Payment; onAction: () => void }) {
             <p style={{ fontSize: "0.875rem", color: "var(--text-primary)", fontFamily: label === "Ref / TXN" ? "var(--font-mono)" : "inherit" }}>{value}</p>
           </div>
         ))}
+        <div>
+          <p style={{ fontSize: "0.65rem", letterSpacing: "0.15em", textTransform: "uppercase", color: "var(--text-faint)", marginBottom: "0.15rem" }}>Receipt</p>
+          {p.screenshotUrl ? (
+            <button
+              type="button"
+              onClick={viewReceipt}
+              style={{ background: "transparent", border: "none", padding: 0, color: "var(--teal)", fontSize: "0.875rem", cursor: "pointer", textDecoration: "underline" }}
+            >
+              🧾 View screenshot
+            </button>
+          ) : (
+            <p style={{ fontSize: "0.875rem", color: "var(--text-faint)" }}>Not attached</p>
+          )}
+        </div>
       </div>
 
       {p.status === "rejected" && p.rejectionReason && (

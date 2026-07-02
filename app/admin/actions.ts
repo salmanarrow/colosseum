@@ -172,6 +172,33 @@ export async function rejectPayment(paymentId: string, reason: string) {
   }
 }
 
+// ── Payment screenshots ─────────────────────────────────────────────────────
+
+// Create a short-lived signed URL so an admin can view a receipt from the
+// private payment-screenshots bucket.
+export async function getScreenshotViewUrl(path: string) {
+  try {
+    const base = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const res = await fetch(`${base}/storage/v1/object/sign/payment-screenshots/${path}`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ expiresIn: 3600 }),
+    });
+    if (!res.ok) {
+      console.error("sign screenshot failed:", res.status, await res.text());
+      return { success: false as const, error: "Could not open receipt." };
+    }
+    const { signedURL } = (await res.json()) as { signedURL: string };
+    return { success: true as const, url: `${base}/storage/v1${signedURL}` };
+  } catch (err) {
+    console.error("getScreenshotViewUrl error:", err);
+    return { success: false as const, error: "Could not open receipt." };
+  }
+}
+
 // ── Venue scanner & upgrade ─────────────────────────────────────────────────
 
 // Map today's weekday to an event day (Aug 7–9 2026 = Fri/Sat/Sun).
@@ -358,6 +385,7 @@ export async function getPendingPayments() {
       amount:         payments.amountPkr,
       method:         payments.method,
       transactionRef: payments.transactionRef,
+      screenshotUrl:  payments.screenshotUrl,
       status:         payments.status,
       createdAt:      payments.createdAt,
       teamId:         payments.teamId,
@@ -385,6 +413,7 @@ export async function getAllPayments() {
       amount:         payments.amountPkr,
       method:         payments.method,
       transactionRef: payments.transactionRef,
+      screenshotUrl:  payments.screenshotUrl,
       status:         payments.status,
       createdAt:      payments.createdAt,
       rejectionReason: payments.rejectionReason,

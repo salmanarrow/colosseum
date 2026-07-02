@@ -25,7 +25,51 @@ export type RegistrationPayload = {
   totalFeePkr: number;
   // Payment
   transactionRef: string;
+  screenshotPath?: string;
 };
+
+// Upload a payment screenshot to the private Supabase Storage bucket.
+// Called from the client with FormData before submitRegistration; returns the
+// storage path to persist on the payment row. Uses the Storage REST API with
+// the service role key (server only).
+export async function uploadPaymentScreenshot(formData: FormData) {
+  try {
+    const file = formData.get("screenshot");
+    if (!(file instanceof File) || file.size === 0) {
+      return { success: false as const, error: "No file received." };
+    }
+    if (file.size > 8 * 1024 * 1024) {
+      return { success: false as const, error: "File is larger than 8 MB." };
+    }
+    if (!/^image\//.test(file.type)) {
+      return { success: false as const, error: "Only image files are accepted." };
+    }
+
+    const ext  = (file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
+    const path = `${new Date().toISOString().slice(0, 10)}/${randomUUID()}.${ext}`;
+
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/payment-screenshots/${path}`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+          "Content-Type": file.type,
+        },
+        body: Buffer.from(await file.arrayBuffer()),
+      }
+    );
+
+    if (!res.ok) {
+      console.error("Screenshot upload failed:", res.status, await res.text());
+      return { success: false as const, error: "Upload failed. Please try again." };
+    }
+    return { success: true as const, path };
+  } catch (err) {
+    console.error("uploadPaymentScreenshot error:", err);
+    return { success: false as const, error: "Upload failed. Please try again." };
+  }
+}
 
 export async function submitRegistration(payload: RegistrationPayload) {
   try {
@@ -126,6 +170,7 @@ export async function submitRegistration(payload: RegistrationPayload) {
       participantId: teamId ? undefined : participantId,
       method: "bank_transfer",
       transactionRef: payload.transactionRef,
+      screenshotUrl: payload.screenshotPath,
       status: "pending_review",
     });
 

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Nav from "@/components/Nav";
-import { submitRegistration, getGameIdBySlug } from "./actions";
+import { submitRegistration, getGameIdBySlug, uploadPaymentScreenshot } from "./actions";
 
 // ── Constants ──────────────────────────────────────────────────────────────
 
@@ -157,6 +157,7 @@ export default function RegisterForm() {
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
+  const [screenshotFile, setScreenshotFile] = useState<File | null>(null);
 
   const set = (key: keyof FormState, value: unknown) =>
     setForm((f) => ({ ...f, [key]: value }));
@@ -689,6 +690,45 @@ export default function RegisterForm() {
               required
             />
             {errors.transactionRef && <p style={{ color: "var(--red-arena)", fontSize: "0.78rem", marginTop: "-0.75rem" }}>{errors.transactionRef}</p>}
+
+            {/* Payment screenshot (optional but speeds up verification) */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
+              <label style={{ fontSize: "0.75rem", letterSpacing: "0.15em", textTransform: "uppercase", color: "var(--text-muted)" }}>
+                Payment Screenshot <span style={{ color: "var(--text-faint)", textTransform: "none", letterSpacing: 0 }}>(optional — speeds up verification)</span>
+              </label>
+              <label
+                style={{
+                  display: "flex", alignItems: "center", gap: "0.75rem",
+                  background: "rgba(20,35,50,0.7)", border: `1px dashed ${screenshotFile ? "var(--teal)" : "var(--border-glass)"}`,
+                  borderRadius: "10px", padding: "0.85rem 1rem", cursor: "pointer",
+                }}
+              >
+                <input
+                  type="file"
+                  accept="image/*"
+                  style={{ display: "none" }}
+                  onChange={(e) => {
+                    const f = e.target.files?.[0] ?? null;
+                    if (f && f.size > 8 * 1024 * 1024) { setSubmitError("Screenshot must be under 8 MB."); return; }
+                    setSubmitError("");
+                    setScreenshotFile(f);
+                  }}
+                />
+                <span style={{ fontSize: "1.2rem" }}>{screenshotFile ? "🧾" : "📎"}</span>
+                <span style={{ fontSize: "0.85rem", color: screenshotFile ? "var(--teal)" : "var(--text-muted)" }}>
+                  {screenshotFile ? `${screenshotFile.name} (${(screenshotFile.size / 1024).toFixed(0)} KB)` : "Attach your transfer receipt / screenshot"}
+                </span>
+                {screenshotFile && (
+                  <button
+                    type="button"
+                    onClick={(e) => { e.preventDefault(); setScreenshotFile(null); }}
+                    style={{ marginLeft: "auto", background: "transparent", border: "none", color: "var(--red-arena)", cursor: "pointer", fontSize: "0.8rem" }}
+                  >
+                    ✕ remove
+                  </button>
+                )}
+              </label>
+            </div>
           </div>
         )}
 
@@ -709,6 +749,7 @@ export default function RegisterForm() {
                   ...(selectedGame.isTeam ? [["Team", form.teamName]] : []),
                 ] : []),
                 ["Transaction Ref", form.transactionRef],
+                ["Receipt", screenshotFile ? screenshotFile.name : "Not attached"],
                 ["Amount",      `PKR ${totalFee.toLocaleString()}`],
               ].map(([label, value]) => (
                 <div key={label} style={{ display: "flex", justifyContent: "space-between", gap: "1rem", fontSize: "0.875rem", borderBottom: "1px solid var(--border-glass)", paddingBottom: "0.5rem" }}>
@@ -750,6 +791,21 @@ export default function RegisterForm() {
                 setSubmitting(true);
                 setSubmitError("");
                 try {
+                  // Upload the receipt first (if attached) so the payment row
+                  // can reference it.
+                  let screenshotPath: string | undefined;
+                  if (screenshotFile) {
+                    const fd = new FormData();
+                    fd.append("screenshot", screenshotFile);
+                    const up = await uploadPaymentScreenshot(fd);
+                    if (!up.success) {
+                      setSubmitError(up.error ?? "Screenshot upload failed.");
+                      setSubmitting(false);
+                      return;
+                    }
+                    screenshotPath = up.path;
+                  }
+
                   const gameId = form.role === "competitor" && form.gameSlug
                     ? await getGameIdBySlug(form.gameSlug)
                     : undefined;
@@ -774,6 +830,7 @@ export default function RegisterForm() {
                     teammates: form.teammates,
                     totalFeePkr: totalFee,
                     transactionRef: form.transactionRef,
+                    screenshotPath,
                   });
 
                   if (result.success) {
