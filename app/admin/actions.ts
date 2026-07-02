@@ -7,6 +7,42 @@ import { randomUUID } from "crypto";
 import { revalidatePath } from "next/cache";
 import { sendTicketEmail } from "@/lib/email";
 
+// ── Access control ──────────────────────────────────────────────────────────
+
+// Verify a Supabase access token server-side and check the user is in the
+// `admins` table. The client can't fake this: the token is validated against
+// Supabase Auth, not trusted from the browser. Uses the Auth REST API via
+// fetch (supabase-js client construction crashes on Node 20 without ws).
+export async function verifyAdminAccess(accessToken: string) {
+  try {
+    if (!accessToken) return { authorized: false as const };
+
+    const res = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/user`, {
+      headers: {
+        apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        Authorization: `Bearer ${accessToken}`,
+      },
+      cache: "no-store",
+    });
+    if (!res.ok) return { authorized: false as const };
+    const user: { id?: string } = await res.json();
+    if (!user.id) return { authorized: false as const };
+
+    const { admins } = await import("@/db/schema");
+    const [admin] = await db
+      .select({ id: admins.id, fullName: admins.fullName, role: admins.role })
+      .from(admins)
+      .where(eq(admins.id, user.id))
+      .limit(1);
+
+    if (!admin) return { authorized: false as const };
+    return { authorized: true as const, name: admin.fullName, role: admin.role };
+  } catch (err) {
+    console.error("verifyAdminAccess error:", err);
+    return { authorized: false as const };
+  }
+}
+
 // ── Payments ───────────────────────────────────────────────────────────────
 
 // Create a ticket for a participant and email it. Returns the new ticket id + token.

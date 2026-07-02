@@ -5,6 +5,7 @@ import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { supabase } from "@/lib/supabase";
+import { verifyAdminAccess } from "./actions";
 
 const NAV = [
   { href: "/admin/payments",      label: "Payment Queue",   icon: "💳" },
@@ -17,12 +18,21 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const router   = useRouter();
   const pathname = usePathname();
   const [checking, setChecking] = useState(true);
+  const [denied, setDenied]     = useState(false);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      if (!data.session && pathname !== "/admin/login") {
+    supabase.auth.getSession().then(async ({ data }) => {
+      if (pathname === "/admin/login") return;
+      if (!data.session) {
         router.replace("/admin/login");
+        return;
+      }
+      // Server-side check: token must belong to a user in the admins table.
+      const result = await verifyAdminAccess(data.session.access_token);
+      if (result.authorized) {
+        setChecking(false);
       } else {
+        setDenied(true);
         setChecking(false);
       }
     });
@@ -38,6 +48,23 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     return (
       <main style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
         <p style={{ color: "var(--text-faint)", fontFamily: "var(--font-mono)" }}>Checking auth…</p>
+      </main>
+    );
+  }
+  if (denied) {
+    return (
+      <main style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: "2rem" }}>
+        <div className="glass glass--red" style={{ padding: "2.5rem", maxWidth: 420, textAlign: "center" }}>
+          <div style={{ fontSize: "2.5rem", marginBottom: "0.75rem" }}>🚫</div>
+          <p className="eyebrow" style={{ color: "var(--red-arena)", marginBottom: "0.5rem" }}>Access Denied</p>
+          <p style={{ color: "var(--text-muted)", lineHeight: 1.7, marginBottom: "1.5rem" }}>
+            Your account is signed in but not registered as an event admin.
+            Contact the committee lead to be added.
+          </p>
+          <button className="btn-ghost" onClick={signOut} style={{ justifyContent: "center", width: "100%" }}>
+            Sign Out
+          </button>
+        </div>
       </main>
     );
   }
