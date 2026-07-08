@@ -34,7 +34,7 @@ export default function Footer() {
             </div>
             <p style={{ lineHeight: 1.65, color: "var(--text-faint)", fontSize: "0.78rem" }}>
               Pakistan's premier collegiate e-sports championship.<br />
-              Aug 7 – 9, 2026 · ROOTS H-8, Islamabad
+              Aug 7 – 9, 2026 · MIUC Flagship Campus H-8, Islamabad
             </p>
           </div>
 
@@ -107,10 +107,10 @@ export default function Footer() {
           }}
         >
           <p style={{ fontFamily: "var(--font-mono)" }}>
-            © 2026 The Colosseum · Organized by MIUC · thecolosseum.pk
+            © 2026 The Colosseum · Organized by MIUC · thecolosseumpk.vercel.app
           </p>
           <p style={{ fontFamily: "var(--font-mono)", color: "var(--text-faint)" }}>
-            Hosted at ROOTS H-8 Flagship Campus, Islamabad
+            Hosted at MIUC Flagship Campus H-8, Islamabad
           </p>
         </div>
       </div>

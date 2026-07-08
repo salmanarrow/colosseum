@@ -8,7 +8,7 @@ import Footer from "@/components/Footer";
 const STATS = [
   { value: "9", label: "Game Titles" },
   { value: "500+", label: "Players" },
-  { value: "5K+", label: "Expected Footfall" },
+  { value: "2K+", label: "Expected Footfall" },
   { value: "3", label: "Days of Battle" },
 ];
 
@@ -91,7 +91,7 @@ export default function HomePage() {
           <span style={{ color: "var(--gold)" }}>⚔️</span>
           <span style={{ color: "var(--gold)", fontWeight: 700 }}>Aug 7 – 9, 2026</span>
           <span style={{ color: "var(--border-glass)" }}>|</span>
-          ROOTS H-8 Campus, Islamabad
+          MIUC Flagship Campus H-8, Islamabad
           <span style={{ color: "var(--border-glass)" }}>|</span>
           <span>3 Days · 9 Titles</span>
         </div>

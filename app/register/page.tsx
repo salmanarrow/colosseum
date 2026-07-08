@@ -23,7 +23,7 @@ export default function RegisterPage() {
 
         <div style={{ maxWidth: "680px", margin: "0 auto", position: "relative", zIndex: 1 }}>
           <p className="eyebrow" style={{ textAlign: "center", marginBottom: "0.75rem" }}>
-            Aug 7 – 9, 2026 · ROOTS H-8 Campus, Islamabad
+            Aug 7 – 9, 2026 · MIUC Flagship Campus H-8, Islamabad
           </p>
           <h1
             className="display"

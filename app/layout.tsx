@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   title: "ROOTS × MIUC: The Colosseum",
   description:
     "Pakistan's premier collegiate e-sports championship. 9 titles. 3 days. One arena. Register your squad or get your spectator pass.",
-  metadataBase: new URL("https://thecolosseum.pk"),
+  metadataBase: new URL("https://thecolosseumpk.vercel.app"),
   openGraph: {
     title: "ROOTS × MIUC: The Colosseum",
     description: "Pakistan's premier collegiate e-sports championship.",

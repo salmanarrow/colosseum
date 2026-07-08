@@ -28,7 +28,7 @@ const PASSES = [
   },
   {
     name: "Gladiator Pass",
-    price: "From PKR 1,200",
+    price: "From PKR 1,000",
     icon: "⚔️",
     color: "gold" as const,
     perks: [
@@ -55,7 +55,7 @@ export default function TicketsPage() {
 
         <div style={{ maxWidth: "900px", margin: "0 auto", position: "relative", zIndex: 1 }}>
           <p className="eyebrow" style={{ textAlign: "center", marginBottom: "0.75rem" }}>
-            Aug 7 – 9, 2026 · ROOTS H-8 Campus, Islamabad
+            Aug 7 – 9, 2026 · MIUC Flagship Campus H-8, Islamabad
           </p>
           <h1 className="display" style={{ textAlign: "center", fontSize: "clamp(2.5rem, 7vw, 4.5rem)", marginBottom: "0.75rem" }}>
             Get Your Pass

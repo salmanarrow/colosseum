@@ -4,11 +4,11 @@ import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 
 const TITLES = [
-  { name: "Valorant",    format: "5v5",       fee: "PKR 3,500 / player", emoji: "🎯" },
-  { name: "PUBG Mobile", format: "4-man Squad", fee: "PKR 2,800 / player", emoji: "🔫" },
-  { name: "Free Fire MAX", format: "Squad",    fee: "PKR 2,100 / player", emoji: "🔥" },
-  { name: "Tekken 8",   format: "1v1",        fee: "PKR 1,400 / player", emoji: "🥊" },
-  { name: "EA FC 26",   format: "1v1",        fee: "PKR 1,400 / player", emoji: "⚽" },
+  { name: "Valorant",    format: "5v5",       fee: "PKR 2,000 / player", emoji: "🎯" },
+  { name: "PUBG Mobile", format: "4-man Squad", fee: "PKR 1,500 / player", emoji: "🔫" },
+  { name: "Free Fire MAX", format: "Squad",    fee: "PKR 1,500 / player", emoji: "🔥" },
+  { name: "Tekken 8",   format: "1v1",        fee: "PKR 2,000 / player", emoji: "🥊" },
+  { name: "EA FC 26",   format: "1v1",        fee: "PKR 1,500 / player", emoji: "⚽" },
 ];
 
 const FAQS = [
@@ -30,7 +30,7 @@ const FAQS = [
   },
   {
     q: "Where is the venue?",
-    a: "ROOTS H-8 Flagship Campus, Islamabad. Aug 7–9, 2026.",
+    a: "MIUC Flagship Campus H-8, Islamabad. Aug 7–9, 2026.",
   },
 ];
 
@@ -112,7 +112,7 @@ export default function CompetePage() {
         >
           <span style={{ color: "var(--red-arena)", fontWeight: 700 }}>Aug 7 – 9, 2026</span>
           <span style={{ color: "var(--border-glass)" }}>|</span>
-          ROOTS H-8 Campus, Islamabad
+          MIUC Flagship Campus H-8, Islamabad
           <span style={{ color: "var(--border-glass)" }}>|</span>
           <span>5 Prized Titles</span>
         </div>

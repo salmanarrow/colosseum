@@ -40,7 +40,7 @@ export async function sendTicketEmail(params: TicketEmailParams) {
         <tr><td style="background:linear-gradient(135deg,#0A1628,#1a0a30);padding:32px;text-align:center;border-bottom:1px solid rgba(245,200,66,0.3);">
           <p style="margin:0 0 8px;font-size:11px;letter-spacing:0.3em;text-transform:uppercase;color:#00C2A8;">ROOTS × MIUC</p>
           <h1 style="margin:0;font-size:32px;font-weight:900;letter-spacing:0.04em;text-transform:uppercase;color:#F4F7FB;">THE COLOSSEUM</h1>
-          <p style="margin:8px 0 0;font-size:13px;color:#93A4B8;">Aug 7 – 9, 2026 · ROOTS H-8 Campus, Islamabad</p>
+          <p style="margin:8px 0 0;font-size:13px;color:#93A4B8;">Aug 7 – 9, 2026 · MIUC Flagship Campus H-8, Islamabad</p>
         </td></tr>
 
         <!-- Body -->
@@ -84,7 +84,7 @@ export async function sendTicketEmail(params: TicketEmailParams) {
         <!-- Footer -->
         <tr><td style="padding:20px 32px;border-top:1px solid rgba(255,255,255,0.06);text-align:center;">
           <p style="margin:0;font-size:11px;color:#5C6F86;font-family:monospace;">
-            thecolosseum.pk · Organized by MIUC · Hosted at ROOTS H-8, Islamabad
+            thecolosseumpk.vercel.app · Organized by MIUC · Hosted at MIUC Flagship Campus H-8, Islamabad
           </p>
         </td></tr>
 

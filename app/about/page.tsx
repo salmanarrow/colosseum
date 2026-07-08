@@ -14,7 +14,7 @@ const FACTS = [
   { value: "3", label: "Days of Competition" },
   { value: "9", label: "Game Titles" },
   { value: "500+", label: "Players Expected" },
-  { value: "5K", label: "Footfall" },
+  { value: "2K", label: "Footfall" },
 ];
 
 const FLAGSHIP = [
@@ -71,8 +71,8 @@ export default function AboutPage() {
             </strong>{" "}
             is a 3-day nationwide collegiate e-sports championship organized by{" "}
             <strong style={{ color: "var(--text-primary)" }}>MIUC</strong>{" "}
-            (Metropolitan International United College) and hosted at the ROOTS
-            H-8 Flagship Campus in Islamabad. Built for both colleges and
+            (Metropolitan International United College) and hosted at the MIUC
+            Flagship Campus H-8 in Islamabad. Built for both colleges and
             universities, it brings together Pakistan&apos;s most competitive
             campus gamers under one roof — a gladiatorial arena where squads rise,
             rivalries ignite, and champions are crowned.
@@ -250,8 +250,9 @@ export default function AboutPage() {
                   ROOTS International
                 </h3>
                 <p style={{ color: "var(--text-muted)", fontSize: "0.9rem", lineHeight: 1.6 }}>
-                  Venue partner. The ROOTS H-8 Flagship Campus in Islamabad
-                  provides the arena floor for all three days of competition.
+                  The school network of the MIUC family. The MIUC Flagship
+                  Campus H-8 in Islamabad provides the arena floor for all
+                  three days of competition.
                 </p>
               </div>
             </div>
