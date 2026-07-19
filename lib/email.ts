@@ -1,11 +1,29 @@
 import { Resend } from "resend";
+import nodemailer from "nodemailer";
 import { generateQRDataURL } from "./qr";
 
-// Instantiate lazily so a missing RESEND_API_KEY doesn't crash the build
-// (the constructor throws on an empty key). Only created when actually sending.
+// Provider selection: Gmail SMTP when GMAIL_USER/GMAIL_APP_PASSWORD are set
+// (no domain required — free, ~500 emails/day), otherwise Resend with a
+// verified domain (RESEND_API_KEY + RESEND_FROM). Both instantiate lazily so
+// missing env vars never crash the build.
+
+function gmailConfigured() {
+  return !!(process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD);
+}
+
+function getGmailTransport() {
+  return nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: process.env.GMAIL_USER!,
+      pass: process.env.GMAIL_APP_PASSWORD!,
+    },
+  });
+}
+
 function getResend() {
   const key = process.env.RESEND_API_KEY;
-  if (!key) throw new Error("RESEND_API_KEY is not set");
+  if (!key || key === "re_your_key_here") throw new Error("No email provider configured (set GMAIL_USER + GMAIL_APP_PASSWORD, or a real RESEND_API_KEY)");
   return new Resend(key);
 }
 
@@ -94,10 +112,28 @@ export async function sendTicketEmail(params: TicketEmailParams) {
 </body>
 </html>`;
 
+  const subject = `⚔️ Your ${passLabel} — The Colosseum 2026`;
+
+  if (gmailConfigured()) {
+    return getGmailTransport().sendMail({
+      from: `"The Colosseum" <${process.env.GMAIL_USER}>`,
+      to: params.to,
+      subject,
+      html,
+      attachments: [
+        {
+          filename: "entry-qr.png",
+          content: Buffer.from(qrBase64, "base64"),
+          cid: "qrcode",
+        },
+      ],
+    });
+  }
+
   return getResend().emails.send({
-    from: "The Colosseum <tickets@thecolosseum.pk>",
+    from: process.env.RESEND_FROM ?? "The Colosseum <tickets@thecolosseum.pk>",
     to: params.to,
-    subject: `⚔️ Your ${passLabel} — The Colosseum 2026`,
+    subject,
     html,
     attachments: [
       {
