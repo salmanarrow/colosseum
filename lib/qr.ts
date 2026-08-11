@@ -7,6 +7,6 @@ export async function generateQRDataURL(token: string): Promise<string> {
   return QRCode.toDataURL(verifyUrl, {
     width: 400,
     margin: 2,
-    color: { dark: "#0A1628", light: "#F4F7FB" },
+    color: { dark: "#07060B", light: "#F4F2F8" },
   });
 }

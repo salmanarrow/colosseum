@@ -22,9 +22,9 @@ type Payment = {
 
 function StatusBadge({ status }: { status: string }) {
   const colors: Record<string, { bg: string; color: string }> = {
-    pending_review: { bg: "rgba(245,200,66,0.15)",  color: "var(--gold)" },
-    approved:       { bg: "rgba(0,194,168,0.15)",   color: "var(--teal)" },
-    rejected:       { bg: "rgba(255,45,45,0.15)",   color: "var(--red-arena)" },
+    pending_review: { bg: "rgba(200,205,217,0.15)",  color: "var(--gold)" },
+    approved:       { bg: "rgba(176,38,255,0.15)",   color: "var(--teal)" },
+    rejected:       { bg: "rgba(255,45,98,0.15)",   color: "var(--red-arena)" },
   };
   const c = colors[status] ?? { bg: "rgba(255,255,255,0.05)", color: "var(--text-muted)" };
   return (
@@ -153,7 +153,7 @@ function PaymentCard({ p, onAction }: { p: Payment; onAction: () => void }) {
                 onChange={(e) => setReason(e.target.value)}
                 placeholder="Reason for rejection…"
                 style={{
-                  background: "rgba(20,35,50,0.7)", border: "1px solid var(--red-arena)",
+                  background: "rgba(22,18,32,0.7)", border: "1px solid var(--red-arena)",
                   borderRadius: "8px", padding: "0.65rem 1rem", color: "var(--text-primary)",
                   fontSize: "0.875rem", fontFamily: "var(--font-body)", outline: "none",
                 }}

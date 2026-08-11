@@ -6,7 +6,29 @@
 
 ## What we're building
 
-A registration and ticketing website for **ROOTS × MIUC: The Colosseum** — a 3-day nationwide collegiate e-sports championship hosted in Islamabad–Rawalpindi.
+A registration and ticketing website for **MIUC Colosseum** — a large-scale, youth-focused college festival combining technology, automotive culture, gaming, creativity and social experiences. Delivered in **two phases**: a September pre-launch and an October main event.
+
+> **REVAMPED — Aug 2026.** The event was previously a single 3-day e-sports championship (Aug 7–9). It is now a two-phase festival with six programme tracks. This section supersedes any older single-event framing below.
+
+### Event structure & timeline
+
+| Phase | Dates | Core programming |
+|---|---|---|
+| **Pre-Launch** | **5–6 September 2026** | Hackathon · Robotic Exhibition · Auto Show · DJ Night / Jamming |
+| **Main Event** | **2–4 October 2026** | Cosplay · E-Gaming · Social Night · Brand activations & stalls |
+
+**Pre-Launch tracks**
+- **Hackathon** — technology/innovation competition; problem-solving, creativity, practical ideas.
+- **Robotic Exhibition** — robotics showcase, demonstrations, innovation.
+- **Auto Show** — curated automotive experience. **Invited cars only**; has its own car-registration flow and controlled access. Coordinated with security.
+- **DJ Night / Jamming** — entertainment segment to build early excitement.
+- **Visual environment** — LED-light tunnels, themed décor, banners, immersive entrance.
+
+**Main Event tracks**
+- **Cosplay** — character-based creative competition and audience engagement.
+- **E-Gaming** — the gaming competitions and interactive experiences (the original Colosseum bracket).
+- **Social Night** — the major social/entertainment experience.
+- **Brand activations & stalls** — sponsor-facing commercial space.
 
 - **Host & organizer:** Metropolitan International United College (MIUC) — MIUC conceives, organizes, and runs the event. Branding/emphasis leads with MIUC.
 - **Venue partner:** ROOTS International Schools & Colleges is the school subsidary of MIUC, the MIUC Flagship Campus H-8 is the venue. (frame MIUC and ROOTS as holding the event but maintain a strong emphasis on MIUC putting in the work.)
@@ -37,15 +59,21 @@ A registration and ticketing website for **ROOTS × MIUC: The Colosseum** — a 
 
 ## Design system
 
-The palette comes from **MIUC's institutional brand (teal + purple)** plus gold for the Colosseum trophy/arena motif. Not arbitrary — it's deliberately on-brand.
+**Committee palette (Aug 2026): electric purple · silver · black.** Replaces the earlier navy/teal/gold scheme.
 
 ```
-Background:   #0A1628 / #0E1A2B  (deep navy-near-black)
-Teal:         #00C2A8             (primary CTA, accents)
-Gold:         #F5C842             (highlights, ticket trim, trophy energy)
-Purple:       #7B5BFF             (decorative blobs, hover states)
-Card surface: rgba(20, 35, 50, 0.6) with backdrop-blur
+Background:   #07060B / #0E0C14   (black, faint violet cast)
+Electric purple: #B026FF          (primary CTA, accents)   --violet
+  bright:     #CB5CFF                                       --violet-bright
+  deep:       #7A17B8             (decorative blobs)        --violet-deep
+Silver:       #C8CDD9             (highlights, ticket trim, featured elements)
+  bright:     #EEF1F6                                       --silver-bright
+  deep:       #8B93A3                                       --silver-deep
+Card surface: rgba(22, 18, 32, 0.55) with backdrop-blur
+Error/alert:  #FF2D62
 ```
+
+Implementation note: `app/globals.css` defines the canonical tokens (`--violet`, `--silver`, …) and keeps the **legacy names as aliases** (`--teal` → `--violet`, `--gold` → `--silver`). Existing components reference the legacy names, so the whole site reskins from the token block. Prefer the canonical names in new code. `.text-gold-foil` is now a silver foil; `.text-violet-foil` is the electric-purple treatment.
 
 **Aesthetic:** Glassmorphism cards. Dark dominant. Generous letterspacing on display text. Floating decorative blobs (purple, teal, dark-red) behind hero sections. Subtle gold thin borders on featured/champion elements. Gladiatorial-meets-modern — think arena textures and cracked-stone wordmarks, not literal columns and togas.
 

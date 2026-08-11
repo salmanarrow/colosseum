@@ -113,7 +113,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               style={{
                 display: "flex", alignItems: "center", gap: "0.6rem",
                 padding: "0.6rem 0.75rem", borderRadius: "10px",
-                background: active ? "rgba(0,194,168,0.12)" : "transparent",
+                background: active ? "rgba(176,38,255,0.12)" : "transparent",
                 color: active ? "var(--teal)" : "var(--text-muted)",
                 fontSize: "0.875rem", fontWeight: active ? 600 : 400,
                 textDecoration: "none", transition: "all 0.15s",

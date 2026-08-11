@@ -34,7 +34,7 @@ export default function Footer() {
             </div>
             <p style={{ lineHeight: 1.65, color: "var(--text-faint)", fontSize: "0.78rem" }}>
               Pakistan's premier collegiate e-sports championship.<br />
-              Aug 7 – 9, 2026 · MIUC Flagship Campus H-8, Islamabad
+              Sept 5–6 · Oct 2–4, 2026 · MIUC Flagship Campus H-8, Islamabad
             </p>
           </div>
 

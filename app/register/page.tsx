@@ -3,7 +3,7 @@ import RegisterForm from "./RegisterForm";
 
 export const metadata: Metadata = {
   title: "Register · The Colosseum",
-  description: "Register for ROOTS × MIUC: The Colosseum — Aug 7–9, 2026.",
+  description: "Register for ROOTS × MIUC: The Colosseum — Sept 5–6 · Oct 2–4, 2026.",
 };
 
 export default function RegisterPage() {
@@ -23,7 +23,7 @@ export default function RegisterPage() {
 
         <div style={{ maxWidth: "680px", margin: "0 auto", position: "relative", zIndex: 1 }}>
           <p className="eyebrow" style={{ textAlign: "center", marginBottom: "0.75rem" }}>
-            Aug 7 – 9, 2026 · MIUC Flagship Campus H-8, Islamabad
+            Sept 5–6 · Oct 2–4, 2026 · MIUC Flagship Campus H-8, Islamabad
           </p>
           <h1
             className="display"

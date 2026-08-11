@@ -6,10 +6,37 @@ import GameGrid from "@/components/GameGrid";
 import Footer from "@/components/Footer";
 
 const STATS = [
+  { value: "8", label: "Programme Tracks" },
+  { value: "5", label: "Event Days" },
   { value: "9", label: "Game Titles" },
-  { value: "500+", label: "Players" },
   { value: "2K+", label: "Expected Footfall" },
-  { value: "3", label: "Days of Battle" },
+];
+
+const PHASES = [
+  {
+    tag: "Phase One · Pre-Launch",
+    dates: "5 – 6 September 2026",
+    accent: "var(--violet)",
+    blurb: "Two days of technology, machines and music to open the season.",
+    tracks: [
+      { emoji: "💻", name: "Hackathon",          desc: "Innovation sprint — problem-solving, creativity, practical ideas." },
+      { emoji: "🤖", name: "Robotic Exhibition", desc: "Robotics showcase, live demonstrations and innovation displays." },
+      { emoji: "🏎️", name: "Auto Show",          desc: "Curated automotive experience. Invited cars only." },
+      { emoji: "🎧", name: "DJ Night / Jamming", desc: "The opening night — live sets and jamming sessions." },
+    ],
+  },
+  {
+    tag: "Phase Two · Main Event",
+    dates: "2 – 4 October 2026",
+    accent: "var(--silver)",
+    blurb: "Three days of competition, character and celebration.",
+    tracks: [
+      { emoji: "🎮", name: "E-Gaming",           desc: "The Colosseum bracket — 9 titles, squads and solo duels." },
+      { emoji: "🎭", name: "Cosplay",            desc: "Character-based creative competition and audience showcase." },
+      { emoji: "🌃", name: "Social Night",       desc: "The headline social experience closing the festival." },
+      { emoji: "🎪", name: "Activations & Stalls", desc: "Brand activations, food and sponsor experiences throughout." },
+    ],
+  },
 ];
 
 
@@ -46,11 +73,11 @@ export default function HomePage() {
         </div>
 
         <p className="eyebrow" style={{ marginBottom: "1.25rem", position: "relative", zIndex: 2 }}>
-          Pakistan's Premier Collegiate E-Sports Championship
+          Tech · Machines · Gaming · Culture
         </p>
 
         <h1 style={{ position: "absolute", width: 1, height: 1, padding: 0, margin: -1, overflow: "hidden", clip: "rect(0 0 0 0)", whiteSpace: "nowrap", border: 0 }}>
-          ROOTS × MIUC: The Colosseum — E-Sports Championship
+          MIUC Colosseum — Hackathon, Auto Show, E-Gaming, Cosplay & Social Night
         </h1>
 
         {/* Emblem */}
@@ -66,7 +93,7 @@ export default function HomePage() {
               maxWidth: "540px",
               height: "auto",
               marginBottom: "1.5rem",
-              filter: "drop-shadow(0 0 80px rgba(245,200,66,0.28)) drop-shadow(0 0 24px rgba(255,45,45,0.15))",
+              filter: "drop-shadow(0 0 80px rgba(200,205,217,0.28)) drop-shadow(0 0 24px rgba(255,45,98,0.15))",
               WebkitMaskImage: "radial-gradient(ellipse 78% 78% at 50% 50%, #000 58%, transparent 90%)",
               maskImage:       "radial-gradient(ellipse 78% 78% at 50% 50%, #000 58%, transparent 90%)",
             }}
@@ -88,32 +115,29 @@ export default function HomePage() {
             zIndex: 2,
           }}
         >
-          <span style={{ color: "var(--gold)" }}>⚔️</span>
-          <span style={{ color: "var(--gold)", fontWeight: 700 }}>Aug 7 – 9, 2026</span>
+          <span style={{ color: "var(--violet)" }}>◈</span>
+          <span style={{ color: "var(--silver)", fontWeight: 700 }}>Sept 5–6 · Oct 2–4, 2026</span>
           <span style={{ color: "var(--border-glass)" }}>|</span>
           MIUC Flagship Campus H-8, Islamabad
           <span style={{ color: "var(--border-glass)" }}>|</span>
-          <span>3 Days · 9 Titles</span>
+          <span>2 Phases · 8 Tracks</span>
         </div>
 
         {/* Countdown */}
         <div style={{ marginBottom: "3rem", position: "relative", zIndex: 2 }}>
-          <p className="eyebrow" style={{ marginBottom: "1.25rem", color: "var(--text-muted)" }}>
-            Tournament Begins In
-          </p>
           <Countdown />
         </div>
 
         {/* CTAs */}
         <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", justifyContent: "center", position: "relative", zIndex: 2, marginBottom: "1.5rem" }}>
           <Link href="/register" className="btn-primary" style={{ fontSize: "1.05rem", padding: "0.9rem 2rem" }}>
-            ⚔️ Register Your Squad
-          </Link>
-          <Link href="/compete" className="btn-danger" style={{ fontSize: "1.05rem", padding: "0.9rem 2rem" }}>
-            🏴 Other University? Enter Here
+            ◈ Register Now
           </Link>
           <Link href="/tickets" className="btn-ghost" style={{ fontSize: "1.05rem", padding: "0.9rem 2rem" }}>
-            Get Spectator Pass
+            View Passes & Pricing
+          </Link>
+          <Link href="/sponsor-inquiry" className="btn-ghost" style={{ fontSize: "1.05rem", padding: "0.9rem 2rem", borderColor: "var(--silver)", color: "var(--silver)" }}>
+            Sponsor / Stall Enquiry
           </Link>
         </div>
 
@@ -135,7 +159,7 @@ export default function HomePage() {
       {/* ── STATS BAR ────────────────────────────────────────────────────── */}
       <section
         style={{
-          background: "linear-gradient(90deg, rgba(0,194,168,0.08) 0%, rgba(123,91,255,0.08) 100%)",
+          background: "linear-gradient(90deg, rgba(176,38,255,0.08) 0%, rgba(122,23,184,0.08) 100%)",
           borderTop: "1px solid var(--border-glass)",
           borderBottom: "1px solid var(--border-glass)",
           padding: "3rem 1.5rem",
@@ -156,6 +180,56 @@ export default function HomePage() {
               <span className="stat-label">{s.label}</span>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* ── TWO-PHASE PROGRAMME ──────────────────────────────────────────── */}
+      <section style={{ padding: "5rem 1.5rem", position: "relative", overflow: "hidden" }}>
+        <div className="blob blob--purple" style={{ width: 460, height: 460, top: "10%", left: "-160px" }} />
+        <div style={{ maxWidth: "1100px", margin: "0 auto", position: "relative", zIndex: 1 }}>
+          <div style={{ textAlign: "center", marginBottom: "3.5rem" }}>
+            <p className="eyebrow" style={{ marginBottom: "1rem" }}>The Programme</p>
+            <h2 className="display" style={{ fontSize: "clamp(2.5rem, 7vw, 4.5rem)", color: "var(--text-primary)" }}>
+              Two Phases.<br /><span className="text-violet-foil">One Colosseum.</span>
+            </h2>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: "1.5rem" }}>
+            {PHASES.map((phase) => (
+              <div key={phase.tag} className="glass" style={{ padding: "2rem", display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+                <div>
+                  <p className="eyebrow" style={{ color: phase.accent, marginBottom: "0.5rem" }}>{phase.tag}</p>
+                  <h3 className="display" style={{ fontSize: "1.9rem", color: "var(--text-primary)", marginBottom: "0.5rem" }}>
+                    {phase.dates}
+                  </h3>
+                  <p style={{ color: "var(--text-muted)", fontSize: "0.92rem", lineHeight: 1.6 }}>{phase.blurb}</p>
+                </div>
+
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                  {phase.tracks.map((t) => (
+                    <div
+                      key={t.name}
+                      style={{
+                        display: "flex", gap: "0.9rem", alignItems: "flex-start",
+                        background: "rgba(22,18,32,0.5)", border: "1px solid var(--border-glass)",
+                        borderRadius: "12px", padding: "0.9rem 1rem",
+                      }}
+                    >
+                      <span style={{ fontSize: "1.4rem", lineHeight: 1.2 }}>{t.emoji}</span>
+                      <div>
+                        <p style={{ fontFamily: "var(--font-display)", letterSpacing: "0.04em", textTransform: "uppercase", fontSize: "1rem", color: "var(--text-primary)" }}>
+                          {t.name}
+                        </p>
+                        <p style={{ fontSize: "0.82rem", color: "var(--text-muted)", lineHeight: 1.5, marginTop: "0.15rem" }}>
+                          {t.desc}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 

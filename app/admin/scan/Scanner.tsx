@@ -124,7 +124,7 @@ export default function Scanner({ games }: { games: Game[] }) {
               onChange={(e) => setManual(e.target.value)}
               placeholder="Paste QR token or URL"
               style={{
-                flex: 1, background: "rgba(20,35,50,0.7)", border: "1px solid var(--border-glass)",
+                flex: 1, background: "rgba(22,18,32,0.7)", border: "1px solid var(--border-glass)",
                 borderRadius: 10, padding: "0.6rem 0.9rem", color: "var(--text-primary)", fontSize: "0.85rem",
                 fontFamily: "var(--font-mono)", outline: "none",
               }}
@@ -181,7 +181,7 @@ export default function Scanner({ games }: { games: Game[] }) {
                 value={gameId}
                 onChange={(e) => setGameId(e.target.value)}
                 style={{
-                  width: "100%", background: "rgba(20,35,50,0.7)", border: "1px solid var(--border-glass)",
+                  width: "100%", background: "rgba(22,18,32,0.7)", border: "1px solid var(--border-glass)",
                   borderRadius: 10, padding: "0.7rem 0.9rem", color: gameId ? "var(--text-primary)" : "var(--text-faint)",
                   fontSize: "0.9rem", marginBottom: "0.75rem",
                 }}
@@ -193,7 +193,7 @@ export default function Scanner({ games }: { games: Game[] }) {
               </select>
 
               {selectedGame && (
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "rgba(245,200,66,0.08)", borderRadius: 10, padding: "0.75rem 1rem", marginBottom: "0.75rem" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "rgba(200,205,217,0.08)", borderRadius: 10, padding: "0.75rem 1rem", marginBottom: "0.75rem" }}>
                   <span style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>Collect difference</span>
                   <span style={{ fontFamily: "var(--font-mono)", color: "var(--gold)", fontWeight: 700, fontSize: "1.1rem" }}>
                     PKR {difference.toLocaleString()}

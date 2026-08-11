@@ -4,10 +4,10 @@ export const dynamic = "force-dynamic";
 
 const STATUS_COLORS: Record<string, { bg: string; color: string }> = {
   draft:           { bg: "rgba(255,255,255,0.05)", color: "var(--text-faint)" },
-  pending_payment: { bg: "rgba(245,200,66,0.12)",  color: "var(--gold)" },
-  pending_review:  { bg: "rgba(245,200,66,0.12)",  color: "var(--gold)" },
-  confirmed:       { bg: "rgba(0,194,168,0.12)",   color: "var(--teal)" },
-  cancelled:       { bg: "rgba(255,45,45,0.12)",   color: "var(--red-arena)" },
+  pending_payment: { bg: "rgba(200,205,217,0.12)",  color: "var(--gold)" },
+  pending_review:  { bg: "rgba(200,205,217,0.12)",  color: "var(--gold)" },
+  confirmed:       { bg: "rgba(176,38,255,0.12)",   color: "var(--teal)" },
+  cancelled:       { bg: "rgba(255,45,98,0.12)",   color: "var(--red-arena)" },
 };
 
 export default async function RegistrationsPage() {

@@ -70,7 +70,7 @@ export default async function VerifyPage({ params }: { params: Promise<{ token: 
                   <span style={{ fontSize: "0.9rem", color: "var(--text-primary)", textAlign: "right" }}>{value}</span>
                 </div>
               ))}
-              <div style={{ marginTop: "0.5rem", background: "rgba(0,194,168,0.08)", borderRadius: "8px", padding: "0.75rem 1rem" }}>
+              <div style={{ marginTop: "0.5rem", background: "rgba(176,38,255,0.08)", borderRadius: "8px", padding: "0.75rem 1rem" }}>
                 <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", lineHeight: 1.6 }}>
                   ✓ Admit to all zones.
                   {ticket.tier === "participant" && " Eligible to compete at game station."}

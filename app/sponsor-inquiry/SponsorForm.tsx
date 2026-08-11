@@ -30,7 +30,7 @@ function Field({ label, value, onChange, type = "text", placeholder, required }:
       <input
         type={type} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder}
         style={{
-          background: "rgba(20,35,50,0.7)", border: "1px solid var(--border-glass)", borderRadius: "10px",
+          background: "rgba(22,18,32,0.7)", border: "1px solid var(--border-glass)", borderRadius: "10px",
           padding: "0.75rem 1rem", color: "var(--text-primary)", fontSize: "0.95rem",
           outline: "none", width: "100%", fontFamily: "var(--font-body)", transition: "border-color 0.15s",
         }}
@@ -53,7 +53,7 @@ function Select({ label, value, onChange, options, required }: {
       <select
         value={value} onChange={(e) => onChange(e.target.value)}
         style={{
-          background: "rgba(20,35,50,0.7)", border: "1px solid var(--border-glass)", borderRadius: "10px",
+          background: "rgba(22,18,32,0.7)", border: "1px solid var(--border-glass)", borderRadius: "10px",
           padding: "0.75rem 1rem", color: "var(--text-primary)", fontSize: "0.95rem",
           width: "100%", fontFamily: "var(--font-body)",
         }}
@@ -155,7 +155,7 @@ export default function SponsorForm() {
           placeholder="Tell us what you have in mind…"
           rows={4}
           style={{
-            background: "rgba(20,35,50,0.7)", border: "1px solid var(--border-glass)", borderRadius: "10px",
+            background: "rgba(22,18,32,0.7)", border: "1px solid var(--border-glass)", borderRadius: "10px",
             padding: "0.75rem 1rem", color: "var(--text-primary)", fontSize: "0.95rem",
             outline: "none", width: "100%", fontFamily: "var(--font-body)", resize: "vertical",
           }}

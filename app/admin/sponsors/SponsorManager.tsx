@@ -69,7 +69,7 @@ export default function SponsorManager({ sponsors }: { sponsors: Sponsor[] }) {
   }
 
   const inputStyle = {
-    background: "rgba(20,35,50,0.7)", border: "1px solid var(--border-glass)",
+    background: "rgba(22,18,32,0.7)", border: "1px solid var(--border-glass)",
     borderRadius: "10px", padding: "0.7rem 1rem", color: "var(--text-primary)",
     fontSize: "0.875rem", fontFamily: "var(--font-body)", outline: "none", width: "100%",
   };

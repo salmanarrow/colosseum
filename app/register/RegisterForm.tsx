@@ -110,7 +110,7 @@ function Field({
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         style={{
-          background: "rgba(20,35,50,0.7)",
+          background: "rgba(22,18,32,0.7)",
           border: "1px solid var(--border-glass)",
           borderRadius: "10px",
           padding: "0.75rem 1rem",
@@ -135,11 +135,11 @@ function StepDot({ n, current }: { n: number; current: number }) {
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.35rem" }}>
       <div style={{
         width: 32, height: 32, borderRadius: "50%",
-        background: done ? "var(--teal)" : active ? "rgba(0,194,168,0.15)" : "rgba(20,35,50,0.8)",
+        background: done ? "var(--teal)" : active ? "rgba(176,38,255,0.15)" : "rgba(22,18,32,0.8)",
         border: `2px solid ${done || active ? "var(--teal)" : "var(--border-glass)"}`,
         display: "flex", alignItems: "center", justifyContent: "center",
         fontSize: "0.8rem", fontWeight: 700,
-        color: done ? "#04211D" : active ? "var(--teal)" : "var(--text-faint)",
+        color: done ? "#FFFFFF" : active ? "var(--teal)" : "var(--text-faint)",
         transition: "all 0.2s",
       }}>
         {done ? "✓" : n}
@@ -330,7 +330,7 @@ export default function RegisterForm() {
                           flex: 1, display: "flex", alignItems: "center", justifyContent: "center",
                           padding: "0.7rem", borderRadius: "10px", cursor: "pointer",
                           border: `1px solid ${form.internalOrg === org ? "var(--teal)" : "var(--border-glass)"}`,
-                          background: form.internalOrg === org ? "rgba(0,194,168,0.1)" : "rgba(20,35,50,0.5)",
+                          background: form.internalOrg === org ? "rgba(176,38,255,0.1)" : "rgba(22,18,32,0.5)",
                           transition: "all 0.15s",
                         }}
                       >
@@ -351,7 +351,7 @@ export default function RegisterForm() {
                         value={form.campusName}
                         onChange={(e) => set("campusName", e.target.value)}
                         style={{
-                          background: "rgba(20,35,50,0.7)", border: "1px solid var(--border-glass)",
+                          background: "rgba(22,18,32,0.7)", border: "1px solid var(--border-glass)",
                           borderRadius: "10px", padding: "0.75rem 1rem", color: form.campusName ? "var(--text-primary)" : "var(--text-faint)",
                           fontSize: "0.95rem", width: "100%", fontFamily: "var(--font-body)",
                         }}
@@ -388,7 +388,7 @@ export default function RegisterForm() {
                       flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem",
                       padding: "0.75rem", borderRadius: "10px", cursor: "pointer",
                       border: `1px solid ${form.role === r ? "var(--teal)" : "var(--border-glass)"}`,
-                      background: form.role === r ? "rgba(0,194,168,0.1)" : "rgba(20,35,50,0.5)",
+                      background: form.role === r ? "rgba(176,38,255,0.1)" : "rgba(22,18,32,0.5)",
                       transition: "all 0.15s",
                     }}
                   >
@@ -430,7 +430,7 @@ export default function RegisterForm() {
                   type="button"
                   onClick={() => handleGameChange(g.slug)}
                   style={{
-                    background: form.gameSlug === g.slug ? "rgba(0,194,168,0.12)" : "rgba(20,35,50,0.6)",
+                    background: form.gameSlug === g.slug ? "rgba(176,38,255,0.12)" : "rgba(22,18,32,0.6)",
                     border: `1px solid ${form.gameSlug === g.slug ? "var(--teal)" : "var(--border-glass)"}`,
                     borderRadius: "12px", padding: "1rem 0.75rem", cursor: "pointer",
                     textAlign: "center", transition: "all 0.15s",
@@ -550,8 +550,8 @@ export default function RegisterForm() {
                 </div>
                 <div
                   style={{
-                    background: "rgba(0,194,168,0.07)",
-                    border: "1px solid rgba(0,194,168,0.2)",
+                    background: "rgba(176,38,255,0.07)",
+                    border: "1px solid rgba(176,38,255,0.2)",
                     borderRadius: "8px",
                     padding: "0.75rem 1rem",
                     fontSize: "0.78rem",
@@ -623,8 +623,8 @@ export default function RegisterForm() {
 
                 <div
                   style={{
-                    background: "rgba(245,200,66,0.06)",
-                    border: "1px solid rgba(245,200,66,0.2)",
+                    background: "rgba(200,205,217,0.06)",
+                    border: "1px solid rgba(200,205,217,0.2)",
                     borderRadius: "8px",
                     padding: "0.75rem 1rem",
                     fontSize: "0.78rem",
@@ -647,7 +647,7 @@ export default function RegisterForm() {
                 How to Pay
               </p>
               <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-                <div style={{ background: "rgba(20,35,50,0.8)", borderRadius: "10px", padding: "1rem 1.25rem" }}>
+                <div style={{ background: "rgba(22,18,32,0.8)", borderRadius: "10px", padding: "1rem 1.25rem" }}>
                   <p style={{ fontSize: "0.72rem", letterSpacing: "0.15em", textTransform: "uppercase", color: "var(--text-faint)", marginBottom: "0.35rem" }}>
                     Bank Transfer
                   </p>
@@ -659,7 +659,7 @@ export default function RegisterForm() {
                   </p>
                 </div>
                 <div style={{ textAlign: "center", color: "var(--text-faint)", fontSize: "0.8rem" }}>— or —</div>
-                <div style={{ background: "rgba(20,35,50,0.8)", borderRadius: "10px", padding: "1rem 1.25rem" }}>
+                <div style={{ background: "rgba(22,18,32,0.8)", borderRadius: "10px", padding: "1rem 1.25rem" }}>
                   <p style={{ fontSize: "0.72rem", letterSpacing: "0.15em", textTransform: "uppercase", color: "var(--text-faint)", marginBottom: "0.35rem" }}>
                     EasyPaisa
                   </p>
@@ -699,7 +699,7 @@ export default function RegisterForm() {
               <label
                 style={{
                   display: "flex", alignItems: "center", gap: "0.75rem",
-                  background: "rgba(20,35,50,0.7)", border: `1px dashed ${screenshotFile ? "var(--teal)" : "var(--border-glass)"}`,
+                  background: "rgba(22,18,32,0.7)", border: `1px dashed ${screenshotFile ? "var(--teal)" : "var(--border-glass)"}`,
                   borderRadius: "10px", padding: "0.85rem 1rem", cursor: "pointer",
                 }}
               >

@@ -30,7 +30,7 @@ const FAQS = [
   },
   {
     q: "Where is the venue?",
-    a: "MIUC Flagship Campus H-8, Islamabad. Aug 7–9, 2026.",
+    a: "MIUC Flagship Campus H-8, Islamabad. Pre-Launch Sept 5–6; Main Event Oct 2–4, 2026.",
   },
 ];
 
@@ -110,7 +110,7 @@ export default function CompetePage() {
           className="glass glass--red"
           style={{ marginTop: "4rem", padding: "0.7rem 1.8rem", display: "inline-flex", alignItems: "center", gap: "1rem", fontSize: "0.9rem", color: "var(--text-muted)", position: "relative", zIndex: 2 }}
         >
-          <span style={{ color: "var(--red-arena)", fontWeight: 700 }}>Aug 7 – 9, 2026</span>
+          <span style={{ color: "var(--red-arena)", fontWeight: 700 }}>Sept 5–6 · Oct 2–4, 2026</span>
           <span style={{ color: "var(--border-glass)" }}>|</span>
           MIUC Flagship Campus H-8, Islamabad
           <span style={{ color: "var(--border-glass)" }}>|</span>

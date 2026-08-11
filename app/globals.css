@@ -6,29 +6,39 @@
 
 /* ---------- Design tokens ---------- */
 :root {
-  --bg-base:        #0A1628;
-  --bg-elevated:    #0E1A2B;
-  --bg-glass:       20 35 50;
+  /* ---- Canonical palette: electric purple · silver · black ---- */
+  --violet:         #B026FF;   /* electric purple — primary accent/CTA */
+  --violet-bright:  #CB5CFF;
+  --violet-deep:    #7A17B8;
+  --silver:         #C8CDD9;   /* highlights, trim, featured elements */
+  --silver-bright:  #EEF1F6;
+  --silver-deep:    #8B93A3;
 
-  --teal:           #00C2A8;
-  --teal-bright:    #1EE0C4;
-  --purple:         #7B5BFF;
-  --purple-bright:  #9A7CFF;
-  --gold:           #F5C842;
-  --gold-deep:      #C9A130;
-  --red-arena:      #FF2D2D;
-  --red-deep:       #8B0000;
+  --bg-base:        #07060B;   /* near-black, faint violet cast */
+  --bg-elevated:    #0E0C14;
+  --bg-glass:       22 18 32;
 
-  --text-primary:   #F4F7FB;
-  --text-muted:     #93A4B8;
-  --text-faint:     #5C6F86;
+  /* ---- Legacy aliases — existing components reference these names.
+         Remapped onto the new palette so the whole site reskins at once. ---- */
+  --teal:           var(--violet);
+  --teal-bright:    var(--violet-bright);
+  --purple:         var(--violet-deep);
+  --purple-bright:  var(--violet-bright);
+  --gold:           var(--silver);
+  --gold-deep:      var(--silver-deep);
+  --red-arena:      #FF2D62;   /* errors / challenger accent */
+  --red-deep:       #8B0026;
+
+  --text-primary:   #F4F2F8;
+  --text-muted:     #A9AFC0;
+  --text-faint:     #6C7385;
 
   --border-glass:   rgba(255, 255, 255, 0.08);
-  --border-gold:    rgba(245, 200, 66, 0.35);
-  --border-teal:    rgba(0, 194, 168, 0.35);
+  --border-gold:    rgba(200, 205, 217, 0.32);
+  --border-teal:    rgba(176, 38, 255, 0.42);
 
-  --status-pending: #F5C842;
-  --status-ok:      #00C2A8;
+  --status-pending: #C8CDD9;
+  --status-ok:      #B026FF;
   --status-reject:  #FF5C7A;
 
   --font-display: "Anton", "Bebas Neue", system-ui, sans-serif;
@@ -42,13 +52,13 @@
 
 /* ---------- Base ---------- */
 html {
-  background-color: #0A1628;
+  background-color: #07060B;
 }
 
 body {
   background:
-    radial-gradient(1200px 600px at 80% -10%, rgba(123, 91, 255, 0.18), transparent 60%),
-    radial-gradient(900px 500px at -10% 20%, rgba(0, 194, 168, 0.14), transparent 55%),
+    radial-gradient(1200px 600px at 80% -10%, rgba(176, 38, 255, 0.20), transparent 60%),
+    radial-gradient(900px 500px at -10% 20%, rgba(122, 23, 184, 0.16), transparent 55%),
     var(--bg-base);
   color: var(--text-primary);
   font-family: var(--font-body);
@@ -71,9 +81,9 @@ body {
   color: var(--teal);
 }
 
-/* Gold gradient text for hero wordmark */
+/* Silver foil gradient text for hero wordmark */
 .text-gold-foil {
-  background: linear-gradient(180deg, #FBE9A8 0%, var(--gold) 45%, var(--gold-deep) 100%);
+  background: linear-gradient(180deg, #FFFFFF 0%, var(--silver) 45%, var(--silver-deep) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -81,7 +91,15 @@ body {
 
 /* Red gradient text — for external/challenger pages */
 .text-red-foil {
-  background: linear-gradient(180deg, #FF8080 0%, var(--red-arena) 50%, var(--red-deep) 100%);
+  background: linear-gradient(180deg, #FF80A0 0%, var(--red-arena) 50%, var(--red-deep) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Electric purple gradient text — primary hero treatment */
+.text-violet-foil {
+  background: linear-gradient(180deg, #E9B8FF 0%, var(--violet) 50%, var(--violet-deep) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -102,21 +120,21 @@ body {
   border: 1px solid var(--border-gold);
   box-shadow:
     0 8px 32px rgba(0, 0, 0, 0.4),
-    0 0 24px rgba(245, 200, 66, 0.15),
+    0 0 24px rgba(200, 205, 217, 0.16),
     inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 .glass--teal {
   border: 1px solid var(--border-teal);
   box-shadow:
     0 8px 32px rgba(0, 0, 0, 0.4),
-    0 0 24px rgba(0, 194, 168, 0.12),
+    0 0 28px rgba(176, 38, 255, 0.22),
     inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 .glass--red {
-  border: 1px solid rgba(255, 45, 45, 0.4);
+  border: 1px solid rgba(255, 45, 98, 0.42);
   box-shadow:
     0 8px 32px rgba(0, 0, 0, 0.4),
-    0 0 24px rgba(255, 45, 45, 0.15),
+    0 0 24px rgba(255, 45, 98, 0.16),
     inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
@@ -205,7 +223,7 @@ body {
 /* ---------- Buttons ---------- */
 .btn-primary {
   background: linear-gradient(135deg, var(--teal) 0%, var(--teal-bright) 100%);
-  color: #04211D;
+  color: #FFFFFF;
   font-weight: 700;
   border-radius: var(--radius-pill);
   padding: 0.8rem 1.8rem;
@@ -218,7 +236,7 @@ body {
 }
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 32px rgba(0, 194, 168, 0.45);
+  box-shadow: 0 8px 32px rgba(176, 38, 255, 0.5);
 }
 .btn-ghost {
   background: transparent;
@@ -233,7 +251,7 @@ body {
   align-items: center;
   gap: 0.5rem;
 }
-.btn-ghost:hover { background: rgba(0, 194, 168, 0.1); }
+.btn-ghost:hover { background: rgba(176, 38, 255, 0.12); }
 
 .btn-danger {
   background: linear-gradient(135deg, var(--red-deep) 0%, var(--red-arena) 100%);
@@ -250,7 +268,7 @@ body {
 }
 .btn-danger:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 32px rgba(255, 45, 45, 0.45);
+  box-shadow: 0 8px 32px rgba(255, 45, 98, 0.45);
 }
 
 /* ---------- Decorative blobs ---------- */

@@ -69,7 +69,7 @@ export default function GameGrid() {
     <section style={{ padding: "5rem 1.5rem" }}>
       <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
         <p className="eyebrow" style={{ textAlign: "center", marginBottom: "0.75rem" }}>
-          9 Titles · 3 Days
+          E-Gaming Track · 9 Titles · 2–4 October
         </p>
         <h2
           className="display"
@@ -106,7 +106,7 @@ export default function GameGrid() {
                     letterSpacing: "0.15em",
                     textTransform: "uppercase",
                     color: "var(--gold)",
-                    background: "rgba(245,200,66,0.12)",
+                    background: "rgba(200,205,217,0.12)",
                     padding: "0.2rem 0.5rem",
                     borderRadius: "999px",
                   }}

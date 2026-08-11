@@ -22,14 +22,15 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ROOTS × MIUC: The Colosseum",
+  title: "MIUC Colosseum",
   description:
-    "Pakistan's premier collegiate e-sports championship. 9 titles. 3 days. One arena. Register your squad or get your spectator pass.",
+    "Hackathon, Robotic Exhibition, Auto Show & DJ Night (5–6 Sept) then E-Gaming, Cosplay & Social Night (2–4 Oct). MIUC Flagship Campus H-8, Islamabad. Register now.",
   metadataBase: new URL("https://thecolosseumpk.vercel.app"),
   openGraph: {
-    title: "ROOTS × MIUC: The Colosseum",
-    description: "Pakistan's premier collegiate e-sports championship.",
-    siteName: "The Colosseum",
+    title: "MIUC Colosseum",
+    description:
+      "Two phases. Eight tracks. Hackathon · Robotics · Auto Show · DJ Night · E-Gaming · Cosplay · Social Night.",
+    siteName: "MIUC Colosseum",
     locale: "en_PK",
     type: "website",
   },
