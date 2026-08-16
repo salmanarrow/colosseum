@@ -62,9 +62,13 @@ Two separate events, both at **MIUC Flagship Campus H-8, Islamabad**.
 | | | Cosplay | 1,500 | per person | +1,500 |
 | 4 | **Observer Pass** | Main event | 3,999 | per person | — |
 
-Tickets 3 & 4 both include **full 3-day access**: esports arena, cosplay, jamming sessions, and concert.
+**What each ticket is for** (clarified by the Event Director — this supersedes the footnote on the printed pricing sheet, which is wrong):
 
-> **Socials add-on** — PKR 1,500 **per person**; squads multiply by roster size.
+- **Ticket 3 — Game Entry** is for people who want to **compete**. It buys participation in the chosen title.
+- **Ticket 4 — Observer Pass (3,999)** is for people who want to **watch**: mainly the concert, but also the Cosplay, Gorilla Show, Jamming Session and the rest of the programme.
+- **Socials add-on (+1,500 per person)** lets a **Game Entry holder upgrade to attend the concert**. Squads pay it per roster member (e.g. Valorant = 1,500 × 5).
+
+> ⚠️ The printed sheet's footnote ("Tickets 3 & 4 both include full 3-day access… and concert") contradicts the above and should be corrected before distribution — concert access for competitors is the paid add-on, not included.
 
 - **Host & organizer:** Metropolitan International United College (MIUC) — MIUC conceives, organizes, and runs the event. Branding/emphasis leads with MIUC.
 - **Venue partner:** ROOTS International Schools & Colleges is the school subsidary of MIUC, the MIUC Flagship Campus H-8 is the venue. (frame MIUC and ROOTS as holding the event but maintain a strong emphasis on MIUC putting in the work.)

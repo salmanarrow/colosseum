@@ -462,7 +462,7 @@ export default function RegisterForm({ products }: { products: Product[] }) {
                       🎤 Add Concert Access — PKR {product.socialsAddonPkr.toLocaleString()} per person
                     </p>
                     <p style={{ color: "var(--text-muted)", fontSize: "0.82rem", lineHeight: 1.6, marginTop: "0.35rem" }}>
-                      Your game entry covers the esports arena and cosplay. Add this to get
+                      Your Game Entry covers competing in your title. Add this to also get
                       into the closing concert{rosterSize > 1 ? ` — charged for all ${rosterSize} squad members (PKR ${(product.socialsAddonPkr * rosterSize).toLocaleString()})` : ""}.
                     </p>
                   </div>
