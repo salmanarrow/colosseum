@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import ArchedWordmark from "./ArchedWordmark";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
 
@@ -37,14 +38,9 @@ export default function Nav() {
         onClick={() => setOpen(false)}
         style={{ display: "flex", alignItems: "center" }}
       >
-        <Image
-          src="/brand/colosseum-wordmark.png"
-          alt="The Colosseum"
-          width={1600}
-          height={689}
-          priority
-          className="nav-wordmark"
-        />
+        <span className="nav-wordmark" style={{ display: "block" }}>
+          <ArchedWordmark height={38} idPrefix="nav" />
+        </span>
       </Link>
 
       {/* Desktop links */}

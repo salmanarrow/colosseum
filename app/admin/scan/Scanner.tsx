@@ -19,6 +19,8 @@ export default function Scanner({ games }: { games: Game[] }) {
   const [toast, setToast]     = useState("");
   const [gameId, setGameId]   = useState("");
   const [camError, setCamError] = useState("");
+  const [duplicate, setDuplicate] = useState(false);
+  const [entered, setEntered]     = useState(false);
   const scannerRef = useRef<{ stop: () => Promise<void>; clear: () => void } | null>(null);
   const startedRef = useRef(false);
 
@@ -81,8 +83,21 @@ export default function Scanner({ games }: { games: Game[] }) {
   async function doLogScan() {
     if (!ticket) return;
     setBusy(true);
+    setDuplicate(false);
     const res = await logScan(ticket.ticketId, "gate");
-    setToast(res.success ? "✅ Gate entry logged" : (res.error ?? "Failed"));
+    if (res.success) {
+      setEntered(true);
+      setToast("Gate entry logged — admit");
+    } else if (res.alreadyScanned) {
+      setDuplicate(true);
+      setToast(
+        res.scannedAt
+          ? `Already entered at ${new Date(res.scannedAt).toLocaleTimeString("en-PK", { hour: "2-digit", minute: "2-digit" })}`
+          : "Already entered today"
+      );
+    } else {
+      setToast(res.error ?? "Failed");
+    }
     setBusy(false);
   }
 
@@ -100,7 +115,7 @@ export default function Scanner({ games }: { games: Game[] }) {
   }
 
   function reset() {
-    setTicket(null); setNotFound(false); setManual(""); setGameId(""); setToast(""); setCamError("");
+    setTicket(null); setNotFound(false); setManual(""); setGameId(""); setToast(""); setCamError(""); setDuplicate(false); setEntered(false);
     // restart camera on next tick
     setTimeout(() => startCamera(), 50);
   }
@@ -168,10 +183,32 @@ export default function Scanner({ games }: { games: Game[] }) {
             ))}
           </div>
 
+          {/* Entry verdict — big enough to read at arm's length on a gate tablet */}
+          {(duplicate || entered) && (
+            <div style={{
+              borderRadius: 14, padding: "1.25rem", marginBottom: "1rem", textAlign: "center",
+              background: duplicate ? "rgba(255,45,98,0.14)" : "rgba(176,38,255,0.14)",
+              border: `1px solid ${duplicate ? "var(--red-arena)" : "var(--violet)"}`,
+            }}>
+              <div style={{ fontSize: "2.4rem", lineHeight: 1 }}>{duplicate ? "⛔" : "✅"}</div>
+              <p className="display" style={{
+                fontSize: "1.6rem", marginTop: "0.5rem",
+                color: duplicate ? "var(--red-arena)" : "var(--violet)",
+              }}>
+                {duplicate ? "Already Used" : "Admit"}
+              </p>
+              <p style={{ fontSize: "0.85rem", color: "var(--text-muted)", marginTop: "0.35rem" }}>
+                {duplicate ? "This pass was already scanned today — do not admit." : "Entry recorded."}
+              </p>
+            </div>
+          )}
+
           {/* Gate entry */}
-          <button className="btn-primary" disabled={busy} onClick={doLogScan} style={{ width: "100%", justifyContent: "center", marginBottom: "1rem" }}>
-            ✅ Log Gate Entry
-          </button>
+          {!entered && !duplicate && (
+            <button className="btn-primary" disabled={busy} onClick={doLogScan} style={{ width: "100%", justifyContent: "center", marginBottom: "1rem" }}>
+              ✅ Log Gate Entry
+            </button>
+          )}
 
           {/* Upgrade (Citizen only) */}
           {ticket.tier === "basic" && (

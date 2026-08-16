@@ -1,8 +1,15 @@
 import Image from "next/image";
 import Link from "next/link";
 
-// TODO: add real social handles once confirmed
-const SOCIALS: { label: string; href: string; icon: string }[] = [];
+// Official handles, confirmed Aug 2026.
+const SOCIALS: { label: string; href: string; icon: string }[] = [
+  { label: "@miuc.colosseum",  href: "https://www.instagram.com/miuc.colosseum",   icon: "📸" }, // Instagram
+  { label: "@miuc.colosseum",  href: "https://www.threads.com/@miuc.colosseum",    icon: "🧵" }, // Threads
+  { label: "@roots_colosseum", href: "https://www.tiktok.com/@roots_colosseum",    icon: "🎵" }, // TikTok
+  { label: "Roots_colosseum",  href: "https://www.reddit.com/user/Roots_colosseum", icon: "👽" }, // Reddit
+  { label: "Roots Colosseum",  href: "https://web.facebook.com/share/p/1Ct5TQjA52/", icon: "📘" }, // Facebook
+  { label: "Join the Discord", href: "https://discord.gg/DT4ybWfmV",                icon: "💬" }, // Discord
+];
 
 export default function Footer() {
   return (

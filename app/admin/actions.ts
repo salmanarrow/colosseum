@@ -231,6 +231,14 @@ function eventDay(): "Fri" | "Sat" | "Sun" {
   return "Fri";
 }
 
+// Which event we're scanning for. PreLaunch is 5 Sept; anything from
+// 20 Sept onward is the Colosseum. Both fall on overlapping weekdays, so the
+// date — not the weekday — decides.
+function currentEvent(): "prelaunch" | "colosseum" {
+  const now = new Date();
+  return now < new Date("2026-09-20T00:00:00+05:00") ? "prelaunch" : "colosseum";
+}
+
 // Look up a ticket by its QR token (accepts a raw token or a full verify URL).
 export async function lookupTicketByToken(tokenOrUrl: string) {
   const { participants, teams, games } = await import("@/db/schema");
@@ -261,15 +269,61 @@ export async function lookupTicketByToken(tokenOrUrl: string) {
 }
 
 // Log a gate / station scan against a ticket.
+// Log a gate / station scan. A ticket may enter ONCE per day at a given zone —
+// re-scanning the same QR the same day is rejected, which is what stops one
+// pass being shared between people. Multi-day passes still work each day.
 export async function logScan(ticketId: string, zone: string) {
   try {
     const { ticketScans } = await import("@/db/schema");
-    await db.insert(ticketScans).values({ ticketId, zone, day: eventDay() });
-    return { success: true };
+    const { and } = await import("drizzle-orm");
+    const day = eventDay();
+    const event = currentEvent();
+
+    const [prior] = await db
+      .select({ scannedAt: ticketScans.scannedAt })
+      .from(ticketScans)
+      .where(and(
+        eq(ticketScans.ticketId, ticketId),
+        eq(ticketScans.zone, zone),
+        eq(ticketScans.event, event),
+        eq(ticketScans.day, day),
+      ))
+      .limit(1);
+
+    if (prior) {
+      return {
+        success: false as const,
+        alreadyScanned: true as const,
+        scannedAt: prior.scannedAt?.toISOString() ?? null,
+        error: "This pass has already been used today.",
+      };
+    }
+
+    await db.insert(ticketScans).values({ ticketId, zone, event, day });
+    return { success: true as const, alreadyScanned: false as const };
   } catch (err) {
+    // The unique index is the real guard — a race between two scanners lands here.
+    if (String(err).includes("ticket_scans_one_entry_idx")) {
+      return {
+        success: false as const,
+        alreadyScanned: true as const,
+        scannedAt: null,
+        error: "This pass has already been used today.",
+      };
+    }
     console.error("logScan error:", err);
-    return { success: false, error: "Failed to log scan." };
+    return { success: false as const, alreadyScanned: false as const, scannedAt: null, error: "Failed to log scan." };
   }
+}
+
+// Scan history for a ticket — shown to staff so they can see prior entries.
+export async function getScanHistory(ticketId: string) {
+  const { ticketScans } = await import("@/db/schema");
+  return db
+    .select({ zone: ticketScans.zone, event: ticketScans.event, day: ticketScans.day, scannedAt: ticketScans.scannedAt })
+    .from(ticketScans)
+    .where(eq(ticketScans.ticketId, ticketId))
+    .orderBy(ticketScans.scannedAt);
 }
 
 // Upgrade a Citizen Pass to a Gladiator Pass on-site: create a team-of-one for
@@ -557,4 +611,131 @@ export async function rejectCar(id: string, reason: string) {
     console.error("rejectCar error:", err);
     return { success: false, error: "Failed to reject entry." };
   }
+}
+
+// ── Registrations: manual create / delete ───────────────────────────────────
+
+// Add a registration by hand — walk-ins, desk sales, or fixing a bad entry.
+// If markPaid is true the payment is recorded as approved and the pass is
+// issued + emailed immediately, exactly as an approval would.
+export async function createManualRegistration(input: {
+  productId: string;
+  fullName: string;
+  email: string;
+  phone: string;
+  institutionName: string;
+  institutionType: "roots" | "miuc" | "external_college" | "external_university";
+  teamName?: string;
+  wantsSocials: boolean;
+  amountPkr: number;
+  markPaid: boolean;
+  note?: string;
+}) {
+  try {
+    const { participants, teamMembers, games } = await import("@/db/schema");
+
+    const [product] = await db
+      .select({ id: games.id, name: games.name, category: games.category, event: games.event, isTeamEvent: games.isTeamEvent })
+      .from(games).where(eq(games.id, input.productId)).limit(1);
+    if (!product) return { success: false, error: "Ticket product not found." };
+
+    // Dedup participant by email
+    const [existing] = await db.select({ id: participants.id })
+      .from(participants).where(eq(participants.email, input.email)).limit(1);
+
+    const participantId = existing?.id ?? (await db.insert(participants).values({
+      fullName: input.fullName, email: input.email, phone: input.phone,
+      institutionName: input.institutionName, institutionType: input.institutionType,
+    }).returning({ id: participants.id }))[0].id;
+
+    const isObserverPass = product.category === "pass";
+    let teamId: string | null = null;
+
+    if (!isObserverPass) {
+      const [team] = await db.insert(teams).values({
+        gameId: product.id,
+        teamName: input.teamName || input.fullName,
+        captainParticipantId: participantId,
+        institutionName: input.institutionName,
+        institutionType: input.institutionType,
+        status: input.markPaid ? "confirmed" : "pending_payment",
+        event: product.event,
+        socialsCount: input.wantsSocials ? 1 : 0,
+        totalPricePkr: input.amountPkr,
+      }).returning({ id: teams.id });
+      teamId = team.id;
+      await db.insert(teamMembers).values({ teamId, participantId, role: "captain" });
+    }
+
+    await db.insert(payments).values({
+      amountPkr: input.amountPkr,
+      teamId: teamId ?? undefined,
+      participantId: teamId ? undefined : participantId,
+      method: "other",
+      transactionRef: input.note || "manual entry by admin",
+      status: input.markPaid ? "approved" : "pending_review",
+      reviewedAt: input.markPaid ? new Date() : undefined,
+    });
+
+    if (input.markPaid) {
+      const tier =
+        product.category === "hackathon" ? "hackathon" as const :
+        product.category === "cosplay"   ? "cosplay"   as const :
+        isObserverPass                   ? "observer"  as const :
+                                           "game_entry" as const;
+      await issueAndEmailTicket({
+        participantId, teamId, tier,
+        event: product.event,
+        socials: input.wantsSocials,
+        gameName: isObserverPass ? undefined : product.name,
+        teamName: input.teamName || undefined,
+      });
+    }
+
+    revalidatePath("/admin/registrations");
+    revalidatePath("/admin/payments");
+    return { success: true };
+  } catch (err) {
+    console.error("createManualRegistration error:", err);
+    return { success: false, error: "Failed to create registration." };
+  }
+}
+
+// Permanently remove a registration and everything hanging off it.
+// Deletes in FK order: scans -> tickets -> members -> payments -> team.
+export async function deleteRegistration(teamId: string) {
+  try {
+    const { teamMembers, ticketScans } = await import("@/db/schema");
+    const { inArray } = await import("drizzle-orm");
+
+    const ticketIds = (await db.select({ id: tickets.id }).from(tickets).where(eq(tickets.teamId, teamId))).map((t) => t.id);
+    if (ticketIds.length) {
+      await db.delete(ticketScans).where(inArray(ticketScans.ticketId, ticketIds));
+      await db.delete(tickets).where(inArray(tickets.id, ticketIds));
+    }
+    await db.delete(teamMembers).where(eq(teamMembers.teamId, teamId));
+    await db.delete(payments).where(eq(payments.teamId, teamId));
+    await db.delete(teams).where(eq(teams.id, teamId));
+
+    revalidatePath("/admin/registrations");
+    revalidatePath("/admin/payments");
+    return { success: true };
+  } catch (err) {
+    console.error("deleteRegistration error:", err);
+    return { success: false, error: "Failed to delete registration." };
+  }
+}
+
+// Ticket products for the manual-entry picker.
+export async function getTicketProducts() {
+  const { games } = await import("@/db/schema");
+  const { and } = await import("drizzle-orm");
+  return db.select({
+      id: games.id, name: games.name, event: games.event, category: games.category,
+      pricePkr: games.pricePkr, priceBasis: games.priceBasis, socialsAddonPkr: games.socialsAddonPkr,
+      isTeamEvent: games.isTeamEvent, minPlayers: games.minPlayers,
+    })
+    .from(games)
+    .where(and(eq(games.active, true), eq(games.isFreeActivity, false)))
+    .orderBy(games.displayOrder);
 }

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
+import ArchedWordmark from "@/components/ArchedWordmark";
 import { supabase } from "@/lib/supabase";
 import { verifyAdminAccess } from "./actions";
 
@@ -93,13 +93,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         }}
       >
         <div style={{ marginBottom: "1.5rem", paddingLeft: "0.5rem" }}>
-          <Image
-            src="/brand/colosseum-wordmark.png"
-            alt="The Colosseum"
-            width={1600}
-            height={689}
-            style={{ height: "22px", width: "auto" }}
-          />
+          <ArchedWordmark height={26} idPrefix="admin" />
           <p style={{ fontSize: "0.65rem", color: "var(--text-faint)", marginTop: "0.35rem", letterSpacing: "0.15em", textTransform: "uppercase" }}>
             Admin
           </p>
