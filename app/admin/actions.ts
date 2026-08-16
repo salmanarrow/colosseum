@@ -481,3 +481,80 @@ export async function getAllSponsors() {
     .from(sponsors)
     .orderBy(sponsors.displayOrder);
 }
+
+// ── Auto Show (PreLaunch) ───────────────────────────────────────────────────
+
+export async function getAutoShowRegistrations() {
+  const { autoShowRegistrations } = await import("@/db/schema");
+  return db.select().from(autoShowRegistrations).orderBy(autoShowRegistrations.createdAt);
+}
+
+// Signed URL so an admin can view a car photo from the private bucket.
+export async function getCarPhotoUrl(path: string) {
+  try {
+    const base = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const res = await fetch(`${base}/storage/v1/object/sign/car-photos/${path}`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ expiresIn: 3600 }),
+    });
+    if (!res.ok) return { success: false as const, error: "Could not open photo." };
+    const { signedURL } = (await res.json()) as { signedURL: string };
+    return { success: true as const, url: `${base}/storage/v1${signedURL}` };
+  } catch (err) {
+    console.error("getCarPhotoUrl error:", err);
+    return { success: false as const, error: "Could not open photo." };
+  }
+}
+
+// Approve a car: issue its vehicle gate pass and email the owner.
+export async function approveCar(id: string) {
+  try {
+    const { autoShowRegistrations } = await import("@/db/schema");
+    const [car] = await db
+      .select()
+      .from(autoShowRegistrations)
+      .where(eq(autoShowRegistrations.id, id))
+      .limit(1);
+    if (!car) return { success: false, error: "Entry not found." };
+
+    const qrToken = car.qrToken ?? randomUUID();
+    await db
+      .update(autoShowRegistrations)
+      .set({ status: "approved", qrToken, reviewedAt: new Date(), rejectionReason: null })
+      .where(eq(autoShowRegistrations.id, id));
+
+    const { sendVehiclePassEmail } = await import("@/lib/email");
+    await sendVehiclePassEmail({
+      to: car.ownerEmail,
+      ownerName: car.ownerName,
+      car: `${car.carMake} ${car.carModel}${car.carYear ? ` (${car.carYear})` : ""}`,
+      plate: car.plateNumber,
+      qrToken,
+    }).catch((err) => console.error("Vehicle pass email failed:", err));
+
+    revalidatePath("/admin/autoshow");
+    return { success: true };
+  } catch (err) {
+    console.error("approveCar error:", err);
+    return { success: false, error: "Failed to approve entry." };
+  }
+}
+
+export async function rejectCar(id: string, reason: string) {
+  try {
+    const { autoShowRegistrations } = await import("@/db/schema");
+    await db
+      .update(autoShowRegistrations)
+      .set({ status: "rejected", rejectionReason: reason, reviewedAt: new Date() })
+      .where(eq(autoShowRegistrations.id, id));
+    revalidatePath("/admin/autoshow");
+    return { success: true };
+  } catch (err) {
+    console.error("rejectCar error:", err);
+    return { success: false, error: "Failed to reject entry." };
+  }
+}

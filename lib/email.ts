@@ -162,3 +162,90 @@ export async function sendTicketEmail(params: TicketEmailParams) {
     ],
   });
 }
+
+// ── Auto Show vehicle gate pass ────────────────────────────────────────────
+
+type VehiclePassParams = {
+  to: string;
+  ownerName: string;
+  car: string;
+  plate: string;
+  qrToken: string;
+};
+
+export async function sendVehiclePassEmail(params: VehiclePassParams) {
+  const qrDataUrl = await generateQRDataURL(params.qrToken);
+  const qrBase64 = qrDataUrl.replace(/^data:image\/png;base64,/, "");
+
+  const html = `
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#07060B;font-family:'Segoe UI',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#07060B;padding:40px 20px;">
+    <tr><td align="center">
+      <table width="560" cellpadding="0" cellspacing="0" style="background:#0E0C14;border:1px solid rgba(255,255,255,0.08);border-radius:18px;overflow:hidden;max-width:560px;">
+        <tr><td style="background:linear-gradient(135deg,#07060B,#1a0a30);padding:32px;text-align:center;border-bottom:1px solid rgba(200,205,217,0.3);">
+          <p style="margin:0 0 8px;font-size:11px;letter-spacing:0.3em;text-transform:uppercase;color:#B026FF;">MIUC Colosseum</p>
+          <h1 style="margin:0;font-size:30px;font-weight:900;letter-spacing:0.04em;text-transform:uppercase;color:#F4F2F8;">AUTO SHOW</h1>
+          <p style="margin:8px 0 0;font-size:13px;color:#A9AFC0;">PreLaunch &middot; 5 September 2026 &middot; MIUC Flagship Campus H-8</p>
+        </td></tr>
+        <tr><td style="padding:32px;">
+          <p style="margin:0 0 6px;font-size:13px;color:#A9AFC0;">Congratulations,</p>
+          <h2 style="margin:0 0 20px;font-size:22px;color:#F4F2F8;font-weight:700;">${params.ownerName}</h2>
+          <p style="margin:0 0 24px;font-size:15px;color:#A9AFC0;line-height:1.6;">
+            Your car has been <strong style="color:#B026FF;">selected to exhibit</strong> at the Colosseum Auto Show.
+            Show the QR below at the vehicle gate on arrival.
+          </p>
+          <table width="100%" cellpadding="0" cellspacing="0" style="background:rgba(22,18,32,0.8);border:1px solid rgba(200,205,217,0.35);border-radius:12px;margin-bottom:24px;">
+            <tr><td style="padding:24px;">
+              <p style="margin:0 0 4px;font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:#C8CDD9;">Vehicle Gate Pass</p>
+              <h3 style="margin:0 0 4px;font-size:22px;font-weight:900;color:#F4F2F8;">${params.car}</h3>
+              <p style="margin:6px 0 0;font-size:14px;font-family:monospace;color:#B026FF;letter-spacing:0.1em;">${params.plate}</p>
+            </td></tr>
+          </table>
+          <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+            <tr><td align="center" style="background:#F4F2F8;border-radius:12px;padding:20px;">
+              <img src="cid:qrcode" width="200" height="200" alt="Vehicle Gate Pass QR" style="display:block;" />
+              <p style="margin:12px 0 0;font-size:11px;color:#07060B;font-family:monospace;">${params.qrToken.slice(0, 8).toUpperCase()}</p>
+            </td></tr>
+          </table>
+          <table width="100%" cellpadding="0" cellspacing="0" style="background:rgba(176,38,255,0.08);border:1px solid rgba(176,38,255,0.2);border-radius:10px;">
+            <tr><td style="padding:16px 20px;">
+              <p style="margin:0;font-size:13px;color:#A9AFC0;line-height:1.6;">
+                This pass admits <strong style="color:#F4F2F8;">one vehicle</strong> and is tied to the
+                registration plate above. Please arrive early for marshalling &mdash; and stay for DJ Tokyo and the fireworks.
+              </p>
+            </td></tr>
+          </table>
+        </td></tr>
+        <tr><td style="padding:20px 32px;border-top:1px solid rgba(255,255,255,0.06);text-align:center;">
+          <p style="margin:0;font-size:11px;color:#6C7385;font-family:monospace;">
+            thecolosseumpk.vercel.app &middot; Organized by MIUC
+          </p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+
+  const subject = `🏁 Your car is in — Colosseum Auto Show vehicle pass`;
+
+  if (gmailConfigured()) {
+    return getGmailTransport().sendMail({
+      from: `"The Colosseum" <${process.env.GMAIL_USER}>`,
+      to: params.to,
+      subject,
+      html,
+      attachments: [{ filename: "vehicle-pass.png", content: Buffer.from(qrBase64, "base64"), cid: "qrcode" }],
+    });
+  }
+  return getResend().emails.send({
+    from: process.env.RESEND_FROM ?? "The Colosseum <tickets@thecolosseum.pk>",
+    to: params.to,
+    subject,
+    html,
+    attachments: [{ filename: "vehicle-pass.png", content: qrBase64, contentId: "qrcode" }],
+  });
+}

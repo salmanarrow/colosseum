@@ -10,6 +10,7 @@ import { verifyAdminAccess } from "./actions";
 const NAV = [
   { href: "/admin/payments",      label: "Payment Queue",   icon: "💳" },
   { href: "/admin/registrations", label: "Registrations",   icon: "📋" },
+  { href: "/admin/autoshow",      label: "Auto Show",       icon: "🏁" },
   { href: "/admin/scan",          label: "Gate Scanner",    icon: "📷" },
   { href: "/admin/sponsors",      label: "Sponsors",        icon: "🤝" },
 ];

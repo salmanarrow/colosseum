@@ -104,6 +104,13 @@ export const inquiryStatusEnum = pgEnum("inquiry_status", [
 
 export const adminRoleEnum = pgEnum("admin_role", ["admin", "super_admin"]);
 
+export const autoShowStatusEnum = pgEnum("auto_show_status", [
+  "pending",
+  "approved",
+  "rejected",
+  "checked_in",
+]);
+
 // ── Reference ──────────────────────────────────────────────────────────────
 
 export const games = pgTable("games", {
@@ -310,4 +317,31 @@ export const ticketScans = pgTable("ticket_scans", {
     .notNull()
     .defaultNow(),
   scannedBy: uuid("scanned_by").references(() => admins.id),
+});
+
+// ── Auto Show (PreLaunch, 5 Sept) ──────────────────────────────────────────
+// Separate from the ticketing spine on purpose: this describes CARS, not
+// ticket-holders. Invited cars only — free to exhibit, admin-approved.
+// Spectators are covered by the PreLaunch Observer Pass instead.
+export const autoShowRegistrations = pgTable("auto_show_registrations", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  ownerName: text("owner_name").notNull(),
+  ownerEmail: text("owner_email").notNull(),
+  ownerPhone: text("owner_phone").notNull(),
+  institutionName: text("institution_name"),
+  carMake: text("car_make").notNull(),
+  carModel: text("car_model").notNull(),
+  carYear: text("car_year"),
+  plateNumber: text("plate_number").notNull(),
+  category: text("category"),
+  modifications: text("modifications"),
+  // Path in the private `car-photos` bucket.
+  photoUrl: text("photo_url"),
+  status: autoShowStatusEnum("status").notNull().default("pending"),
+  // Vehicle gate pass, issued on approval.
+  qrToken: text("qr_token").unique(),
+  rejectionReason: text("rejection_reason"),
+  reviewedBy: uuid("reviewed_by").references(() => admins.id),
+  reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
