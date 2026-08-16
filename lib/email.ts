@@ -27,11 +27,22 @@ function getResend() {
   return new Resend(key);
 }
 
+type TicketTier = "hackathon" | "game_entry" | "observer" | "cosplay";
+
+const PASS_LABEL: Record<TicketTier, string> = {
+  hackathon:  "Hackathon Pass",
+  game_entry: "Game Entry Ticket",
+  cosplay:    "Cosplay Entry",
+  observer:   "Observer Pass",
+};
+
 type TicketEmailParams = {
   to: string;
   recipientName: string;
   ticketNumber: string;
-  tier: "participant" | "basic" | "spectator";
+  tier: TicketTier;
+  event?: "prelaunch" | "colosseum";
+  socials?: boolean;
   gameName?: string;
   teamName?: string;
   qrToken: string;
@@ -42,8 +53,14 @@ export async function sendTicketEmail(params: TicketEmailParams) {
   // Strip data URL prefix to get raw base64
   const qrBase64 = qrDataUrl.replace(/^data:image\/png;base64,/, "");
 
-  const passLabel = params.tier === "participant" ? "Gladiator Pass" : "Citizen Pass";
+  const passLabel = PASS_LABEL[params.tier];
+  const eventLine = params.event === "prelaunch"
+    ? "PreLaunch · 5 September 2026"
+    : "The Colosseum · 2 – 4 October 2026";
   const gameInfo  = params.gameName ? `<p style="color:#A9AFC0;font-size:14px;margin:4px 0 0;">${params.gameName}${params.teamName ? ` · ${params.teamName}` : ""}</p>` : "";
+  const socialsLine = params.socials
+    ? `<p style="color:#B026FF;font-size:13px;margin:8px 0 0;">🎤 Concert access included</p>`
+    : "";
 
   const html = `
 <!DOCTYPE html>
@@ -58,7 +75,7 @@ export async function sendTicketEmail(params: TicketEmailParams) {
         <tr><td style="background:linear-gradient(135deg,#07060B,#1a0a30);padding:32px;text-align:center;border-bottom:1px solid rgba(200,205,217,0.3);">
           <p style="margin:0 0 8px;font-size:11px;letter-spacing:0.3em;text-transform:uppercase;color:#B026FF;">ROOTS × MIUC</p>
           <h1 style="margin:0;font-size:32px;font-weight:900;letter-spacing:0.04em;text-transform:uppercase;color:#F4F2F8;">THE COLOSSEUM</h1>
-          <p style="margin:8px 0 0;font-size:13px;color:#A9AFC0;">Sept 5 · Oct 2–4, 2026 · MIUC Flagship Campus H-8, Islamabad</p>
+          <p style="margin:8px 0 0;font-size:13px;color:#A9AFC0;">${eventLine} · MIUC Flagship Campus H-8, Islamabad</p>
         </td></tr>
 
         <!-- Body -->
@@ -77,6 +94,7 @@ export async function sendTicketEmail(params: TicketEmailParams) {
               <p style="margin:0 0 4px;font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:#C8CDD9;">Your Pass</p>
               <h3 style="margin:0 0 4px;font-size:24px;font-weight:900;letter-spacing:0.04em;text-transform:uppercase;color:#F4F2F8;">${passLabel}</h3>
               ${gameInfo}
+              ${socialsLine}
               <p style="margin:16px 0 0;font-size:11px;font-family:monospace;color:#6C7385;">${params.ticketNumber}</p>
             </td></tr>
           </table>
@@ -112,7 +130,7 @@ export async function sendTicketEmail(params: TicketEmailParams) {
 </body>
 </html>`;
 
-  const subject = `⚔️ Your ${passLabel} — The Colosseum 2026`;
+  const subject = `⚔️ Your ${passLabel} — MIUC Colosseum 2026`;
 
   if (gmailConfigured()) {
     return getGmailTransport().sendMail({

@@ -8,22 +8,23 @@ import { randomUUID } from "crypto";
 type Teammate = { fullName: string; email: string; phone: string };
 
 export type RegistrationPayload = {
-  // Personal
+  // What they bought (a row in `games` — the ticket-product catalogue)
+  productId: string;
+  event: "prelaunch" | "colosseum";
+  // Who they are
   fullName: string;
   email: string;
   phone: string;
   institutionName: string;
   institutionType: "roots" | "miuc" | "external_college" | "external_university";
-  // Role
-  role: "observer" | "competitor";
-  // Competitor only
-  gameSlug?: string;
-  gameId?: string;
+  // Team products only
   teamName?: string;
-  isTeamGame?: boolean;
   teammates?: Teammate[];
-  totalFeePkr: number;
-  // Payment
+  // Concert (socials) add-on
+  wantsSocials: boolean;
+  socialsCount: number;
+  // Money
+  totalPkr: number;
   transactionRef: string;
   screenshotPath?: string;
 };
@@ -98,33 +99,49 @@ export async function submitRegistration(payload: RegistrationPayload) {
       participantId = newParticipant.id;
     }
 
+    // 2. Look up the product to decide how to record this registration.
+    const { games } = await import("@/db/schema");
+    const [product] = await db
+      .select({
+        id: games.id,
+        category: games.category,
+        isTeamEvent: games.isTeamEvent,
+      })
+      .from(games)
+      .where(eq(games.id, payload.productId))
+      .limit(1);
+
+    if (!product) return { success: false, error: "That ticket is no longer available." };
+
+    // Observer passes ("pass") have no game/team — everything else creates a
+    // team row (a team-of-one for solo entries) so the ticket carries its title.
+    const isObserverPass = product.category === "pass";
     let teamId: string | null = null;
 
-    if (payload.role === "competitor" && payload.gameId) {
-      // 2. Create team
+    if (!isObserverPass) {
       const [newTeam] = await db
         .insert(teams)
         .values({
-          gameId: payload.gameId,
+          gameId: product.id,
           teamName: payload.teamName ?? payload.fullName,
           captainParticipantId: participantId,
           institutionName: payload.institutionName,
           institutionType: payload.institutionType,
           status: "pending_payment",
-          totalPricePkr: payload.totalFeePkr,
+          event: payload.event,
+          socialsCount: payload.socialsCount,
+          totalPricePkr: payload.totalPkr,
         })
         .returning({ id: teams.id });
       teamId = newTeam.id;
 
-      // 3. Add captain as team member
       await db.insert(teamMembers).values({
         teamId,
         participantId,
         role: "captain",
       });
 
-      // 4. Add teammates
-      if (payload.isTeamGame && payload.teammates && payload.teammates.length > 0) {
+      if (product.isTeamEvent && payload.teammates && payload.teammates.length > 0) {
         for (const tm of payload.teammates) {
           // Upsert teammate participant
           const existingTm = await db
@@ -161,11 +178,11 @@ export async function submitRegistration(payload: RegistrationPayload) {
       }
     }
 
-    // 5. Create payment row.
-    //    Competitor → linked via teamId. Observer (Citizen Pass) → linked via
-    //    participantId so a basic ticket can be issued to them on approval.
+    // 3. Create the payment row.
+    //    Ticketed competitions link via teamId; observer passes link via
+    //    participantId so a pass can still be issued to them on approval.
     await db.insert(payments).values({
-      amountPkr: payload.totalFeePkr,
+      amountPkr: payload.totalPkr,
       teamId: teamId ?? undefined,
       participantId: teamId ? undefined : participantId,
       method: "bank_transfer",

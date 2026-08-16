@@ -17,7 +17,16 @@ export const gameCategoryEnum = pgEnum("game_category", [
   "flagship",
   "festival",
   "legacy",
+  "hackathon",
+  "pass",
+  "cosplay",
 ]);
+
+// Two separate events: PreLaunch (5 Sept) and The Colosseum (2–4 Oct).
+export const eventPhaseEnum = pgEnum("event_phase", ["prelaunch", "colosseum"]);
+
+// Squad tickets are charged once per team; everything else per person.
+export const priceBasisEnum = pgEnum("price_basis", ["per_team", "per_person"]);
 
 export const institutionTypeEnum = pgEnum("institution_type", [
   "roots",
@@ -55,6 +64,10 @@ export const ticketTierEnum = pgEnum("ticket_tier", [
   "participant",
   "basic",
   "spectator",
+  "hackathon",
+  "game_entry",
+  "observer",
+  "cosplay",
 ]);
 
 export const passTypeEnum = pgEnum("pass_type", ["day", "three_day"]);
@@ -102,10 +115,20 @@ export const games = pgTable("games", {
   isTeamEvent: boolean("is_team_event").notNull().default(false),
   minPlayers: integer("min_players").notNull().default(1),
   maxPlayers: integer("max_players").notNull().default(1),
-  baseFeepkr: integer("base_fee_pkr").notNull().default(1000),
+  // ── Finalized flat pricing (Aug 2026) ──
+  event: eventPhaseEnum("event").notNull().default("colosseum"),
+  pricePkr: integer("price_pkr").notNull().default(0),
+  priceBasis: priceBasisEnum("price_basis").notNull().default("per_person"),
+  // Concert access add-on for gaming participants — charged per person.
+  socialsAddonPkr: integer("socials_addon_pkr").notNull().default(0),
+  // Free side activities (Forza, Chess, Ludo, Carrom) — no ticket required.
+  isFreeActivity: boolean("is_free_activity").notNull().default(false),
+  displayOrder: integer("display_order").notNull().default(0),
+  active: boolean("active").notNull().default(true),
+  // ── Retired: superseded by the flat price model, kept for migration safety ──
+  baseFeepkr: integer("base_fee_pkr").notNull().default(0),
   participationFeePkr: integer("participation_fee_pkr").notNull().default(0),
   externalSurchargePkr: integer("external_surcharge_pkr").notNull().default(0),
-  active: boolean("active").notNull().default(true),
 });
 
 // ── People ─────────────────────────────────────────────────────────────────
@@ -152,6 +175,9 @@ export const teams = pgTable("teams", {
   institutionName: text("institution_name").notNull(),
   institutionType: institutionTypeEnum("institution_type").notNull(),
   status: teamStatusEnum("status").notNull().default("draft"),
+  event: eventPhaseEnum("event").notNull().default("colosseum"),
+  // How many roster members bought the +1,500 concert (socials) add-on.
+  socialsCount: integer("socials_count").notNull().default(0),
   totalPricePkr: integer("total_price_pkr").notNull().default(0),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
@@ -259,6 +285,9 @@ export const tickets = pgTable("tickets", {
   spectatorTicketId: uuid("spectator_ticket_id").references(
     () => spectatorTickets.id
   ),
+  event: eventPhaseEnum("event").notNull().default("colosseum"),
+  // Whether this holder paid for concert access.
+  socials: boolean("socials").notNull().default(false),
   qrToken: text("qr_token").notNull().unique(),
   pdfUrl: text("pdf_url"),
   emailedAt: timestamp("emailed_at", { withTimezone: true }),
@@ -274,6 +303,8 @@ export const ticketScans = pgTable("ticket_scans", {
     .notNull()
     .references(() => tickets.id),
   zone: text("zone").notNull(), // "gate" | "valorant" | "pubg" | etc.
+  // Needed because 5 Sept and 3 Oct both fall on a Saturday.
+  event: eventPhaseEnum("event"),
   day: dayEnum("day").notNull(),
   scannedAt: timestamp("scanned_at", { withTimezone: true })
     .notNull()

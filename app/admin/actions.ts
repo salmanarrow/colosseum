@@ -49,14 +49,17 @@ export async function verifyAdminAccess(accessToken: string) {
 async function issueAndEmailTicket(opts: {
   participantId: string;
   teamId: string | null;
-  tier: "participant" | "basic";
+  tier: "hackathon" | "game_entry" | "observer" | "cosplay";
+  event: "prelaunch" | "colosseum";
+  socials?: boolean;
   gameName?: string;
   teamName?: string;
 }) {
   const { participants } = await import("@/db/schema");
 
+  const PREFIX = { hackathon: "HACK", game_entry: "GAME", observer: "OBS", cosplay: "COS" } as const;
   const qrToken   = randomUUID();
-  const prefix    = opts.tier === "participant" ? "GLAD" : "CIT";
+  const prefix    = PREFIX[opts.tier];
   const ticketNum = `COL-2026-${prefix}-${Date.now().toString().slice(-6)}-${Math.floor(Math.random() * 9999).toString().padStart(4, "0")}`;
 
   const [ticket] = await db
@@ -66,6 +69,8 @@ async function issueAndEmailTicket(opts: {
       tier:          opts.tier,
       participantId: opts.participantId,
       teamId:        opts.teamId ?? undefined,
+      event:         opts.event,
+      socials:       opts.socials ?? false,
       qrToken,
     })
     .returning({ id: tickets.id });
@@ -111,29 +116,45 @@ export async function approvePayment(paymentId: string) {
     const { teamMembers, games } = await import("@/db/schema");
 
     if (payment.teamId) {
-      // Gladiator (team/squad) — issue one participant ticket per member
+      // Ticketed competition — one pass per roster member (team-of-one for solos)
       const members = await db
         .select({ participantId: teamMembers.participantId })
         .from(teamMembers)
         .where(eq(teamMembers.teamId, payment.teamId));
 
       const [team] = await db
-        .select({ gameId: teams.gameId, teamName: teams.teamName })
+        .select({
+          gameId: teams.gameId, teamName: teams.teamName,
+          event: teams.event, socialsCount: teams.socialsCount,
+        })
         .from(teams)
         .where(eq(teams.id, payment.teamId))
         .limit(1);
 
       let gameName: string | undefined;
+      let category = "flagship";
       if (team?.gameId) {
-        const [g] = await db.select({ name: games.name }).from(games).where(eq(games.id, team.gameId)).limit(1);
+        const [g] = await db
+          .select({ name: games.name, category: games.category })
+          .from(games)
+          .where(eq(games.id, team.gameId))
+          .limit(1);
         gameName = g?.name;
+        category = g?.category ?? "flagship";
       }
+
+      const tier =
+        category === "hackathon" ? "hackathon" as const :
+        category === "cosplay"   ? "cosplay"   as const :
+                                   "game_entry" as const;
 
       for (const member of members) {
         await issueAndEmailTicket({
           participantId: member.participantId,
           teamId:        payment.teamId,
-          tier:          "participant",
+          tier,
+          event:         team?.event ?? "colosseum",
+          socials:       (team?.socialsCount ?? 0) > 0,
           gameName,
           teamName:      team?.teamName,
         });
@@ -141,11 +162,12 @@ export async function approvePayment(paymentId: string) {
 
       await db.update(teams).set({ status: "confirmed" }).where(eq(teams.id, payment.teamId));
     } else if (payment.participantId) {
-      // Citizen Pass (observer) — issue a single basic ticket
+      // Observer pass — a single ticket, no team/game attached.
       await issueAndEmailTicket({
         participantId: payment.participantId,
         teamId:        null,
-        tier:          "basic",
+        tier:          "observer",
+        event:         "colosseum",
       });
     }
 
