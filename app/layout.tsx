@@ -25,12 +25,12 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "MIUC Colosseum",
   description:
-    "Hackathon, Robotic Exhibition, Auto Show & DJ Night (5–6 Sept) then E-Gaming, Cosplay & Social Night (2–4 Oct). MIUC Flagship Campus H-8, Islamabad. Register now.",
+    "Auto Show, Hackathon, Robotics, DJ Tokyo & Fireworks (5 Sept), then three days of gaming, cosplay and a concert (2–4 Oct). MIUC Flagship Campus H-8, Islamabad. Register now.",
   metadataBase: new URL("https://thecolosseumpk.vercel.app"),
   openGraph: {
     title: "MIUC Colosseum",
     description:
-      "Two phases. Eight tracks. Hackathon · Robotics · Auto Show · DJ Night · E-Gaming · Cosplay · Social Night.",
+      "Two events. PreLaunch 5 Sept: Auto Show · Hackathon · Robotics · DJ Tokyo · Fireworks. The Colosseum 2–4 Oct: three days of gaming, cosplay, comedy and a concert.",
     siteName: "MIUC Colosseum",
     locale: "en_PK",
     type: "website",

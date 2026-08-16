@@ -6,35 +6,35 @@ import GameGrid from "@/components/GameGrid";
 import Footer from "@/components/Footer";
 
 const STATS = [
-  { value: "8", label: "Programme Tracks" },
-  { value: "5", label: "Event Days" },
-  { value: "9", label: "Game Titles" },
+  { value: "2", label: "Events" },
+  { value: "4", label: "Event Days" },
+  { value: "6", label: "Competitions" },
   { value: "2K+", label: "Expected Footfall" },
 ];
 
 const PHASES = [
   {
-    tag: "Phase One · Pre-Launch",
-    dates: "5 – 6 September 2026",
+    tag: "Event One · PreLaunch",
+    dates: "5 September 2026",
     accent: "var(--violet)",
-    blurb: "Two days of technology, machines and music to open the season.",
+    blurb: "One day of machines, code and music to open the season.",
     tracks: [
-      { emoji: "💻", name: "Hackathon",          desc: "Innovation sprint — problem-solving, creativity, practical ideas." },
-      { emoji: "🤖", name: "Robotic Exhibition", desc: "Robotics showcase, live demonstrations and innovation displays." },
-      { emoji: "🏎️", name: "Auto Show",          desc: "Curated automotive experience. Invited cars only." },
-      { emoji: "🎧", name: "DJ Night / Jamming", desc: "The opening night — live sets and jamming sessions." },
+      { emoji: "🏎️", name: "Auto Show",          desc: "Curated automotive showcase. Invited cars only." },
+      { emoji: "💻", name: "Hackathon",          desc: "CTF and MVP format, with a prize pool on the line." },
+      { emoji: "🤖", name: "Robotic Exhibition", desc: "Robotics showcase and live demonstrations." },
+      { emoji: "🎧", name: "DJ Night — Tokyo",   desc: "Headline set from DJ Tokyo." },
+      { emoji: "🎆", name: "Fireworks",          desc: "The night closes with a full fireworks display." },
     ],
   },
   {
-    tag: "Phase Two · Main Event",
+    tag: "Event Two · The Colosseum",
     dates: "2 – 4 October 2026",
     accent: "var(--silver)",
-    blurb: "Three days of competition, character and celebration.",
+    blurb: "Three straight days of gaming, plus the shows around it.",
     tracks: [
-      { emoji: "🎮", name: "E-Gaming",           desc: "The Colosseum bracket — 9 titles, squads and solo duels." },
-      { emoji: "🎭", name: "Cosplay",            desc: "Character-based creative competition and audience showcase." },
-      { emoji: "🌃", name: "Social Night",       desc: "The headline social experience closing the festival." },
-      { emoji: "🎪", name: "Activations & Stalls", desc: "Brand activations, food and sponsor experiences throughout." },
+      { emoji: "🎮", name: "Day 1 — 2 Oct", desc: "Qualifying rounds · Gorilla Show · Jamming Session · Comedy Show" },
+      { emoji: "⚔️", name: "Day 2 — 3 Oct", desc: "Semi-Finals · Cosplay competition" },
+      { emoji: "🏆", name: "Day 3 — 4 Oct", desc: "Finals · Closing Ceremony · Concert" },
     ],
   },
 ];
@@ -77,14 +77,14 @@ export default function HomePage() {
         </p>
 
         <h1 style={{ position: "absolute", width: 1, height: 1, padding: 0, margin: -1, overflow: "hidden", clip: "rect(0 0 0 0)", whiteSpace: "nowrap", border: 0 }}>
-          MIUC Colosseum — Hackathon, Auto Show, E-Gaming, Cosplay & Social Night
+          MIUC Colosseum — PreLaunch (Auto Show, Hackathon, DJ Tokyo, Fireworks) and three days of gaming
         </h1>
 
         {/* Emblem */}
         <div style={{ position: "relative", zIndex: 2 }}>
           <Image
             src="/brand/colosseum-emblem.png"
-            alt="The Colosseum E-Sports Event"
+            alt="The Colosseum"
             width={1254}
             height={1254}
             priority
@@ -116,11 +116,11 @@ export default function HomePage() {
           }}
         >
           <span style={{ color: "var(--violet)" }}>◈</span>
-          <span style={{ color: "var(--silver)", fontWeight: 700 }}>Sept 5–6 · Oct 2–4, 2026</span>
+          <span style={{ color: "var(--silver)", fontWeight: 700 }}>Sept 5 · Oct 2–4, 2026</span>
           <span style={{ color: "var(--border-glass)" }}>|</span>
           MIUC Flagship Campus H-8, Islamabad
           <span style={{ color: "var(--border-glass)" }}>|</span>
-          <span>2 Phases · 8 Tracks</span>
+          <span>2 Events · 5 Sept + 2–4 Oct</span>
         </div>
 
         {/* Countdown */}

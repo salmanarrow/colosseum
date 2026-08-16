@@ -201,7 +201,7 @@ export async function getScreenshotViewUrl(path: string) {
 
 // ── Venue scanner & upgrade ─────────────────────────────────────────────────
 
-// Map today's weekday to an event day (Pre-Launch Sept 5–6 = Sat/Sun; Main Event Oct 2–4 = Fri/Sat/Sun).
+// Map today's weekday to an event day (PreLaunch 5 Sept = Sat; Colosseum 2–4 Oct = Fri/Sat/Sun).
 function eventDay(): "Fri" | "Sat" | "Sun" {
   const d = new Date().getDay(); // 0 = Sun … 6 = Sat
   if (d === 6) return "Sat";

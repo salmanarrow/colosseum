@@ -58,7 +58,7 @@ export async function sendTicketEmail(params: TicketEmailParams) {
         <tr><td style="background:linear-gradient(135deg,#07060B,#1a0a30);padding:32px;text-align:center;border-bottom:1px solid rgba(200,205,217,0.3);">
           <p style="margin:0 0 8px;font-size:11px;letter-spacing:0.3em;text-transform:uppercase;color:#B026FF;">ROOTS × MIUC</p>
           <h1 style="margin:0;font-size:32px;font-weight:900;letter-spacing:0.04em;text-transform:uppercase;color:#F4F2F8;">THE COLOSSEUM</h1>
-          <p style="margin:8px 0 0;font-size:13px;color:#A9AFC0;">Sept 5–6 · Oct 2–4, 2026 · MIUC Flagship Campus H-8, Islamabad</p>
+          <p style="margin:8px 0 0;font-size:13px;color:#A9AFC0;">Sept 5 · Oct 2–4, 2026 · MIUC Flagship Campus H-8, Islamabad</p>
         </td></tr>
 
         <!-- Body -->

@@ -10,25 +10,61 @@ A registration and ticketing website for **MIUC Colosseum** — a large-scale, y
 
 > **REVAMPED — Aug 2026.** The event was previously a single 3-day e-sports championship (Aug 7–9). It is now a two-phase festival with six programme tracks. This section supersedes any older single-event framing below.
 
-### Event structure & timeline
+### Event structure & timeline — FINALIZED by the Event Director (board-approved)
 
-| Phase | Dates | Core programming |
+Two separate events, both at **MIUC Flagship Campus H-8, Islamabad**.
+
+| Event | Date(s) | Programming |
 |---|---|---|
-| **Pre-Launch** | **5–6 September 2026** | Hackathon · Robotic Exhibition · Auto Show · DJ Night / Jamming |
-| **Main Event** | **2–4 October 2026** | Cosplay · E-Gaming · Social Night · Brand activations & stalls |
+| **PreLaunch** | **5 September 2026** (one day) | Auto Show · Hackathon (prize pool) · DJ Night · Robotic Exhibition · Fireworks |
+| **The Colosseum** | **2–4 October 2026** (three days) | Three straight days of gaming plus live entertainment |
 
-**Pre-Launch tracks**
-- **Hackathon** — technology/innovation competition; problem-solving, creativity, practical ideas.
-- **Robotic Exhibition** — robotics showcase, demonstrations, innovation.
-- **Auto Show** — curated automotive experience. **Invited cars only**; has its own car-registration flow and controlled access. Coordinated with security.
-- **DJ Night / Jamming** — entertainment segment to build early excitement.
-- **Visual environment** — LED-light tunnels, themed décor, banners, immersive entrance.
+**PreLaunch — 5 Sept (single day)**
+- **Auto Show** — curated automotive showcase. Invited cars only; controlled access.
+- **Hackathon** — **CTF and MVP format**, with a prize pool.
+- **DJ Night** — headline DJ: **Tokyo**.
+- **Robotic Exhibition** — robotics showcase and demonstrations.
+- **Fireworks** — closing spectacle.
+- Refreshments and sponsor stalls throughout.
 
-**Main Event tracks**
-- **Cosplay** — character-based creative competition and audience engagement.
-- **E-Gaming** — the gaming competitions and interactive experiences (the original Colosseum bracket).
-- **Social Night** — the major social/entertainment experience.
-- **Brand activations & stalls** — sponsor-facing commercial space.
+**The Colosseum — day by day (gaming is the main theme)**
+
+| Day | Date | Programme |
+|---|---|---|
+| Day 1 | **2 Oct** | Qualifying rounds · Gorilla Show · Jamming Session · Comedy Show |
+| Day 2 | **3 Oct** | Semi-Finals · Cosplay |
+| Day 3 | **4 Oct** | Finals · Closing Ceremony · Concert |
+
+---
+
+## Ticket pricing — FINALIZED (supersedes all earlier pricing)
+
+**Flat pricing. There is no longer an internal (MIUC/RIS) vs external split** — the previous base + participation + external-surcharge model is retired.
+
+### PreLaunch (5 Sept)
+
+| # | Ticket | Price (PKR) | Basis | Access |
+|---|---|---|---|---|
+| 1 | **Hackathon Pass** | **5,000** | **per team** | Hackathon + DJ Night + Fireworks + Auto Show + Robotic Exhibition |
+| 2 | **Observer Pass** | **2,000** | per person | Auto Show + DJ Night (no hackathon participation) |
+
+### The Colosseum (2–4 Oct)
+
+| # | Ticket | Sub-tier | Price (PKR) | Basis | +Socials |
+|---|---|---|---|---|---|
+| 3 | **Game Entry** | PUBG — Squad | 2,500 | per team | +1,500 × 4 |
+| | | PUBG — Solo | 1,000 | per person | +1,500 |
+| | | Free Fire — Squad | 2,000 | per team | +1,500 × 4 |
+| | | Free Fire — Solo | 1,000 | per person | +1,500 |
+| | | Tekken | 2,000 | per person | +1,500 |
+| | | Valorant | 2,500 | per team | +1,500 |
+| | | FIFA | 2,000 | per person | +1,500 |
+| | | Cosplay | 1,500 | per person | +1,500 |
+| 4 | **Observer Pass** | Main event | 3,999 | per person | — |
+
+Tickets 3 & 4 both include **full 3-day access**: esports arena, cosplay, jamming sessions, and concert.
+
+> **Socials add-on** — PKR 1,500 **per person**; squads multiply by roster size.
 
 - **Host & organizer:** Metropolitan International United College (MIUC) — MIUC conceives, organizes, and runs the event. Branding/emphasis leads with MIUC.
 - **Venue partner:** ROOTS International Schools & Colleges is the school subsidary of MIUC, the MIUC Flagship Campus H-8 is the venue. (frame MIUC and ROOTS as holding the event but maintain a strong emphasis on MIUC putting in the work.)
