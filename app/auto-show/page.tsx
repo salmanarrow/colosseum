@@ -4,9 +4,9 @@ import Footer from "@/components/Footer";
 import AutoShowForm from "./AutoShowForm";
 
 export const metadata: Metadata = {
-  title: "Auto Show · MIUC Colosseum",
+  title: "Auto Show · The Colosseum",
   description:
-    "Exhibit your car at the MIUC Colosseum PreLaunch Auto Show — 5 September 2026, MIUC Flagship Campus H-8, Islamabad. Invited cars only; free to exhibit.",
+    "Exhibit your car at The Colosseum PreLaunch Auto Show — 5 September 2026, MIUC Flagship Campus H-8, Islamabad. Invited cars only; free to exhibit.",
 };
 
 export default function AutoShowPage() {

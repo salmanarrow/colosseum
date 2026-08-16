@@ -4,9 +4,9 @@ import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
-  title: "Passes & Pricing · MIUC Colosseum",
+  title: "Passes & Pricing · The Colosseum",
   description:
-    "Passes for MIUC Colosseum — Hackathon (5–6 Sept) and E-Gaming, Cosplay & Social Night (2–4 Oct). Separate pricing per track.",
+    "Passes for The Colosseum — Hackathon (5–6 Sept) and E-Gaming, Cosplay & Social Night (2–4 Oct). Separate pricing per track.",
 };
 
 type Pass = {

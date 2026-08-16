@@ -17,7 +17,7 @@ export default function ArchedWordmark({
 
   return (
     <svg
-      viewBox="0 0 340 96"
+      viewBox="0 0 340 134"
       role="img"
       aria-label={title}
       style={{ height, width: "auto", display: "block", overflow: "visible" }}
@@ -31,19 +31,20 @@ export default function ArchedWordmark({
           <stop offset="100%" stopColor="var(--silver-deep, #8B93A3)" />
         </linearGradient>
 
-        {/* The arc the big word rides on */}
-        <path id={arcId} d="M 18,84 A 168,104 0 0,1 322,84" fill="none" />
+        {/* Arc for the big word. Endpoints at y=124 with ry=34 put the apex
+            baseline at y=90 — well clear of the "THE" line above it. */}
+        <path id={arcId} d="M 26,124 A 148,34 0 0,1 314,124" fill="none" />
       </defs>
 
-      {/* Small straight "THE" sitting inside the arch */}
+      {/* Small straight "THE", stacked ABOVE the arch */}
       <text
         x="170"
-        y="30"
+        y="28"
         textAnchor="middle"
         fill="var(--silver-deep, #8B93A3)"
         style={{
           fontFamily: "var(--font-display, 'Anton', sans-serif)",
-          fontSize: "20px",
+          fontSize: "22px",
           letterSpacing: "0.42em",
           textTransform: "uppercase",
         }}
@@ -56,8 +57,8 @@ export default function ArchedWordmark({
         fill={`url(#${gradId})`}
         style={{
           fontFamily: "var(--font-display, 'Anton', sans-serif)",
-          fontSize: "46px",
-          letterSpacing: "0.06em",
+          fontSize: "44px",
+          letterSpacing: "0.04em",
           textTransform: "uppercase",
         }}
       >

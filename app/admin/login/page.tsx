@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
+import ArchedWordmark from "@/components/ArchedWordmark";
 import { supabase } from "@/lib/supabase";
 
 export default function AdminLoginPage() {
@@ -41,13 +41,7 @@ export default function AdminLoginPage() {
 
       <div className="glass" style={{ padding: "2.5rem", width: "100%", maxWidth: "400px", position: "relative", zIndex: 1 }}>
         <div style={{ display: "flex", justifyContent: "center", marginBottom: "2rem" }}>
-          <Image
-            src="/brand/colosseum-wordmark.png"
-            alt="The Colosseum"
-            width={1600}
-            height={689}
-            style={{ height: "28px", width: "auto" }}
-          />
+          <ArchedWordmark height={34} idPrefix="login" />
         </div>
 
         <p className="eyebrow" style={{ textAlign: "center", marginBottom: "0.5rem" }}>Admin Access</p>

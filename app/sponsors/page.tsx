@@ -159,6 +159,55 @@ export default function SponsorsPage() {
           )}
         </section>
 
+        {/* ── Stalls ─────────────────────────────────────────────────────── */}
+        <section style={{ maxWidth: "1000px", margin: "0 auto", padding: "1rem 1.5rem 5rem" }}>
+          <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
+            <p className="eyebrow" style={{ marginBottom: "0.75rem" }}>Brand Activations</p>
+            <h2 className="display" style={{ fontSize: "clamp(2rem, 5vw, 3rem)", color: "var(--text-primary)", marginBottom: "0.75rem" }}>
+              Take a <span className="text-gold-foil">Stall</span>
+            </h2>
+            <p style={{ color: "var(--text-muted)", lineHeight: 1.7, maxWidth: "560px", margin: "0 auto" }}>
+              Put your brand directly in front of attendees across both events —
+              food, retail, tech demos, sampling and activations all welcome.
+            </p>
+          </div>
+
+          <div className="glass glass--gold" style={{ padding: "2rem", maxWidth: "560px", margin: "0 auto" }}>
+            <div style={{ display: "flex", alignItems: "baseline", justifyContent: "center", gap: "0.5rem", marginBottom: "0.4rem" }}>
+              <span className="display text-gold-foil" style={{ fontSize: "clamp(2.4rem, 7vw, 3.4rem)" }}>
+                PKR 50–75K
+              </span>
+            </div>
+            <p style={{ textAlign: "center", color: "var(--silver)", fontFamily: "var(--font-mono)", fontSize: "0.9rem", marginBottom: "1.5rem" }}>
+              8 × 8 ft stall space
+            </p>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem", marginBottom: "1.5rem" }}>
+              {[
+                "8 × 8 ft footprint in the activation zone",
+                "Placement coordinated with venue layout and visitor flow",
+                "Branding and signage at your stall",
+                "Direct audience engagement across event days",
+                "Final rate set by size of brand and placement",
+              ].map((perk) => (
+                <div key={perk} style={{ display: "flex", gap: "0.6rem", alignItems: "flex-start", fontSize: "0.88rem", color: "var(--text-muted)" }}>
+                  <span style={{ color: "var(--violet)" }}>▸</span>
+                  <span>{perk}</span>
+                </div>
+              ))}
+            </div>
+
+            <p style={{ fontSize: "0.78rem", color: "var(--text-faint)", lineHeight: 1.6, marginBottom: "1.5rem", borderTop: "1px solid var(--border-glass)", paddingTop: "1rem" }}>
+              Please note: <strong style={{ color: "var(--text-muted)" }}>no glass products</strong> are
+              permitted anywhere within the event setup.
+            </p>
+
+            <Link href="/sponsor-inquiry" className="btn-primary" style={{ width: "100%", justifyContent: "center" }}>
+              Enquire About a Stall →
+            </Link>
+          </div>
+        </section>
+
         {hasSponsors && (
           <section style={{ textAlign: "center", padding: "0 1.5rem 5rem" }}>
             <Link href="/sponsor-inquiry" className="btn-ghost">

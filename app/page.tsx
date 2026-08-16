@@ -12,29 +12,56 @@ const STATS = [
   { value: "2K+", label: "Expected Footfall" },
 ];
 
-const PHASES = [
+// Day-by-day programme. Day 0 is the PreLaunch; Days 1–3 are The Colosseum.
+const DAYS = [
   {
-    tag: "Event One · PreLaunch",
-    dates: "5 September 2026",
+    day: "Day 0",
+    event: "PreLaunch",
+    date: "Friday, 5 September",
     accent: "var(--violet)",
-    blurb: "One day of machines, code and music to open the season.",
-    tracks: [
-      { emoji: "🏎️", name: "Auto Show",          desc: "Curated automotive showcase. Invited cars only." },
-      { emoji: "💻", name: "Hackathon",          desc: "CTF and MVP format, with a prize pool on the line." },
+    headline: "Machines, code and music",
+    items: [
+      { emoji: "🏎️", name: "Auto Show",          desc: "Curated automotive showcase — invited cars only.", href: "/auto-show" },
+      { emoji: "💻", name: "Hackathon",          desc: "CTF and MVP format, with a prize pool.", href: "/register" },
       { emoji: "🤖", name: "Robotic Exhibition", desc: "Robotics showcase and live demonstrations." },
       { emoji: "🎧", name: "DJ Night — Tokyo",   desc: "Headline set from DJ Tokyo." },
       { emoji: "🎆", name: "Fireworks",          desc: "The night closes with a full fireworks display." },
     ],
   },
   {
-    tag: "Event Two · The Colosseum",
-    dates: "2 – 4 October 2026",
+    day: "Day 1",
+    event: "The Colosseum",
+    date: "Friday, 2 October",
     accent: "var(--silver)",
-    blurb: "Three straight days of gaming, plus the shows around it.",
-    tracks: [
-      { emoji: "🎮", name: "Day 1 — 2 Oct", desc: "Qualifying rounds · Gorilla Show · Jamming Session · Comedy Show" },
-      { emoji: "⚔️", name: "Day 2 — 3 Oct", desc: "Semi-Finals · Cosplay competition" },
-      { emoji: "🏆", name: "Day 3 — 4 Oct", desc: "Finals · Closing Ceremony · Concert" },
+    headline: "Qualifiers and the opening shows",
+    items: [
+      { emoji: "🎮", name: "Qualifying Rounds", desc: "Group stages across every title.", href: "/register" },
+      { emoji: "🦍", name: "Gorilla Show",      desc: "Headline live act on the main stage." },
+      { emoji: "🎸", name: "Jamming Session",   desc: "Open jam — bring an instrument or just listen." },
+      { emoji: "🎙️", name: "Comedy Show",       desc: "Stand-up set to close out day one." },
+    ],
+  },
+  {
+    day: "Day 2",
+    event: "The Colosseum",
+    date: "Saturday, 3 October",
+    accent: "var(--silver)",
+    headline: "Semi-finals and cosplay",
+    items: [
+      { emoji: "⚔️", name: "Semi-Finals", desc: "The bracket narrows — best of the qualifiers.", href: "/register" },
+      { emoji: "🎭", name: "Cosplay",     desc: "Costume competition and showcase. Entry PKR 1,500.", href: "/register" },
+    ],
+  },
+  {
+    day: "Day 3",
+    event: "The Colosseum",
+    date: "Sunday, 4 October",
+    accent: "var(--silver)",
+    headline: "Finals, ceremony and the concert",
+    items: [
+      { emoji: "🏆", name: "Grand Finals",     desc: "Champions crowned across every title." },
+      { emoji: "🎖️", name: "Closing Ceremony", desc: "Prize distribution and awards." },
+      { emoji: "🎤", name: "Concert",          desc: "The headline closing act. Included with Observer; +1,500 for competitors.", href: "/tickets" },
     ],
   },
 ];
@@ -77,16 +104,16 @@ export default function HomePage() {
         </p>
 
         <h1 style={{ position: "absolute", width: 1, height: 1, padding: 0, margin: -1, overflow: "hidden", clip: "rect(0 0 0 0)", whiteSpace: "nowrap", border: 0 }}>
-          MIUC Colosseum — PreLaunch (Auto Show, Hackathon, DJ Tokyo, Fireworks) and three days of gaming
+          The Colosseum — PreLaunch (Auto Show, Hackathon, DJ Tokyo, Fireworks) and three days of gaming
         </h1>
 
         {/* Emblem */}
         <div style={{ position: "relative", zIndex: 2 }}>
           <Image
-            src="/brand/colosseum-emblem.png"
+            src="/brand/colosseum-emblem.jpg"
             alt="The Colosseum"
-            width={1254}
-            height={1254}
+            width={556}
+            height={556}
             priority
             style={{
               width: "100%",
@@ -190,42 +217,53 @@ export default function HomePage() {
           <div style={{ textAlign: "center", marginBottom: "3.5rem" }}>
             <p className="eyebrow" style={{ marginBottom: "1rem" }}>The Programme</p>
             <h2 className="display" style={{ fontSize: "clamp(2.5rem, 7vw, 4.5rem)", color: "var(--text-primary)" }}>
-              Two Phases.<br /><span className="text-violet-foil">One Colosseum.</span>
+              Four Days.<br /><span className="text-violet-foil">One Colosseum.</span>
             </h2>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: "1.5rem" }}>
-            {PHASES.map((phase) => (
-              <div key={phase.tag} className="glass" style={{ padding: "2rem", display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(290px, 1fr))", gap: "1.25rem" }}>
+            {DAYS.map((d) => (
+              <div key={d.day} className="glass" style={{ padding: "1.75rem", display: "flex", flexDirection: "column", gap: "1.15rem" }}>
                 <div>
-                  <p className="eyebrow" style={{ color: phase.accent, marginBottom: "0.5rem" }}>{phase.tag}</p>
-                  <h3 className="display" style={{ fontSize: "1.9rem", color: "var(--text-primary)", marginBottom: "0.5rem" }}>
-                    {phase.dates}
-                  </h3>
-                  <p style={{ color: "var(--text-muted)", fontSize: "0.92rem", lineHeight: 1.6 }}>{phase.blurb}</p>
+                  <div style={{ display: "flex", alignItems: "baseline", gap: "0.6rem", marginBottom: "0.3rem" }}>
+                    <span className="display" style={{ fontSize: "2rem", color: d.accent, lineHeight: 1 }}>{d.day}</span>
+                    <span style={{ fontSize: "0.68rem", letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--text-faint)" }}>
+                      {d.event}
+                    </span>
+                  </div>
+                  <p style={{ fontFamily: "var(--font-mono)", fontSize: "0.8rem", color: "var(--silver)", marginBottom: "0.4rem" }}>
+                    {d.date}
+                  </p>
+                  <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", lineHeight: 1.55 }}>{d.headline}</p>
                 </div>
 
-                <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-                  {phase.tracks.map((t) => (
-                    <div
-                      key={t.name}
-                      style={{
-                        display: "flex", gap: "0.9rem", alignItems: "flex-start",
-                        background: "rgba(22,18,32,0.5)", border: "1px solid var(--border-glass)",
-                        borderRadius: "12px", padding: "0.9rem 1rem",
-                      }}
-                    >
-                      <span style={{ fontSize: "1.4rem", lineHeight: 1.2 }}>{t.emoji}</span>
-                      <div>
-                        <p style={{ fontFamily: "var(--font-display)", letterSpacing: "0.04em", textTransform: "uppercase", fontSize: "1rem", color: "var(--text-primary)" }}>
-                          {t.name}
-                        </p>
-                        <p style={{ fontSize: "0.82rem", color: "var(--text-muted)", lineHeight: 1.5, marginTop: "0.15rem" }}>
-                          {t.desc}
-                        </p>
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
+                  {d.items.map((t) => {
+                    const inner = (
+                      <div
+                        style={{
+                          display: "flex", gap: "0.8rem", alignItems: "flex-start",
+                          background: "rgba(22,18,32,0.5)", border: "1px solid var(--border-glass)",
+                          borderRadius: "12px", padding: "0.8rem 0.9rem", height: "100%",
+                        }}
+                      >
+                        <span style={{ fontSize: "1.25rem", lineHeight: 1.2 }}>{t.emoji}</span>
+                        <div>
+                          <p style={{ fontFamily: "var(--font-display)", letterSpacing: "0.04em", textTransform: "uppercase", fontSize: "0.92rem", color: "var(--text-primary)" }}>
+                            {t.name}
+                          </p>
+                          <p style={{ fontSize: "0.78rem", color: "var(--text-muted)", lineHeight: 1.5, marginTop: "0.15rem" }}>
+                            {t.desc}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                    return "href" in t && t.href ? (
+                      <Link key={t.name} href={t.href} style={{ textDecoration: "none" }}>{inner}</Link>
+                    ) : (
+                      <div key={t.name}>{inner}</div>
+                    );
+                  })}
                 </div>
               </div>
             ))}

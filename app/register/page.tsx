@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Register · The Colosseum",
   description:
-    "Register for the MIUC Colosseum — PreLaunch 5 Sept (Auto Show, Hackathon, DJ Tokyo, Fireworks) and The Colosseum 2–4 Oct (three days of gaming, cosplay and a concert).",
+    "Register for The Colosseum — PreLaunch 5 Sept (Auto Show, Hackathon, DJ Tokyo, Fireworks) and The Colosseum 2–4 Oct (three days of gaming, cosplay and a concert).",
 };
 
 export default async function RegisterPage() {
