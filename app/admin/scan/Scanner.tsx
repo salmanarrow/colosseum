@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { lookupTicketByToken, logScan, upgradeCitizenToGladiator } from "../actions";
-import { PASS_STYLES, type PassTier } from "@/lib/passes";
+import { getPassStyle, EVENT_META, type PassTier, type EventKey } from "@/lib/passes";
 
 type Game = {
   id: string; slug: string; name: string; category: string;
@@ -121,8 +121,11 @@ export default function Scanner({ games }: { games: Game[] }) {
     setTimeout(() => startCamera(), 50);
   }
 
-  const tierLabel = ticket?.tier === "participant" ? "Gladiator Pass ⚔️"
-    : ticket?.tier === "basic" ? "Citizen Pass 🏛️" : "Spectator 🎟️";
+  // Resolve by tier AND event — "Observer" is a different pass at each event,
+  // so tier alone would name (and colour) the wrong thing at the gate.
+  const passEvent = ((ticket as { event?: string } | null)?.event ?? "colosseum") as EventKey;
+  const passStyle = getPassStyle(((ticket?.tier ?? "observer") as PassTier), passEvent);
+  const tierLabel = `${passStyle.icon}  ${passStyle.label}`;
 
   // ── Render ──────────────────────────────────────────────────────────────
   return (
@@ -165,8 +168,11 @@ export default function Scanner({ games }: { games: Game[] }) {
 
       {/* Ticket card */}
       {ticket && (
-        <div className={`glass ${ticket.tier === "participant" ? "glass--gold" : "glass--teal"}`} style={{ padding: "1.75rem" }}>
-          <p className="eyebrow" style={{ color: ticket.tier === "participant" ? "var(--gold)" : "var(--teal)" }}>{tierLabel}</p>
+        <div className="glass" style={{ padding: "1.75rem", borderColor: passStyle.accent, boxShadow: `0 0 28px ${passStyle.accent}33` }}>
+          <p className="eyebrow" style={{ color: passStyle.accent }}>{tierLabel}</p>
+          <p style={{ fontSize: "0.68rem", letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--text-faint)", marginTop: "0.2rem" }}>
+            {passStyle.strapline}
+          </p>
           <h2 className="display" style={{ fontSize: "1.6rem", margin: "0.25rem 0 1rem" }}>{ticket.participantName}</h2>
 
           <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", marginBottom: "1.25rem" }}>
@@ -175,6 +181,7 @@ export default function Scanner({ games }: { games: Game[] }) {
               ["Ticket No.",  ticket.ticketNumber],
               ...(ticket.gameName ? [["Game", ticket.gameName] as [string, string]] : []),
               ...(ticket.teamName ? [["Team", ticket.teamName] as [string, string]] : []),
+              ["Event", `${EVENT_META[passEvent].name} · ${EVENT_META[passEvent].dates}`],
               ["Rate", isExternal ? "External" : "Internal (MIUC/RIS)"],
             ].map(([label, value]) => (
               <div key={label} style={{ display: "flex", justifyContent: "space-between", gap: "1rem", borderBottom: "1px solid var(--border-glass)", paddingBottom: "0.4rem" }}>

@@ -8,7 +8,7 @@
  */
 import React from "react";
 import { Document, Page, Text, View, Image, StyleSheet, renderToBuffer } from "@react-pdf/renderer";
-import { PASS_STYLES, EVENT_META, passDays, concertLine, type PassTier, type EventKey } from "./passes";
+import { getPassStyle, EVENT_META, passDays, concertLine, type PassTier, type EventKey } from "./passes";
 import { generateQRDataURL } from "./qr";
 
 export type PassData = {
@@ -75,10 +75,10 @@ const s = StyleSheet.create({
 });
 
 function PassDoc({ data, qrDataUrl }: { data: PassData; qrDataUrl: string }) {
-  const style = PASS_STYLES[data.tier];
+  const style = getPassStyle(data.tier, data.event);
   const ev = EVENT_META[data.event];
   const days = passDays(data.event);
-  const concert = concertLine(data.tier, !!data.socials);
+  const concert = concertLine(data.tier, !!data.socials, data.event);
   const concertOk = concert?.startsWith("Concert included");
 
   return (

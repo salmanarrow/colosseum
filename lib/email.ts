@@ -2,6 +2,7 @@ import { Resend } from "resend";
 import nodemailer from "nodemailer";
 import { generateQRDataURL } from "./qr";
 import { renderPassPdf } from "./passPdf";
+import { getPassStyle } from "./passes";
 
 // Provider selection: Gmail SMTP when GMAIL_USER/GMAIL_APP_PASSWORD are set
 // (no domain required — free, ~500 emails/day), otherwise Resend with a
@@ -78,7 +79,8 @@ export async function sendTicketEmail(params: TicketEmailParams) {
   // Strip data URL prefix to get raw base64
   const qrBase64 = qrDataUrl.replace(/^data:image\/png;base64,/, "");
 
-  const passLabel = PASS_LABEL[params.tier];
+  // Label depends on the event too — "Observer" is a different product in each.
+  const passLabel = getPassStyle(params.tier, params.event ?? "colosseum").label;
   const eventLine = params.event === "prelaunch"
     ? "PreLaunch · 5 September 2026"
     : "The Colosseum · 2 – 4 October 2026";

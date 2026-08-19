@@ -264,6 +264,8 @@ export async function lookupTicketByToken(tokenOrUrl: string) {
       ticketId:        tickets.id,
       ticketNumber:    tickets.ticketNumber,
       tier:            tickets.tier,
+      event:           tickets.event,
+      socials:         tickets.socials,
       qrToken:         tickets.qrToken,
       participantId:   tickets.participantId,
       participantName: participants.fullName,
