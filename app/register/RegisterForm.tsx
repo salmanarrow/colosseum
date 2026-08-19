@@ -350,7 +350,7 @@ export default function RegisterForm({ products }: { products: Product[] }) {
               {product.isTeamEvent ? "Captain & Roster" : "Your Details"}
             </h2>
 
-            <Field label="Full Name" value={form.fullName} onChange={(v) => set("fullName", v)} placeholder="Muhammad Ali" required />
+            <Field label="Full Name" value={form.fullName} onChange={(v) => set("fullName", v)} placeholder="Full name" required />
             <Err msg={errors.fullName} />
             <Field label="Email Address" value={form.email} onChange={(v) => set("email", v)} type="email" placeholder="you@example.com" required />
             <Err msg={errors.email} />
@@ -411,9 +411,9 @@ export default function RegisterForm({ products }: { products: Product[] }) {
                 </div>
               ) : (
                 <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-                  <Field label="Institution Name" value={form.institutionName} onChange={(v) => set("institutionName", v)} placeholder="e.g. FAST University" required />
+                  <Field label="Institution Name" value={form.institutionName} onChange={(v) => set("institutionName", v)} placeholder="Institution Name" required />
                   <Err msg={errors.institutionName} />
-                  <Field label="Campus / City" value={form.campusName} onChange={(v) => set("campusName", v)} placeholder="e.g. Islamabad" required />
+                  <Field label="Campus / City" value={form.campusName} onChange={(v) => set("campusName", v)} placeholder="Campus or city" required />
                   <Err msg={errors.campusName} />
                 </div>
               )}
@@ -431,7 +431,7 @@ export default function RegisterForm({ products }: { products: Product[] }) {
                       <p style={{ fontSize: "0.7rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "var(--violet)" }}>
                         Member {i + 2}
                       </p>
-                      <Field label="Full Name" value={tm.fullName} onChange={(v) => updateTeammate(i, "fullName", v)} placeholder="Teammate name" required />
+                      <Field label="Full Name" value={tm.fullName} onChange={(v) => updateTeammate(i, "fullName", v)} placeholder="Full name" required />
                       <Err msg={errors[`tm_name_${i}`]} />
                       <Field label="Email" value={tm.email} onChange={(v) => updateTeammate(i, "email", v)} type="email" placeholder="teammate@example.com" required />
                       <Err msg={errors[`tm_email_${i}`]} />

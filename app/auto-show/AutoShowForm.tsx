@@ -102,7 +102,7 @@ export default function AutoShowForm() {
         </p>
       </div>
 
-      <Field label="Your Name" value={f.ownerName} onChange={(v) => set("ownerName", v)} placeholder="Muhammad Ali" required />
+      <Field label="Your Name" value={f.ownerName} onChange={(v) => set("ownerName", v)} placeholder="Full name" required />
       {errors.ownerName && <p style={{ color: "var(--red-arena)", fontSize: "0.78rem", marginTop: "-0.6rem" }}>{errors.ownerName}</p>}
 
       <Field label="Email" value={f.ownerEmail} onChange={(v) => set("ownerEmail", v)} type="email" placeholder="you@example.com" required />
@@ -111,22 +111,22 @@ export default function AutoShowForm() {
       <Field label="Phone" value={f.ownerPhone} onChange={(v) => set("ownerPhone", v)} type="tel" placeholder="03xx-xxxxxxx" required />
       {errors.ownerPhone && <p style={{ color: "var(--red-arena)", fontSize: "0.78rem", marginTop: "-0.6rem" }}>{errors.ownerPhone}</p>}
 
-      <Field label="Institution / Club (optional)" value={f.institutionName} onChange={(v) => set("institutionName", v)} placeholder="e.g. MIUC, or your car club" />
+      <Field label="Institution / Club (optional)" value={f.institutionName} onChange={(v) => set("institutionName", v)} placeholder="Institution or car club" />
 
       <div style={{ borderTop: "1px solid var(--border-glass)", paddingTop: "1.25rem" }}>
         <p className="eyebrow" style={{ marginBottom: "1rem" }}>The Car</p>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "1rem" }}>
           <div>
-            <Field label="Make" value={f.carMake} onChange={(v) => set("carMake", v)} placeholder="e.g. Toyota" required />
+            <Field label="Make" value={f.carMake} onChange={(v) => set("carMake", v)} placeholder="Vehicle make" required />
             {errors.carMake && <p style={{ color: "var(--red-arena)", fontSize: "0.78rem" }}>{errors.carMake}</p>}
           </div>
           <div>
-            <Field label="Model" value={f.carModel} onChange={(v) => set("carModel", v)} placeholder="e.g. Supra" required />
+            <Field label="Model" value={f.carModel} onChange={(v) => set("carModel", v)} placeholder="Vehicle model" required />
             {errors.carModel && <p style={{ color: "var(--red-arena)", fontSize: "0.78rem" }}>{errors.carModel}</p>}
           </div>
-          <Field label="Year" value={f.carYear} onChange={(v) => set("carYear", v)} placeholder="e.g. 1998" />
+          <Field label="Year" value={f.carYear} onChange={(v) => set("carYear", v)} placeholder="Year" />
           <div>
-            <Field label="Registration Plate" value={f.plateNumber} onChange={(v) => set("plateNumber", v)} placeholder="e.g. ABC-123" required />
+            <Field label="Registration Plate" value={f.plateNumber} onChange={(v) => set("plateNumber", v)} placeholder="Registration number" required />
             {errors.plateNumber && <p style={{ color: "var(--red-arena)", fontSize: "0.78rem" }}>{errors.plateNumber}</p>}
           </div>
         </div>

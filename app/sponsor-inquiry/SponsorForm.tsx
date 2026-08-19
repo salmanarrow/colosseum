@@ -118,7 +118,7 @@ export default function SponsorForm() {
 
       <Field label="Phone" value={form.phone} onChange={(v) => set("phone", v)} type="tel" placeholder="03xx-xxxxxxx" />
 
-      <Field label="Organization / Institution Name" value={form.organizationName} onChange={(v) => set("organizationName", v)} placeholder="e.g. Coca-Cola Pakistan" required />
+      <Field label="Organization / Institution Name" value={form.organizationName} onChange={(v) => set("organizationName", v)} placeholder="Organization name" required />
       {errors.organizationName && <p style={{ color: "var(--red-arena)", fontSize: "0.78rem", marginTop: "-0.75rem" }}>{errors.organizationName}</p>}
 
       <Select

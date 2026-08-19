@@ -1,6 +1,7 @@
 import { Resend } from "resend";
 import nodemailer from "nodemailer";
 import { generateQRDataURL } from "./qr";
+import { renderPassPdf } from "./passPdf";
 
 // Provider selection: Gmail SMTP when GMAIL_USER/GMAIL_APP_PASSWORD are set
 // (no domain required — free, ~500 emails/day), otherwise Resend with a
@@ -130,7 +131,25 @@ export async function sendTicketEmail(params: TicketEmailParams) {
 </body>
 </html>`;
 
-  const subject = `⚔️ Your ${passLabel} — MIUC Colosseum 2026`;
+  const subject = `Your ${passLabel} — The Colosseum 2026`;
+
+  // Printable A5 pass. Non-fatal: if it fails the QR is still in the body.
+  let pdf: Buffer | null = null;
+  try {
+    pdf = await renderPassPdf({
+      tier: params.tier,
+      event: params.event ?? "colosseum",
+      holderName: params.recipientName,
+      ticketNumber: params.ticketNumber,
+      qrToken: params.qrToken,
+      gameName: params.gameName,
+      teamName: params.teamName,
+      socials: params.socials,
+    });
+  } catch (err) {
+    console.error("Pass PDF render failed:", err);
+  }
+  const pdfName = `colosseum-pass-${params.ticketNumber}.pdf`;
 
   if (gmailConfigured()) {
     return getGmailTransport().sendMail({
@@ -139,11 +158,8 @@ export async function sendTicketEmail(params: TicketEmailParams) {
       subject,
       html,
       attachments: [
-        {
-          filename: "entry-qr.png",
-          content: Buffer.from(qrBase64, "base64"),
-          cid: "qrcode",
-        },
+        { filename: "entry-qr.png", content: Buffer.from(qrBase64, "base64"), cid: "qrcode" },
+        ...(pdf ? [{ filename: pdfName, content: pdf, contentType: "application/pdf" }] : []),
       ],
     });
   }
@@ -154,11 +170,8 @@ export async function sendTicketEmail(params: TicketEmailParams) {
     subject,
     html,
     attachments: [
-      {
-        filename: "entry-qr.png",
-        content: qrBase64,
-        contentId: "qrcode",
-      },
+      { filename: "entry-qr.png", content: qrBase64, contentId: "qrcode" },
+      ...(pdf ? [{ filename: pdfName, content: pdf.toString("base64") }] : []),
     ],
   });
 }

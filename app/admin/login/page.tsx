@@ -58,7 +58,7 @@ export default function AdminLoginPage() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="admin@thecolosseum.pk"
+              placeholder="admin@example.com"
               onKeyDown={(e) => e.key === "Enter" && handleLogin()}
               style={{
                 background: "rgba(22,18,32,0.7)", border: "1px solid var(--border-glass)",

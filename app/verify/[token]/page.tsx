@@ -70,6 +70,15 @@ export default async function VerifyPage({ params }: { params: Promise<{ token: 
                   <span style={{ fontSize: "0.9rem", color: "var(--text-primary)", textAlign: "right" }}>{value}</span>
                 </div>
               ))}
+              <a
+                href={`/api/pass/${token}`}
+                target="_blank"
+                rel="noopener"
+                className="btn-ghost"
+                style={{ justifyContent: "center", marginTop: "0.75rem", fontSize: "0.85rem", textDecoration: "none" }}
+              >
+                ⬇ Download printable pass
+              </a>
               <div style={{ marginTop: "0.5rem", background: "rgba(176,38,255,0.08)", borderRadius: "8px", padding: "0.75rem 1rem" }}>
                 <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", lineHeight: 1.6 }}>
                   ✓ Admit to all zones.

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { lookupTicketByToken, logScan, upgradeCitizenToGladiator } from "../actions";
+import { PASS_STYLES, type PassTier } from "@/lib/passes";
 
 type Game = {
   id: string; slug: string; name: string; category: string;
@@ -247,6 +248,16 @@ export default function Scanner({ games }: { games: Game[] }) {
           {toast && (
             <p style={{ marginTop: "1rem", textAlign: "center", fontSize: "0.85rem", color: "var(--teal)", lineHeight: 1.5 }}>{toast}</p>
           )}
+
+          <a
+            href={`/api/pass/${ticket.qrToken}`}
+            target="_blank"
+            rel="noopener"
+            className="btn-ghost"
+            style={{ width: "100%", justifyContent: "center", marginTop: "1rem", fontSize: "0.85rem", textDecoration: "none" }}
+          >
+            ⬇ Printable pass
+          </a>
 
           <button className="btn-ghost" onClick={reset} style={{ width: "100%", justifyContent: "center", marginTop: "1rem", fontSize: "0.85rem" }}>
             ⟲ Scan Another

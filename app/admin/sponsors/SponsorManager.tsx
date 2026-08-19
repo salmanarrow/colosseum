@@ -91,7 +91,7 @@ export default function SponsorManager({ sponsors }: { sponsors: Sponsor[] }) {
               <label style={{ fontSize: "0.7rem", letterSpacing: "0.15em", textTransform: "uppercase", color: "var(--text-muted)" }}>
                 Name <span style={{ color: "var(--red-arena)" }}>*</span>
               </label>
-              <input value={form.name} onChange={(e) => set("name", e.target.value)} placeholder="e.g. Coca-Cola Pakistan" style={inputStyle} />
+              <input value={form.name} onChange={(e) => set("name", e.target.value)} placeholder="Organization name" style={inputStyle} />
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
