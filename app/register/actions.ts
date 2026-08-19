@@ -119,12 +119,28 @@ export async function submitRegistration(payload: RegistrationPayload) {
         id: games.id,
         category: games.category,
         isTeamEvent: games.isTeamEvent,
+        minPlayers: games.minPlayers,
+        pricePkr: games.pricePkr,
+        socialsAddonPkr: games.socialsAddonPkr,
+        event: games.event,
       })
       .from(games)
       .where(eq(games.id, payload.productId))
       .limit(1);
 
     if (!product) return { success: false, error: "That ticket is no longer available." };
+
+    // NEVER trust the price from the browser — recompute it from the catalogue.
+    // `totalPkr` arrives in the request body, so a crafted POST could otherwise
+    // register for PKR 1 and still land in the queue looking legitimate.
+    const rosterSize = product.isTeamEvent ? product.minPlayers : 1;
+    const serverTotal =
+      product.pricePkr + (payload.wantsSocials ? product.socialsAddonPkr * rosterSize : 0);
+    if (serverTotal !== payload.totalPkr) {
+      console.warn(
+        `Price mismatch on ${product.id}: client sent ${payload.totalPkr}, server computed ${serverTotal}. Using server value.`
+      );
+    }
 
     // Observer passes ("pass") have no game/team — everything else creates a
     // team row (a team-of-one for solo entries) so the ticket carries its title.
@@ -141,9 +157,9 @@ export async function submitRegistration(payload: RegistrationPayload) {
           institutionName: payload.institutionName,
           institutionType: payload.institutionType,
           status: "pending_payment",
-          event: payload.event,
+          event: product.event,
           socialsCount: payload.socialsCount,
-          totalPricePkr: payload.totalPkr,
+          totalPricePkr: serverTotal,
         })
         .returning({ id: teams.id });
       teamId = newTeam.id;
@@ -195,7 +211,7 @@ export async function submitRegistration(payload: RegistrationPayload) {
     //    Ticketed competitions link via teamId; observer passes link via
     //    participantId so a pass can still be issued to them on approval.
     await db.insert(payments).values({
-      amountPkr: payload.totalPkr,
+      amountPkr: serverTotal,
       productId: payload.productId,
       teamId: teamId ?? undefined,
       participantId: teamId ? undefined : participantId,
