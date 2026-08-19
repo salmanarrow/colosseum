@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { approvePayment, rejectPayment, getScreenshotViewUrl } from "../actions";
 
+type TicketRef = { ticketNumber: string; qrToken: string; tier: string; event: string };
+
 type Payment = {
   paymentId:       string;
   amount:          number;
@@ -17,8 +19,40 @@ type Payment = {
   gameName:        string | null;
   captainName:     string | null;
   captainEmail:    string | null;
+  captainPhone?:   string | null;
   institution:     string | null;
+  productName?:    string | null;
+  productEvent?:   string | null;
+  tickets?:        TicketRef[];
 };
+
+/** Pre-filled WhatsApp message carrying the pass link — staff press send. */
+function waLink(p: Payment, qrToken: string) {
+  const base = typeof window !== "undefined" ? window.location.origin : "";
+  const url = `${base}/api/pass/${qrToken}`;
+  const eventName =
+    p.productEvent === "prelaunch"
+      ? "PreLaunch (5 September)"
+      : "The Colosseum (2–4 October)";
+  const msg = [
+    `Assalam-o-Alaikum ${p.captainName ?? ""}`.trim(),
+    ``,
+    `Your pass for ${eventName} is confirmed — ${p.productName ?? "your ticket"}.`,
+    ``,
+    `Download your pass here:`,
+    url,
+    ``,
+    `Please show the QR code at the gate. It admits one entry per day and is non-transferable.`,
+    ``,
+    `— The Colosseum, MIUC Flagship Campus H-8`,
+  ].join("\n");
+  // Keep digits only; a local 03xx number is Pakistani, so swap the leading 0 for 92.
+  let phone = (p.captainPhone ?? "").replace(/[^0-9]/g, "");
+  if (phone.startsWith("0")) phone = "92" + phone.slice(1);
+  return phone
+    ? `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`
+    : `https://wa.me/?text=${encodeURIComponent(msg)}`;
+}
 
 function StatusBadge({ status }: { status: string }) {
   const colors: Record<string, { bg: string; color: string }> = {
@@ -117,6 +151,50 @@ function PaymentCard({ p, onAction }: { p: Payment; onAction: () => void }) {
           )}
         </div>
       </div>
+
+      {/* Passes only exist once a payment is verified, so this block is the
+          gate: nothing is downloadable until approval has happened. */}
+      {p.status === "approved" && (
+        <div style={{ borderTop: "1px solid var(--border-glass)", paddingTop: "0.75rem", display: "flex", gap: "0.5rem", flexWrap: "wrap", alignItems: "center" }}>
+          <span style={{ fontSize: "0.6rem", letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--text-faint)", marginRight: "0.2rem" }}>
+            {p.tickets && p.tickets.length ? `Passes (${p.tickets.length})` : "Passes"}
+          </span>
+          {p.tickets && p.tickets.length ? (
+            p.tickets.map((t) => (
+              <span key={t.qrToken} style={{ display: "inline-flex", gap: "0.35rem", alignItems: "center" }}>
+                <a
+                  href={`/api/pass/${t.qrToken}`} target="_blank" rel="noopener"
+                  title={`Download ${t.ticketNumber}`}
+                  style={{
+                    display: "inline-flex", alignItems: "center", gap: "0.3rem",
+                    fontSize: "0.7rem", fontFamily: "var(--font-mono)", color: "var(--violet)",
+                    textDecoration: "none", border: "1px solid var(--border-teal)",
+                    borderRadius: 999, padding: "0.22rem 0.6rem",
+                  }}
+                >
+                  ⬇ {t.ticketNumber.split("-").slice(-1)[0]}
+                </a>
+                <a
+                  href={waLink(p, t.qrToken)} target="_blank" rel="noopener"
+                  title="Send this pass on WhatsApp"
+                  style={{
+                    display: "inline-flex", alignItems: "center", gap: "0.3rem",
+                    fontSize: "0.7rem", color: "#25D366", textDecoration: "none",
+                    border: "1px solid rgba(37,211,102,0.45)", borderRadius: 999,
+                    padding: "0.22rem 0.6rem",
+                  }}
+                >
+                  ✆ WhatsApp
+                </a>
+              </span>
+            ))
+          ) : (
+            <span style={{ fontSize: "0.72rem", color: "var(--text-faint)" }}>
+              No pass recorded for this payment.
+            </span>
+          )}
+        </div>
+      )}
 
       {p.status === "rejected" && p.rejectionReason && (
         <p style={{ fontSize: "0.8rem", color: "var(--red-arena)", borderTop: "1px solid var(--border-glass)", paddingTop: "0.75rem" }}>

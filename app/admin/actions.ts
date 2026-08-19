@@ -496,9 +496,9 @@ export async function getPendingPayments() {
 }
 
 export async function getAllPayments() {
-  const { participants, teams, games } = await import("@/db/schema");
+  const { participants, teams, games, tickets: tk } = await import("@/db/schema");
 
-  return db
+  const rows = await db
     .select({
       paymentId:      payments.id,
       amount:         payments.amountPkr,
@@ -508,17 +508,40 @@ export async function getAllPayments() {
       status:         payments.status,
       createdAt:      payments.createdAt,
       rejectionReason: payments.rejectionReason,
+      teamId:         payments.teamId,
+      participantId:  payments.participantId,
+      productName:    games.name,
+      productEvent:   games.event,
       teamName:       teams.teamName,
       gameName:       games.name,
       captainName:    participants.fullName,
       captainEmail:   participants.email,
-      institution:    teams.institutionName,
+      captainPhone:   participants.phone,
+      institution:    participants.institutionName,
     })
     .from(payments)
-    .leftJoin(teams,        eq(payments.teamId,               teams.id))
-    .leftJoin(games,        eq(teams.gameId,                  games.id))
-    .leftJoin(participants, eq(teams.captainParticipantId,    participants.id))
+    .leftJoin(teams,  eq(payments.teamId, teams.id))
+    .leftJoin(games,  eq(payments.productId, games.id))
+    .leftJoin(
+      participants,
+      sqlExpr`${participants.id} = coalesce(${teams.captainParticipantId}, ${payments.participantId})`
+    )
     .orderBy(payments.createdAt);
+
+  // Passes exist only after approval, so this is naturally empty until verified.
+  const allTickets = await db
+    .select({
+      participantId: tk.participantId, teamId: tk.teamId,
+      ticketNumber: tk.ticketNumber, qrToken: tk.qrToken, tier: tk.tier, event: tk.event,
+    })
+    .from(tk);
+
+  return rows.map((r) => ({
+    ...r,
+    tickets: allTickets.filter((t) =>
+      r.teamId ? t.teamId === r.teamId : t.participantId === r.participantId && !t.teamId
+    ),
+  }));
 }
 
 export async function getAllRegistrations() {

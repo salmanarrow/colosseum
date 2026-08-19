@@ -8,18 +8,42 @@ import { renderPassPdf } from "./passPdf";
 // verified domain (RESEND_API_KEY + RESEND_FROM). Both instantiate lazily so
 // missing env vars never crash the build.
 
+// Provider precedence: generic SMTP → Gmail → Resend. Generic SMTP first so a
+// provider like Brevo, Mailjet or SMTP2GO can be used without owning a domain
+// and without enabling 2FA on a Gmail account.
+function smtpConfigured() {
+  return !!(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
+}
+
 function gmailConfigured() {
   return !!(process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD);
 }
 
-function getGmailTransport() {
+/** True when any mail transport is usable. Passes are stored regardless. */
+export function mailConfigured() {
+  return smtpConfigured() || gmailConfigured();
+}
+
+function getTransport() {
+  if (smtpConfigured()) {
+    const port = Number(process.env.SMTP_PORT ?? 587);
+    return nodemailer.createTransport({
+      host: process.env.SMTP_HOST!,
+      port,
+      secure: port === 465, // 465 = implicit TLS; 587 upgrades via STARTTLS
+      auth: { user: process.env.SMTP_USER!, pass: process.env.SMTP_PASS! },
+    });
+  }
   return nodemailer.createTransport({
     service: "gmail",
-    auth: {
-      user: process.env.GMAIL_USER!,
-      pass: process.env.GMAIL_APP_PASSWORD!,
-    },
+    auth: { user: process.env.GMAIL_USER!, pass: process.env.GMAIL_APP_PASSWORD! },
   });
+}
+
+/** From-address for whichever transport is active. */
+function fromAddress() {
+  const addr = process.env.SMTP_FROM || process.env.GMAIL_USER || "no-reply@thecolosseum.pk";
+  return addr.includes("<") ? addr : `"The Colosseum" <${addr}>`;
 }
 
 function getResend() {
@@ -151,9 +175,9 @@ export async function sendTicketEmail(params: TicketEmailParams) {
   }
   const pdfName = `colosseum-pass-${params.ticketNumber}.pdf`;
 
-  if (gmailConfigured()) {
-    return getGmailTransport().sendMail({
-      from: `"The Colosseum" <${process.env.GMAIL_USER}>`,
+  if (mailConfigured()) {
+    return getTransport().sendMail({
+      from: fromAddress(),
       to: params.to,
       subject,
       html,
@@ -245,9 +269,9 @@ export async function sendVehiclePassEmail(params: VehiclePassParams) {
 
   const subject = `🏁 Your car is in — Colosseum Auto Show vehicle pass`;
 
-  if (gmailConfigured()) {
-    return getGmailTransport().sendMail({
-      from: `"The Colosseum" <${process.env.GMAIL_USER}>`,
+  if (mailConfigured()) {
+    return getTransport().sendMail({
+      from: fromAddress(),
       to: params.to,
       subject,
       html,
