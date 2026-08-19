@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Nav from "@/components/Nav";
 import { submitRegistration, uploadPaymentScreenshot } from "./actions";
+import { compressImage } from "@/lib/compressImage";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -158,6 +159,7 @@ export default function RegisterForm({ products }: { products: Product[] }) {
   const [submitted, setSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [screenshotFile, setScreenshotFile] = useState<File | null>(null);
+  const [receiptIssue, setReceiptIssue] = useState("");
 
   const set = (k: keyof FormState, v: unknown) => setForm((f) => ({ ...f, [k]: v }));
 
@@ -240,6 +242,18 @@ export default function RegisterForm({ products }: { products: Product[] }) {
         <p style={{ fontFamily: "var(--font-mono)", fontSize: "0.8rem", color: "var(--text-faint)" }}>
           Watch <strong style={{ color: "var(--violet)" }}>{form.email}</strong> for your pass.
         </p>
+        {receiptIssue && (
+          <div style={{ marginTop: "1.5rem", background: "rgba(255,45,98,0.10)", border: "1px solid rgba(255,45,98,0.35)", borderRadius: 12, padding: "1rem 1.25rem", textAlign: "left" }}>
+            <p style={{ color: "var(--red-arena)", fontSize: "0.85rem", fontWeight: 700, marginBottom: "0.35rem" }}>
+              ⚠ Your receipt didn&apos;t upload
+            </p>
+            <p style={{ color: "var(--text-muted)", fontSize: "0.82rem", lineHeight: 1.6 }}>
+              Your registration is saved — only the screenshot failed. Please email it to{" "}
+              <strong style={{ color: "var(--silver)" }}>rootscolosseum@gmail.com</strong> quoting
+              your transaction reference so we can verify your payment.
+            </p>
+          </div>
+        )}
       </div>
     );
   }
@@ -582,13 +596,22 @@ export default function RegisterForm({ products }: { products: Product[] }) {
               onClick={async () => {
                 setSubmitting(true); setSubmitError("");
                 try {
+                  // The receipt is OPTIONAL — a failed upload must never abort
+                  // the registration. Losing someone's whole entry over an
+                  // attachment is far worse than a missing screenshot.
                   let screenshotPath: string | undefined;
+                  let receiptWarning = "";
                   if (screenshotFile) {
-                    const fd = new FormData();
-                    fd.append("screenshot", screenshotFile);
-                    const up = await uploadPaymentScreenshot(fd);
-                    if (!up.success) { setSubmitError(up.error ?? "Screenshot upload failed."); setSubmitting(false); return; }
-                    screenshotPath = up.path;
+                    try {
+                      const slim = await compressImage(screenshotFile);
+                      const fd = new FormData();
+                      fd.append("screenshot", slim);
+                      const up = await uploadPaymentScreenshot(fd);
+                      if (up.success) screenshotPath = up.path;
+                      else receiptWarning = up.error ?? "Receipt could not be uploaded.";
+                    } catch {
+                      receiptWarning = "Receipt could not be uploaded.";
+                    }
                   }
                   const res = await submitRegistration({
                     productId: product.id,
@@ -608,7 +631,7 @@ export default function RegisterForm({ products }: { products: Product[] }) {
                     transactionRef: form.transactionRef,
                     screenshotPath,
                   });
-                  if (res.success) setSubmitted(true);
+                  if (res.success) { setReceiptIssue(receiptWarning); setSubmitted(true); }
                   else setSubmitError(res.error ?? "Submission failed. Please try again.");
                 } finally { setSubmitting(false); }
               }}

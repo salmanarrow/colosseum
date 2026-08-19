@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { submitAutoShowRegistration, uploadCarPhoto } from "./actions";
+import { compressImage } from "@/lib/compressImage";
 
 const CATEGORIES = [
   "Modified / Tuned",
@@ -209,13 +210,16 @@ export default function AutoShowForm() {
           if (!validate()) return;
           setBusy(true); setErr("");
           try {
+            // Photo is optional — never let it block the application.
             let photoPath: string | undefined;
             if (photo) {
-              const fd = new FormData();
-              fd.append("photo", photo);
-              const up = await uploadCarPhoto(fd);
-              if (!up.success) { setErr(up.error ?? "Photo upload failed."); setBusy(false); return; }
-              photoPath = up.path;
+              try {
+                const slim = await compressImage(photo);
+                const fd = new FormData();
+                fd.append("photo", slim);
+                const up = await uploadCarPhoto(fd);
+                if (up.success) photoPath = up.path;
+              } catch { /* proceed without the photo */ }
             }
             const res = await submitAutoShowRegistration({
               ownerName: f.ownerName, ownerEmail: f.ownerEmail, ownerPhone: f.ownerPhone,
