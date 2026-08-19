@@ -107,7 +107,7 @@ body {
 
 /* ---------- Glassmorphism card ---------- */
 .glass {
-  background: rgba(var(--bg-glass), 0.55);
+  background: rgb(var(--bg-glass) / 0.55);
   backdrop-filter: blur(var(--glass-blur));
   -webkit-backdrop-filter: blur(var(--glass-blur));
   border: 1px solid var(--border-glass);
@@ -333,4 +333,43 @@ body {
 }
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; }
+}
+
+/* ---------- Mobile nav dropdown ----------
+   The menu inherits .glass (55% opaque), which let the hero art read straight
+   through the links on small screens. Force it opaque, lift it above the page,
+   and dim what's behind it. */
+.nav-mobile-menu {
+  background: #100D18;
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--border-teal);
+  box-shadow:
+    0 20px 56px rgba(0, 0, 0, 0.8),
+    0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+  z-index: 60;
+}
+.nav-mobile-menu a {
+  text-decoration: none;
+}
+/* Give each link its own surface so nothing behind competes with the text */
+.nav-mobile-menu a:not(.btn-primary) {
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+.nav-mobile-menu a:not(.btn-primary):active {
+  background: rgba(176, 38, 255, 0.16);
+}
+
+/* Scrim behind the open menu — dims the page and catches outside taps */
+.nav-scrim {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 3, 8, 0.6);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  z-index: 40;
+  border: none;
+  padding: 0;
+  cursor: default;
 }

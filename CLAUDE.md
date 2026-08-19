@@ -46,7 +46,7 @@ Two separate events, both at **MIUC Flagship Campus H-8, Islamabad**.
 | # | Ticket | Price (PKR) | Basis | Access |
 |---|---|---|---|---|
 | 1 | **Hackathon Pass** | **5,000** | **per team** | Hackathon + DJ Night + Fireworks + Auto Show + Robotic Exhibition |
-| 2 | **Observer Pass** | **2,000** | per person | Auto Show + DJ Night (no hackathon participation) |
+| 2 | **Observer Pass** | **2,500** | per person | Auto Show + DJ Night (no hackathon participation) |
 
 ### The Colosseum (2–4 Oct)
 

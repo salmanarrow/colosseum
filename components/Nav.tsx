@@ -82,6 +82,16 @@ export default function Nav() {
         {open ? <X size={26} /> : <Menu size={26} />}
       </button>
 
+      {/* Scrim — dims the page behind the open menu and catches outside taps */}
+      {open && (
+        <button
+          type="button"
+          aria-label="Close menu"
+          className="nav-scrim"
+          onClick={() => setOpen(false)}
+        />
+      )}
+
       {/* Mobile dropdown */}
       {open && (
         <div

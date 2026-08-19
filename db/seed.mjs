@@ -2,7 +2,7 @@
 // Run with: npm run db:seed   — idempotent, upserts by slug.
 //
 // Board-finalized pricing (Aug 2026). Flat prices; NO internal/external split.
-//   PreLaunch  (5 Sept)  — Hackathon Pass 5,000/team (max 3) · Observer 2,000
+//   PreLaunch  (5 Sept)  — Hackathon Pass 5,000/team (max 3) · Observer 2,500
 //   Colosseum  (2–4 Oct) — Game Entry per title · Observer 3,999
 //   Socials add-on = PKR 1,500 per person, unlocks CONCERT access for
 //   gaming participants (Observer 3,999 already includes it).
@@ -23,7 +23,7 @@ const SOCIALS = 1500;
 const PRODUCTS = [
   // ── PreLaunch — 5 September ──────────────────────────────────────────────
   ["hackathon-pass",     "Hackathon Pass",       "CTF + MVP · team of up to 3", "prelaunch", "hackathon", true,  1, 3, 5000, "per_team",   0,       false, 10],
-  ["prelaunch-observer", "PreLaunch Observer",   "Auto Show + DJ Night",        "prelaunch", "pass",      false, 1, 1, 2000, "per_person", 0,       false, 20],
+  ["prelaunch-observer", "PreLaunch Observer",   "Auto Show + DJ Night",        "prelaunch", "pass",      false, 1, 1, 2500, "per_person", 0,       false, 20],
 
   // ── The Colosseum — 2–4 October · Game Entry ─────────────────────────────
   ["pubg-squad",       "PUBG Mobile — Squad",   "4-player squad", "colosseum", "flagship", true,  4, 4, 2500, "per_team",   SOCIALS, false, 30],

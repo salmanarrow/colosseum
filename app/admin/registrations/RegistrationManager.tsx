@@ -53,12 +53,17 @@ export default function RegistrationManager({
     productId: "", fullName: "", email: "", phone: "",
     institutionName: "", internal: "external_college",
     teamName: "", wantsSocials: false, markPaid: true, note: "",
+    useCustomPrice: false, customPrice: "",
   });
   const set = (k: string, v: unknown) => setF((s) => ({ ...s, [k]: v }));
 
   const product = products.find((p) => p.id === f.productId);
   const roster = product?.isTeamEvent ? product.minPlayers : 1;
-  const amount = product ? product.pricePkr + (f.wantsSocials ? product.socialsAddonPkr * roster : 0) : 0;
+  const standardAmount = product ? product.pricePkr + (f.wantsSocials ? product.socialsAddonPkr * roster : 0) : 0;
+  // Admins can override the computed price — discounts, comps, negotiated rates.
+  const amount = f.useCustomPrice
+    ? Math.max(0, parseInt(f.customPrice || "0", 10) || 0)
+    : standardAmount;
 
   async function submit() {
     if (!f.productId || !f.fullName.trim() || !/\S+@\S+\.\S+/.test(f.email) || !f.phone.trim()) {
@@ -74,7 +79,7 @@ export default function RegistrationManager({
     });
     if (res.success) {
       setMsg(f.markPaid ? "Added — pass issued and emailed." : "Added as pending payment.");
-      setF({ productId: "", fullName: "", email: "", phone: "", institutionName: "", internal: "external_college", teamName: "", wantsSocials: false, markPaid: true, note: "" });
+      setF({ productId: "", fullName: "", email: "", phone: "", institutionName: "", internal: "external_college", teamName: "", wantsSocials: false, markPaid: true, note: "", useCustomPrice: false, customPrice: "" });
       setAdding(false);
       router.refresh();
     } else setMsg(res.error ?? "Failed.");
@@ -158,8 +163,34 @@ export default function RegistrationManager({
               <input type="checkbox" checked={f.markPaid} onChange={(e) => set("markPaid", e.target.checked)} style={{ accentColor: "var(--violet)", width: 16, height: 16 }} />
               Mark as paid &amp; issue pass now
             </label>
-            <span style={{ marginLeft: "auto", fontFamily: "var(--font-mono)", color: "var(--silver)", fontWeight: 700 }}>
-              PKR {amount.toLocaleString()}
+            <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer", fontSize: "0.85rem", color: "var(--text-muted)" }}>
+              <input
+                type="checkbox"
+                checked={f.useCustomPrice}
+                onChange={(e) => setF((prev) => ({ ...prev, useCustomPrice: e.target.checked, customPrice: e.target.checked ? String(standardAmount) : "" }))}
+                style={{ accentColor: "var(--violet)", width: 16, height: 16 }}
+              />
+              Custom price
+            </label>
+
+            <span style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: "0.6rem" }}>
+              {f.useCustomPrice ? (
+                <>
+                  <span style={{ fontSize: "0.75rem", color: "var(--text-faint)", textDecoration: "line-through", fontFamily: "var(--font-mono)" }}>
+                    {standardAmount.toLocaleString()}
+                  </span>
+                  <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>PKR</span>
+                  <input
+                    type="number" min={0} value={f.customPrice}
+                    onChange={(e) => set("customPrice", e.target.value)}
+                    style={{ ...inputStyle(), width: 120, textAlign: "right", fontFamily: "var(--font-mono)", color: "var(--silver)", fontWeight: 700 }}
+                  />
+                </>
+              ) : (
+                <span style={{ fontFamily: "var(--font-mono)", color: "var(--silver)", fontWeight: 700 }}>
+                  PKR {amount.toLocaleString()}
+                </span>
+              )}
             </span>
           </div>
 
