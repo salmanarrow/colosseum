@@ -33,6 +33,13 @@ export async function uploadCarPhoto(formData: FormData) {
       return { success: false as const, error: "Only image files are accepted." };
     }
 
+    // Most likely production misconfiguration — name it plainly rather than
+    // returning a generic failure the organisers can't act on.
+    if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      console.error("upload: SUPABASE_SERVICE_ROLE_KEY is not set");
+      return { success: false as const, error: "Server storage isn't configured (missing service key). Please tell the organisers." };
+    }
+
     const ext = (file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
     const path = `${new Date().toISOString().slice(0, 10)}/${randomUUID()}.${ext}`;
 
@@ -49,8 +56,9 @@ export async function uploadCarPhoto(formData: FormData) {
     );
 
     if (!res.ok) {
-      console.error("Car photo upload failed:", res.status, await res.text());
-      return { success: false as const, error: "Upload failed. Please try again." };
+      const detail = await res.text().catch(() => "");
+      console.error("Car photo upload failed:", res.status, detail);
+      return { success: false as const, error: `Upload failed (${res.status})${detail ? ": " + detail.slice(0, 140) : ""}` };
     }
     return { success: true as const, path };
   } catch (err) {

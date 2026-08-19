@@ -46,6 +46,13 @@ export async function uploadPaymentScreenshot(formData: FormData) {
       return { success: false as const, error: "Only image files are accepted." };
     }
 
+    // Most likely production misconfiguration — name it plainly rather than
+    // returning a generic failure the organisers can't act on.
+    if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      console.error("upload: SUPABASE_SERVICE_ROLE_KEY is not set");
+      return { success: false as const, error: "Server storage isn't configured (missing service key). Please tell the organisers." };
+    }
+
     const ext  = (file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
     const path = `${new Date().toISOString().slice(0, 10)}/${randomUUID()}.${ext}`;
 
@@ -62,8 +69,14 @@ export async function uploadPaymentScreenshot(formData: FormData) {
     );
 
     if (!res.ok) {
-      console.error("Screenshot upload failed:", res.status, await res.text());
-      return { success: false as const, error: "Upload failed. Please try again." };
+      const detail = await res.text().catch(() => "");
+      console.error("Screenshot upload failed:", res.status, detail);
+      let msg = `Upload failed (${res.status})`;
+      if (res.status === 400 && /mime/i.test(detail)) msg = "That image format isn't supported — try a JPG or PNG.";
+      else if (res.status === 401 || res.status === 403) msg = "Storage rejected the upload (auth). Please tell the organisers.";
+      else if (res.status === 413) msg = "That image is too large — try a smaller screenshot.";
+      else if (detail) msg += `: ${detail.slice(0, 140)}`;
+      return { success: false as const, error: msg };
     }
     return { success: true as const, path };
   } catch (err) {

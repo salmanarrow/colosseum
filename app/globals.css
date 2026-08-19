@@ -373,3 +373,34 @@ body {
   padding: 0;
   cursor: default;
 }
+
+/* ---------- Form controls on a dark UI ----------
+   Native <select> popups and <option> rows are painted by the OS, which on a
+   light-themed system rendered dark text on a dark field — effectively
+   invisible. Declaring the colour-scheme makes the browser use its dark
+   widget palette, and the explicit option colours cover the rest. */
+select,
+input,
+textarea {
+  color-scheme: dark;
+}
+select option,
+select optgroup {
+  background-color: #14101F;
+  color: #F4F2F8;
+}
+select option:checked {
+  background-color: #2A1240;
+  color: #FFFFFF;
+}
+/* Keep the native arrow — components set an inline `background` shorthand,
+   which would override any custom arrow image we tried to add here. With
+   color-scheme: dark the browser draws a light arrow that reads correctly. */
+select {
+  cursor: pointer;
+  padding-right: 2rem !important;
+}
+select:focus {
+  border-color: var(--violet) !important;
+  outline: none;
+}

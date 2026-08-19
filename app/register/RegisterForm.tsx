@@ -239,9 +239,14 @@ export default function RegisterForm({ products }: { products: Product[] }) {
           Your registration is <strong style={{ color: "var(--silver)" }}>pending payment confirmation</strong>.<br />
           Once the team verifies your payment, your QR entry pass is emailed to you.
         </p>
-        <p style={{ fontFamily: "var(--font-mono)", fontSize: "0.8rem", color: "var(--text-faint)" }}>
-          Watch <strong style={{ color: "var(--violet)" }}>{form.email}</strong> for your pass.
-        </p>
+        <div style={{ display: "flex", flexDirection: "column", gap: "0.35rem", alignItems: "center" }}>
+          <p style={{ fontFamily: "var(--font-mono)", fontSize: "0.8rem", color: "var(--text-faint)" }}>
+            Watch <strong style={{ color: "var(--violet)" }}>{form.email}</strong> for your pass.
+          </p>
+          <p style={{ fontFamily: "var(--font-mono)", fontSize: "0.8rem", color: "var(--text-faint)" }}>
+            We may also contact you on <strong style={{ color: "var(--silver)" }}>{form.phone}</strong>.
+          </p>
+        </div>
         {receiptIssue && (
           <div style={{ marginTop: "1.5rem", background: "rgba(255,45,98,0.10)", border: "1px solid rgba(255,45,98,0.35)", borderRadius: 12, padding: "1rem 1.25rem", textAlign: "left" }}>
             <p style={{ color: "var(--red-arena)", fontSize: "0.85rem", fontWeight: 700, marginBottom: "0.35rem" }}>
