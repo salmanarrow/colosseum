@@ -739,3 +739,176 @@ export async function getTicketProducts() {
     .where(and(eq(games.active, true), eq(games.isFreeActivity, false)))
     .orderBy(games.displayOrder);
 }
+
+// ── Admin account management ────────────────────────────────────────────────
+// These mutate who can access the dashboard, so every one of them re-verifies
+// the CALLER server-side. The layout only gates the UI; a crafted request
+// could otherwise call these directly, which would be privilege escalation.
+
+async function requireSuperAdmin(accessToken: string) {
+  const me = await verifyAdminAccess(accessToken);
+  if (!me.authorized) return { ok: false as const, error: "Not signed in as an admin." };
+  if (me.role !== "super_admin") return { ok: false as const, error: "Only a super admin can manage admin accounts." };
+
+  // Resolve the caller's own id so we can stop them deleting themselves.
+  const res = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/user`, {
+    headers: { apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, Authorization: `Bearer ${accessToken}` },
+    cache: "no-store",
+  });
+  const user: { id?: string } = await res.json();
+  return { ok: true as const, callerId: user.id ?? "" };
+}
+
+export async function listAdmins(accessToken: string) {
+  const gate = await requireSuperAdmin(accessToken);
+  if (!gate.ok) return { success: false as const, error: gate.error, admins: [] };
+
+  const { admins } = await import("@/db/schema");
+  const rows = await db
+    .select({ id: admins.id, email: admins.email, fullName: admins.fullName, role: admins.role, createdAt: admins.createdAt })
+    .from(admins)
+    .orderBy(admins.createdAt);
+
+  // Fold in last-sign-in from Supabase Auth so you can see who has actually used their account.
+  let lastSeen: Record<string, string | null> = {};
+  try {
+    const r = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/admin/users`, {
+      headers: {
+        apikey: process.env.SUPABASE_SERVICE_ROLE_KEY!,
+        Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+      },
+      cache: "no-store",
+    });
+    const { users } = (await r.json()) as { users: { id: string; last_sign_in_at: string | null }[] };
+    lastSeen = Object.fromEntries(users.map((u) => [u.id, u.last_sign_in_at]));
+  } catch { /* non-fatal — the list still renders */ }
+
+  return {
+    success: true as const,
+    callerId: gate.callerId,
+    admins: rows.map((a) => ({ ...a, lastSignInAt: lastSeen[a.id] ?? null })),
+  };
+}
+
+export async function createAdmin(accessToken: string, input: {
+  email: string; password: string; fullName: string; role: "admin" | "super_admin";
+}) {
+  const gate = await requireSuperAdmin(accessToken);
+  if (!gate.ok) return { success: false, error: gate.error };
+
+  if (!/\S+@\S+\.\S+/.test(input.email)) return { success: false, error: "Enter a valid email." };
+  if (input.password.length < 8) return { success: false, error: "Password must be at least 8 characters." };
+
+  try {
+    const { admins } = await import("@/db/schema");
+
+    // 1. Create the Supabase Auth user (email pre-confirmed so they can sign in at once)
+    const res = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/admin/users`, {
+      method: "POST",
+      headers: {
+        apikey: process.env.SUPABASE_SERVICE_ROLE_KEY!,
+        Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email: input.email, password: input.password, email_confirm: true }),
+    });
+    const created = (await res.json()) as { id?: string; msg?: string; message?: string; error_description?: string };
+    if (!res.ok || !created.id) {
+      return { success: false, error: created.msg ?? created.message ?? created.error_description ?? "Could not create the login." };
+    }
+
+    // 2. Grant dashboard access
+    await db.insert(admins).values({
+      id: created.id,
+      email: input.email,
+      fullName: input.fullName || input.email.split("@")[0],
+      role: input.role,
+    });
+
+    revalidatePath("/admin/admins");
+    return { success: true };
+  } catch (err) {
+    console.error("createAdmin error:", err);
+    return { success: false, error: "Failed to create admin." };
+  }
+}
+
+export async function updateAdminRole(accessToken: string, adminId: string, role: "admin" | "super_admin") {
+  const gate = await requireSuperAdmin(accessToken);
+  if (!gate.ok) return { success: false, error: gate.error };
+
+  try {
+    const { admins } = await import("@/db/schema");
+    // Never let the last super admin demote themselves out of existence.
+    if (role === "admin") {
+      const supers = await db.select({ id: admins.id }).from(admins).where(eq(admins.role, "super_admin"));
+      if (supers.length <= 1 && supers.some((s) => s.id === adminId)) {
+        return { success: false, error: "This is the only super admin — promote someone else first." };
+      }
+    }
+    await db.update(admins).set({ role }).where(eq(admins.id, adminId));
+    revalidatePath("/admin/admins");
+    return { success: true };
+  } catch (err) {
+    console.error("updateAdminRole error:", err);
+    return { success: false, error: "Failed to update role." };
+  }
+}
+
+export async function removeAdmin(accessToken: string, adminId: string, deleteLogin: boolean) {
+  const gate = await requireSuperAdmin(accessToken);
+  if (!gate.ok) return { success: false, error: gate.error };
+  if (adminId === gate.callerId) return { success: false, error: "You cannot remove your own access." };
+
+  try {
+    const { admins } = await import("@/db/schema");
+    const supers = await db.select({ id: admins.id }).from(admins).where(eq(admins.role, "super_admin"));
+    if (supers.length <= 1 && supers.some((s) => s.id === adminId)) {
+      return { success: false, error: "This is the only super admin — promote someone else first." };
+    }
+
+    // Revoke dashboard access
+    await db.delete(admins).where(eq(admins.id, adminId));
+
+    // Optionally delete the underlying login too
+    if (deleteLogin) {
+      await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/admin/users/${adminId}`, {
+        method: "DELETE",
+        headers: {
+          apikey: process.env.SUPABASE_SERVICE_ROLE_KEY!,
+          Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+        },
+      }).catch((e) => console.error("auth user delete failed:", e));
+    }
+
+    revalidatePath("/admin/admins");
+    return { success: true };
+  } catch (err) {
+    console.error("removeAdmin error:", err);
+    return { success: false, error: "Failed to remove admin." };
+  }
+}
+
+// Set a new password for an admin (also used to recover a forgotten one).
+export async function setAdminPassword(accessToken: string, adminId: string, password: string) {
+  const gate = await requireSuperAdmin(accessToken);
+  if (!gate.ok) return { success: false, error: gate.error };
+  if (password.length < 8) return { success: false, error: "Password must be at least 8 characters." };
+
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/admin/users/${adminId}`, {
+      method: "PUT",
+      headers: {
+        apikey: process.env.SUPABASE_SERVICE_ROLE_KEY!,
+        Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ password }),
+    });
+    if (!res.ok) return { success: false, error: "Could not set the password." };
+    return { success: true };
+  } catch (err) {
+    console.error("setAdminPassword error:", err);
+    return { success: false, error: "Failed to set password." };
+  }
+}
