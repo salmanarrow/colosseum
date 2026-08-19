@@ -1,21 +1,29 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createManualRegistration, deleteRegistration } from "../actions";
 
+export type TicketRef = { ticketNumber: string; qrToken: string; tier: string; event: string };
+
 export type Registration = {
-  teamId: string;
-  teamName: string | null;
+  paymentId: string;
+  teamId: string | null;
   status: string;
+  amount: number;
+  createdAt: string | Date;
+  transactionRef: string | null;
+  screenshotUrl: string | null;
+  productName: string | null;
+  productEvent: string | null;
+  teamName: string | null;
+  teamStatus: string | null;
+  socialsCount: number | null;
+  buyerName: string | null;
+  buyerEmail: string | null;
+  buyerPhone: string | null;
   institution: string | null;
-  totalPrice: number;
-  createdAt: Date;
-  gameName: string | null;
-  gameCategory: string | null;
-  captainName: string | null;
-  captainEmail: string | null;
-  captainPhone: string | null;
+  tickets: TicketRef[];
 };
 
 export type TicketProduct = {
@@ -25,11 +33,9 @@ export type TicketProduct = {
 };
 
 const STATUS: Record<string, { bg: string; color: string }> = {
-  draft:           { bg: "rgba(255,255,255,0.05)", color: "var(--text-faint)" },
-  pending_payment: { bg: "rgba(200,205,217,0.12)", color: "var(--silver)" },
-  pending_review:  { bg: "rgba(200,205,217,0.12)", color: "var(--silver)" },
-  confirmed:       { bg: "rgba(176,38,255,0.12)",  color: "var(--violet)" },
-  cancelled:       { bg: "rgba(255,45,98,0.12)",   color: "var(--red-arena)" },
+  pending_review: { bg: "rgba(200,205,217,0.12)", color: "var(--silver)" },
+  approved:       { bg: "rgba(176,38,255,0.15)",  color: "var(--violet)" },
+  rejected:       { bg: "rgba(255,45,98,0.15)",   color: "var(--red-arena)" },
 };
 
 function inputStyle(): React.CSSProperties {
@@ -49,6 +55,11 @@ export default function RegistrationManager({
   const [msg, setMsg] = useState("");
   const [confirmId, setConfirmId] = useState<string | null>(null);
 
+  // Search & filters
+  const [q, setQ] = useState("");
+  const [eventFilter, setEventFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
+
   const [f, setF] = useState({
     productId: "", fullName: "", email: "", phone: "",
     institutionName: "", internal: "external_college",
@@ -60,10 +71,23 @@ export default function RegistrationManager({
   const product = products.find((p) => p.id === f.productId);
   const roster = product?.isTeamEvent ? product.minPlayers : 1;
   const standardAmount = product ? product.pricePkr + (f.wantsSocials ? product.socialsAddonPkr * roster : 0) : 0;
-  // Admins can override the computed price — discounts, comps, negotiated rates.
-  const amount = f.useCustomPrice
-    ? Math.max(0, parseInt(f.customPrice || "0", 10) || 0)
-    : standardAmount;
+  const amount = f.useCustomPrice ? Math.max(0, parseInt(f.customPrice || "0", 10) || 0) : standardAmount;
+
+  const filtered = useMemo(() => {
+    const needle = q.trim().toLowerCase();
+    return registrations.filter((r) => {
+      if (eventFilter !== "all" && r.productEvent !== eventFilter) return false;
+      if (statusFilter !== "all" && r.status !== statusFilter) return false;
+      if (!needle) return true;
+      // Search everything an organiser might have to hand at the desk.
+      const hay = [
+        r.buyerName, r.buyerEmail, r.buyerPhone, r.institution,
+        r.teamName, r.productName, r.transactionRef,
+        ...r.tickets.flatMap((t) => [t.ticketNumber, t.qrToken]),
+      ].filter(Boolean).join(" ").toLowerCase();
+      return hay.includes(needle);
+    });
+  }, [registrations, q, eventFilter, statusFilter]);
 
   async function submit() {
     if (!f.productId || !f.fullName.trim() || !/\S+@\S+\.\S+/.test(f.email) || !f.phone.trim()) {
@@ -78,10 +102,9 @@ export default function RegistrationManager({
       wantsSocials: f.wantsSocials, amountPkr: amount, markPaid: f.markPaid, note: f.note || undefined,
     });
     if (res.success) {
-      setMsg(f.markPaid ? "Added — pass issued and emailed." : "Added as pending payment.");
+      setMsg(f.markPaid ? "Added — pass issued." : "Added as pending payment.");
       setF({ productId: "", fullName: "", email: "", phone: "", institutionName: "", internal: "external_college", teamName: "", wantsSocials: false, markPaid: true, note: "", useCustomPrice: false, customPrice: "" });
-      setAdding(false);
-      router.refresh();
+      setAdding(false); router.refresh();
     } else setMsg(res.error ?? "Failed.");
     setBusy(false);
   }
@@ -90,21 +113,20 @@ export default function RegistrationManager({
     setBusy(true);
     const res = await deleteRegistration(teamId);
     setMsg(res.success ? "Registration deleted." : (res.error ?? "Delete failed."));
-    setConfirmId(null);
-    setBusy(false);
-    router.refresh();
+    setConfirmId(null); setBusy(false); router.refresh();
   }
 
-  const confirmed = registrations.filter((r) => r.status === "confirmed").length;
-  const pending = registrations.filter((r) => ["pending_payment", "pending_review"].includes(r.status)).length;
+  const approved = registrations.filter((r) => r.status === "approved").length;
+  const pending  = registrations.filter((r) => r.status === "pending_review").length;
+  const revenue  = registrations.filter((r) => r.status === "approved").reduce((n, r) => n + r.amount, 0);
 
   return (
-    <div style={{ maxWidth: 1100 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "1rem", marginBottom: "2rem" }}>
+    <div style={{ maxWidth: 1150 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "1rem", marginBottom: "1.5rem" }}>
         <div>
           <h1 className="display" style={{ fontSize: "2.2rem", marginBottom: "0.25rem" }}>Registrations</h1>
           <p style={{ color: "var(--text-muted)", fontSize: "0.9rem" }}>
-            View, add and remove entries. Adding as paid issues the QR pass immediately.
+            Every registration across both events — teams, solo entries and observer passes.
           </p>
         </div>
         <button className="btn-primary" style={{ fontSize: "0.875rem" }} onClick={() => { setAdding((a) => !a); setMsg(""); }}>
@@ -113,16 +135,12 @@ export default function RegistrationManager({
       </div>
 
       {msg && (
-        <p style={{ marginBottom: "1.25rem", fontSize: "0.85rem", color: msg.includes("Failed") || msg.includes("required") ? "var(--red-arena)" : "var(--violet)" }}>
-          {msg}
-        </p>
+        <p style={{ marginBottom: "1rem", fontSize: "0.85rem", color: /fail|required/i.test(msg) ? "var(--red-arena)" : "var(--violet)" }}>{msg}</p>
       )}
 
-      {/* Manual add */}
       {adding && (
-        <div className="glass glass--gold" style={{ padding: "1.5rem", marginBottom: "2rem", display: "flex", flexDirection: "column", gap: "1rem" }}>
+        <div className="glass glass--gold" style={{ padding: "1.5rem", marginBottom: "1.5rem", display: "flex", flexDirection: "column", gap: "1rem" }}>
           <p className="eyebrow" style={{ color: "var(--silver)" }}>New Registration</p>
-
           <select value={f.productId} onChange={(e) => set("productId", e.target.value)} style={{ ...inputStyle(), color: f.productId ? "var(--text-primary)" : "var(--text-faint)" }}>
             <option value="">Select a ticket…</option>
             {["prelaunch", "colosseum"].map((ev) => (
@@ -133,7 +151,6 @@ export default function RegistrationManager({
               </optgroup>
             ))}
           </select>
-
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "0.75rem" }}>
             <input placeholder="Full name *" value={f.fullName} onChange={(e) => set("fullName", e.target.value)} style={inputStyle()} />
             <input placeholder="Email *" type="email" value={f.email} onChange={(e) => set("email", e.target.value)} style={inputStyle()} />
@@ -149,10 +166,8 @@ export default function RegistrationManager({
               <option value="external_university">External university</option>
             </select>
           </div>
-
           <input placeholder="Note / reference (e.g. cash at desk)" value={f.note} onChange={(e) => set("note", e.target.value)} style={inputStyle()} />
-
-          <div style={{ display: "flex", gap: "1.5rem", flexWrap: "wrap", alignItems: "center" }}>
+          <div style={{ display: "flex", gap: "1.25rem", flexWrap: "wrap", alignItems: "center" }}>
             {product && product.socialsAddonPkr > 0 && (
               <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer", fontSize: "0.85rem", color: "var(--text-muted)" }}>
                 <input type="checkbox" checked={f.wantsSocials} onChange={(e) => set("wantsSocials", e.target.checked)} style={{ accentColor: "var(--violet)", width: 16, height: 16 }} />
@@ -161,39 +176,29 @@ export default function RegistrationManager({
             )}
             <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer", fontSize: "0.85rem", color: "var(--text-muted)" }}>
               <input type="checkbox" checked={f.markPaid} onChange={(e) => set("markPaid", e.target.checked)} style={{ accentColor: "var(--violet)", width: 16, height: 16 }} />
-              Mark as paid &amp; issue pass now
+              Mark as paid &amp; issue pass
             </label>
             <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer", fontSize: "0.85rem", color: "var(--text-muted)" }}>
               <input
-                type="checkbox"
-                checked={f.useCustomPrice}
+                type="checkbox" checked={f.useCustomPrice}
                 onChange={(e) => setF((prev) => ({ ...prev, useCustomPrice: e.target.checked, customPrice: e.target.checked ? String(standardAmount) : "" }))}
                 style={{ accentColor: "var(--violet)", width: 16, height: 16 }}
               />
               Custom price
             </label>
-
             <span style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: "0.6rem" }}>
               {f.useCustomPrice ? (
                 <>
-                  <span style={{ fontSize: "0.75rem", color: "var(--text-faint)", textDecoration: "line-through", fontFamily: "var(--font-mono)" }}>
-                    {standardAmount.toLocaleString()}
-                  </span>
+                  <span style={{ fontSize: "0.75rem", color: "var(--text-faint)", textDecoration: "line-through", fontFamily: "var(--font-mono)" }}>{standardAmount.toLocaleString()}</span>
                   <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>PKR</span>
-                  <input
-                    type="number" min={0} value={f.customPrice}
-                    onChange={(e) => set("customPrice", e.target.value)}
-                    style={{ ...inputStyle(), width: 120, textAlign: "right", fontFamily: "var(--font-mono)", color: "var(--silver)", fontWeight: 700 }}
-                  />
+                  <input type="number" min={0} value={f.customPrice} onChange={(e) => set("customPrice", e.target.value)}
+                    style={{ ...inputStyle(), width: 110, textAlign: "right", fontFamily: "var(--font-mono)", color: "var(--silver)", fontWeight: 700 }} />
                 </>
               ) : (
-                <span style={{ fontFamily: "var(--font-mono)", color: "var(--silver)", fontWeight: 700 }}>
-                  PKR {amount.toLocaleString()}
-                </span>
+                <span style={{ fontFamily: "var(--font-mono)", color: "var(--silver)", fontWeight: 700 }}>PKR {amount.toLocaleString()}</span>
               )}
             </span>
           </div>
-
           <button className="btn-primary" disabled={busy} style={{ justifyContent: "center", opacity: busy ? 0.6 : 1 }} onClick={submit}>
             {busy ? "Saving…" : "Create Registration"}
           </button>
@@ -201,69 +206,118 @@ export default function RegistrationManager({
       )}
 
       {/* Stats */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: "1rem", marginBottom: "2rem" }}>
-        {[["Total", registrations.length], ["Confirmed", confirmed], ["Pending", pending]].map(([l, v]) => (
-          <div key={l as string} className="glass" style={{ padding: "1.25rem", textAlign: "center" }}>
-            <div className="display" style={{ fontSize: "2rem", color: "var(--silver)" }}>{v as number}</div>
-            <div style={{ fontSize: "0.65rem", letterSpacing: "0.15em", textTransform: "uppercase", color: "var(--text-faint)" }}>{l as string}</div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: "0.85rem", marginBottom: "1.5rem" }}>
+        {[["Total", String(registrations.length)], ["Approved", String(approved)], ["Pending", String(pending)], ["Revenue", `PKR ${revenue.toLocaleString()}`]].map(([l, v]) => (
+          <div key={l} className="glass" style={{ padding: "1rem", textAlign: "center" }}>
+            <div className="display" style={{ fontSize: "1.5rem", color: "var(--silver)" }}>{v}</div>
+            <div style={{ fontSize: "0.6rem", letterSpacing: "0.15em", textTransform: "uppercase", color: "var(--text-faint)" }}>{l}</div>
           </div>
         ))}
       </div>
 
-      {/* Table */}
-      {registrations.length === 0 ? (
+      {/* Search + filters */}
+      <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", marginBottom: "1rem" }}>
+        <input
+          value={q} onChange={(e) => setQ(e.target.value)}
+          placeholder="Search name, email, phone, team, ticket number, transaction ref…"
+          style={{ ...inputStyle(), flex: 1, minWidth: 260 }}
+        />
+        <select value={eventFilter} onChange={(e) => setEventFilter(e.target.value)} style={{ ...inputStyle(), width: "auto", minWidth: 170 }}>
+          <option value="all">All events</option>
+          <option value="prelaunch">PreLaunch · 5 Sept</option>
+          <option value="colosseum">Colosseum · 2–4 Oct</option>
+        </select>
+        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} style={{ ...inputStyle(), width: "auto", minWidth: 150 }}>
+          <option value="all">All statuses</option>
+          <option value="pending_review">Pending</option>
+          <option value="approved">Approved</option>
+          <option value="rejected">Rejected</option>
+        </select>
+      </div>
+
+      <p style={{ fontSize: "0.78rem", color: "var(--text-faint)", marginBottom: "0.75rem" }}>
+        Showing {filtered.length} of {registrations.length}
+      </p>
+
+      {filtered.length === 0 ? (
         <div className="glass" style={{ padding: "2.5rem", textAlign: "center", color: "var(--text-faint)" }}>
-          No registrations yet.
+          {registrations.length === 0 ? "No registrations yet." : "Nothing matches that search."}
         </div>
       ) : (
-        <div className="glass" style={{ padding: "0.5rem", overflowX: "auto" }}>
-          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem", minWidth: 820 }}>
-            <thead>
-              <tr>
-                {["Team / Name", "Ticket", "Captain", "Institution", "Amount", "Status", ""].map((h) => (
-                  <th key={h} style={{ textAlign: "left", padding: "0.75rem", fontSize: "0.63rem", letterSpacing: "0.15em", textTransform: "uppercase", color: "var(--text-faint)", borderBottom: "1px solid var(--border-glass)", whiteSpace: "nowrap" }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {registrations.map((r) => {
-                const s = STATUS[r.status] ?? { bg: "rgba(255,255,255,0.05)", color: "var(--text-muted)" };
-                return (
-                  <tr key={r.teamId}>
-                    <td style={{ padding: "0.75rem", borderBottom: "1px solid var(--border-glass)", color: "var(--text-primary)" }}>{r.teamName ?? "—"}</td>
-                    <td style={{ padding: "0.75rem", borderBottom: "1px solid var(--border-glass)", color: "var(--text-muted)" }}>{r.gameName ?? "—"}</td>
-                    <td style={{ padding: "0.75rem", borderBottom: "1px solid var(--border-glass)", color: "var(--text-muted)" }}>
-                      {r.captainName ?? "—"}<br />
-                      <span style={{ fontSize: "0.72rem", color: "var(--text-faint)" }}>{r.captainEmail}</span>
-                    </td>
-                    <td style={{ padding: "0.75rem", borderBottom: "1px solid var(--border-glass)", color: "var(--text-muted)" }}>{r.institution ?? "—"}</td>
-                    <td style={{ padding: "0.75rem", borderBottom: "1px solid var(--border-glass)", fontFamily: "var(--font-mono)", color: "var(--silver)" }}>{r.totalPrice.toLocaleString()}</td>
-                    <td style={{ padding: "0.75rem", borderBottom: "1px solid var(--border-glass)" }}>
-                      <span style={{ background: s.bg, color: s.color, fontSize: "0.6rem", letterSpacing: "0.12em", textTransform: "uppercase", padding: "0.2rem 0.55rem", borderRadius: 999 }}>
-                        {r.status.replace("_", " ")}
-                      </span>
-                    </td>
-                    <td style={{ padding: "0.75rem", borderBottom: "1px solid var(--border-glass)", whiteSpace: "nowrap" }}>
-                      {confirmId === r.teamId ? (
-                        <span style={{ display: "inline-flex", gap: "0.4rem", alignItems: "center" }}>
-                          <button disabled={busy} onClick={() => remove(r.teamId)} style={{ background: "var(--red-arena)", color: "#fff", border: "none", borderRadius: 6, padding: "0.3rem 0.6rem", fontSize: "0.72rem", cursor: "pointer" }}>
-                            Confirm
-                          </button>
-                          <button onClick={() => setConfirmId(null)} style={{ background: "transparent", color: "var(--text-faint)", border: "none", fontSize: "0.72rem", cursor: "pointer" }}>
-                            Cancel
-                          </button>
+        <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+          {filtered.map((r) => {
+            const st = STATUS[r.status] ?? { bg: "rgba(255,255,255,0.05)", color: "var(--text-muted)" };
+            return (
+              <div key={r.paymentId} className="glass" style={{ padding: "1.15rem 1.35rem", display: "flex", flexDirection: "column", gap: "0.7rem" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "0.75rem", flexWrap: "wrap" }}>
+                  <div>
+                    <p style={{ fontFamily: "var(--font-display)", fontSize: "1.05rem", letterSpacing: "0.04em", textTransform: "uppercase", color: "var(--text-primary)" }}>
+                      {r.teamName ?? r.buyerName ?? "—"}
+                    </p>
+                    <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", marginTop: "0.15rem" }}>
+                      {r.productName ?? "—"}
+                      {r.productEvent && (
+                        <span style={{ color: "var(--text-faint)" }}>
+                          {" · "}{r.productEvent === "prelaunch" ? "PreLaunch" : "Colosseum"}
                         </span>
-                      ) : (
-                        <button onClick={() => setConfirmId(r.teamId)} style={{ background: "transparent", border: "none", color: "var(--red-arena)", fontSize: "0.78rem", cursor: "pointer" }}>
-                          Delete
-                        </button>
                       )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                    </p>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                    <span style={{ background: st.bg, color: st.color, fontSize: "0.6rem", letterSpacing: "0.12em", textTransform: "uppercase", padding: "0.2rem 0.55rem", borderRadius: 999 }}>
+                      {r.status.replace("_", " ")}
+                    </span>
+                    <span style={{ fontFamily: "var(--font-mono)", color: "var(--silver)", fontWeight: 700 }}>
+                      PKR {r.amount.toLocaleString()}
+                    </span>
+                  </div>
+                </div>
+
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(165px, 1fr))", gap: "0.5rem" }}>
+                  {[
+                    ["Buyer", r.buyerName],
+                    ["Email", r.buyerEmail],
+                    ["Phone", r.buyerPhone],
+                    ["Institution", r.institution],
+                    ["Ref / TXN", r.transactionRef],
+                    ["Registered", new Date(r.createdAt).toLocaleDateString("en-PK", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })],
+                  ].map(([k, v]) => (
+                    <div key={k as string}>
+                      <p style={{ fontSize: "0.6rem", letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--text-faint)" }}>{k as string}</p>
+                      <p style={{ fontSize: "0.82rem", color: "var(--text-primary)", wordBreak: "break-word" }}>{(v as string) || "—"}</p>
+                    </div>
+                  ))}
+                </div>
+
+                {r.tickets.length > 0 && (
+                  <div style={{ borderTop: "1px solid var(--border-glass)", paddingTop: "0.65rem", display: "flex", gap: "0.5rem", flexWrap: "wrap", alignItems: "center" }}>
+                    <span style={{ fontSize: "0.6rem", letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--text-faint)" }}>
+                      Passes ({r.tickets.length})
+                    </span>
+                    {r.tickets.map((t) => (
+                      <a key={t.qrToken} href={`/api/pass/${t.qrToken}`} target="_blank" rel="noopener"
+                        style={{ fontSize: "0.72rem", fontFamily: "var(--font-mono)", color: "var(--violet)", textDecoration: "underline" }}>
+                        {t.ticketNumber}
+                      </a>
+                    ))}
+                  </div>
+                )}
+
+                {r.teamId && (
+                  <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                    {confirmId === r.teamId ? (
+                      <span style={{ display: "inline-flex", gap: "0.5rem", alignItems: "center" }}>
+                        <button disabled={busy} onClick={() => remove(r.teamId!)} style={{ background: "var(--red-arena)", color: "#fff", border: "none", borderRadius: 999, padding: "0.3rem 0.8rem", fontSize: "0.72rem", cursor: "pointer" }}>Confirm delete</button>
+                        <button onClick={() => setConfirmId(null)} style={{ background: "transparent", border: "none", color: "var(--text-faint)", fontSize: "0.72rem", cursor: "pointer" }}>Cancel</button>
+                      </span>
+                    ) : (
+                      <button onClick={() => setConfirmId(r.teamId)} style={{ background: "transparent", border: "none", color: "var(--red-arena)", fontSize: "0.75rem", cursor: "pointer" }}>Delete</button>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

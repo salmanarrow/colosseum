@@ -262,6 +262,9 @@ export const payments = pgTable("payments", {
   // Set for Citizen-pass (observer) payments that have no team, so a basic
   // ticket can be issued to this participant on approval.
   participantId: uuid("participant_id").references(() => participants.id),
+  // What was bought. Essential for observer passes, which have no team row and
+  // would otherwise lose track of which event they belong to.
+  productId: uuid("product_id").references(() => games.id),
   spectatorTicketId: uuid("spectator_ticket_id").references(
     () => spectatorTickets.id
   ),

@@ -196,6 +196,7 @@ export async function submitRegistration(payload: RegistrationPayload) {
     //    participantId so a pass can still be issued to them on approval.
     await db.insert(payments).values({
       amountPkr: payload.totalPkr,
+      productId: payload.productId,
       teamId: teamId ?? undefined,
       participantId: teamId ? undefined : participantId,
       method: "bank_transfer",

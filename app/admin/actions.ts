@@ -2,7 +2,7 @@
 
 import { db } from "@/db";
 import { payments, tickets, teams, sponsors } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, sql as sqlExpr } from "drizzle-orm";
 import { randomUUID } from "crypto";
 import { revalidatePath } from "next/cache";
 import { sendTicketEmail } from "@/lib/email";
@@ -162,12 +162,27 @@ export async function approvePayment(paymentId: string) {
 
       await db.update(teams).set({ status: "confirmed" }).where(eq(teams.id, payment.teamId));
     } else if (payment.participantId) {
-      // Observer pass — a single ticket, no team/game attached.
+      // Observer pass — no team, so event and tier come from the product
+      // recorded on the payment. Hardcoding "colosseum" previously issued
+      // PreLaunch buyers a pass showing the wrong dates.
+      let evt: "prelaunch" | "colosseum" = "colosseum";
+      let tr: "observer" | "cosplay" | "hackathon" | "game_entry" = "observer";
+      if (payment.productId) {
+        const [prod] = await db
+          .select({ event: games.event, category: games.category })
+          .from(games).where(eq(games.id, payment.productId)).limit(1);
+        if (prod) {
+          evt = prod.event;
+          tr = prod.category === "hackathon" ? "hackathon"
+             : prod.category === "cosplay"   ? "cosplay"
+             : prod.category === "pass"      ? "observer" : "game_entry";
+        }
+      }
       await issueAndEmailTicket({
         participantId: payment.participantId,
-        teamId:        null,
-        tier:          "observer",
-        event:         "colosseum",
+        teamId: null,
+        tier: tr,
+        event: evt,
       });
     }
 
@@ -507,26 +522,54 @@ export async function getAllPayments() {
 }
 
 export async function getAllRegistrations() {
-  const { participants, teams, games, teamMembers } = await import("@/db/schema");
+  const { participants, teams, games } = await import("@/db/schema");
 
-  return db
+  // Driven by `payments`, because every registration creates one — team-based
+  // or not. Listing teams alone hid observer passes entirely.
+  const rows = await db
     .select({
+      paymentId:    payments.id,
       teamId:       teams.id,
+      status:       payments.status,
+      amount:       payments.amountPkr,
+      createdAt:    payments.createdAt,
+      transactionRef: payments.transactionRef,
+      screenshotUrl:  payments.screenshotUrl,
+      productName:  games.name,
+      productEvent: games.event,
       teamName:     teams.teamName,
-      status:       teams.status,
-      institution:  teams.institutionName,
-      totalPrice:   teams.totalPricePkr,
-      createdAt:    teams.createdAt,
-      gameName:     games.name,
-      gameCategory: games.category,
-      captainName:  participants.fullName,
-      captainEmail: participants.email,
-      captainPhone: participants.phone,
+      teamStatus:   teams.status,
+      socialsCount: teams.socialsCount,
+      buyerName:    participants.fullName,
+      buyerEmail:   participants.email,
+      buyerPhone:   participants.phone,
+      institution:  participants.institutionName,
     })
-    .from(teams)
-    .leftJoin(games,        eq(teams.gameId,               games.id))
-    .leftJoin(participants, eq(teams.captainParticipantId, participants.id))
-    .orderBy(teams.createdAt);
+    .from(payments)
+    .leftJoin(teams, eq(payments.teamId, teams.id))
+    .leftJoin(games, eq(payments.productId, games.id))
+    // The buyer is the team captain when there is a team, else the direct payer.
+    .leftJoin(
+      participants,
+      sqlExpr`${participants.id} = coalesce(${teams.captainParticipantId}, ${payments.participantId})`
+    )
+    .orderBy(payments.createdAt);
+
+  // Attach issued passes so admins can see and reprint them.
+  const { tickets: tk } = await import("@/db/schema");
+  const allTickets = await db
+    .select({
+      participantId: tk.participantId, teamId: tk.teamId,
+      ticketNumber: tk.ticketNumber, qrToken: tk.qrToken, tier: tk.tier, event: tk.event,
+    })
+    .from(tk);
+
+  return rows.map((r) => ({
+    ...r,
+    tickets: allTickets.filter((t) =>
+      r.teamId ? t.teamId === r.teamId : false
+    ),
+  }));
 }
 
 export async function getAllSponsors() {
@@ -669,6 +712,7 @@ export async function createManualRegistration(input: {
 
     await db.insert(payments).values({
       amountPkr: input.amountPkr,
+      productId: input.productId,
       teamId: teamId ?? undefined,
       participantId: teamId ? undefined : participantId,
       method: "other",
