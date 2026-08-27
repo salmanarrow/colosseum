@@ -4,6 +4,7 @@ import { db } from "@/db";
 import { autoShowRegistrations } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { randomUUID } from "crypto";
+import { resolveImage } from "@/lib/imageType";
 
 export type AutoShowPayload = {
   ownerName: string;
@@ -29,9 +30,10 @@ export async function uploadCarPhoto(formData: FormData) {
     if (file.size > 8 * 1024 * 1024) {
       return { success: false as const, error: "Photo must be under 8 MB." };
     }
-    if (!/^image\//.test(file.type)) {
-      return { success: false as const, error: "Only image files are accepted." };
-    }
+    // Identify the image from its bytes — phones often send a blank MIME type.
+    const bytes = Buffer.from(await file.arrayBuffer());
+    const kind = resolveImage(file.name, file.type, bytes);
+    if (!kind.ok) return { success: false as const, error: kind.reason };
 
     // Most likely production misconfiguration — name it plainly rather than
     // returning a generic failure the organisers can't act on.
@@ -40,8 +42,7 @@ export async function uploadCarPhoto(formData: FormData) {
       return { success: false as const, error: "Server storage isn't configured (missing service key). Please tell the organisers." };
     }
 
-    const ext = (file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
-    const path = `${new Date().toISOString().slice(0, 10)}/${randomUUID()}.${ext}`;
+        const path = `${new Date().toISOString().slice(0, 10)}/${randomUUID()}.${kind.ext}`;
 
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/car-photos/${path}`,
@@ -49,9 +50,9 @@ export async function uploadCarPhoto(formData: FormData) {
         method: "POST",
         headers: {
           Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
-          "Content-Type": file.type,
+          "Content-Type": kind.mime,
         },
-        body: Buffer.from(await file.arrayBuffer()),
+        body: bytes,
       }
     );
 
