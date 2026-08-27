@@ -72,7 +72,6 @@ type FormState = {
   campusName: string;
   teamName: string;
   teammates: Teammate[];
-  wantsSocials: boolean;
   ageConfirmed: boolean;
   transactionRef: string;
 };
@@ -81,7 +80,7 @@ const INITIAL: FormState = {
   event: "", productId: "",
   fullName: "", email: "", phone: "",
   isInternal: false, internalOrg: "", institutionName: "", campusName: "",
-  teamName: "", teammates: [], wantsSocials: false,
+  teamName: "", teammates: [],
   ageConfirmed: false, transactionRef: "",
 };
 
@@ -168,8 +167,8 @@ export default function RegisterForm({ products }: { products: Product[] }) {
 
   // Roster size drives both team fields and the per-person socials maths.
   const rosterSize = product?.isTeamEvent ? product.minPlayers : 1;
-  const socialsTotal = form.wantsSocials && product ? product.socialsAddonPkr * rosterSize : 0;
-  const total = (product?.pricePkr ?? 0) + socialsTotal;
+  // Concert Access removed — the total is simply the ticket price.
+  const total = product?.pricePkr ?? 0;
 
   const LABELS = ["Ticket", "Details", "Payment", "Confirm"];
   const TOTAL_STEPS = 4;
@@ -212,7 +211,6 @@ export default function RegisterForm({ products }: { products: Product[] }) {
   function pickProduct(p: Product) {
     set("productId", p.id);
     set("teamName", "");
-    set("wantsSocials", false);
     // captain is the registrant, so collect (minPlayers - 1) teammates
     set("teammates", p.isTeamEvent ? Array.from({ length: Math.max(0, p.minPlayers - 1) }, () => ({ ...EMPTY_TEAMMATE })) : []);
   }
@@ -467,40 +465,12 @@ export default function RegisterForm({ products }: { products: Product[] }) {
           <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
             <h2 className="display" style={{ fontSize: "1.8rem" }}>Payment</h2>
 
-            {/* Concert add-on */}
-            {product.socialsAddonPkr > 0 && (
-              <div className="glass glass--gold" style={{ padding: "1.25rem 1.5rem" }}>
-                <label style={{ display: "flex", alignItems: "flex-start", gap: "0.75rem", cursor: "pointer" }}>
-                  <input
-                    type="checkbox" checked={form.wantsSocials}
-                    onChange={(e) => set("wantsSocials", e.target.checked)}
-                    style={{ width: 18, height: 18, accentColor: "var(--violet)", cursor: "pointer", marginTop: 3, flexShrink: 0 }}
-                  />
-                  <div>
-                    <p style={{ color: "var(--text-primary)", fontWeight: 700, fontSize: "0.95rem" }}>
-                      🎤 Add Concert Access — PKR {product.socialsAddonPkr.toLocaleString()} per person
-                    </p>
-                    <p style={{ color: "var(--text-muted)", fontSize: "0.82rem", lineHeight: 1.6, marginTop: "0.35rem" }}>
-                      Your Game Entry covers competing in your title. Add this to also get
-                      into the closing concert{rosterSize > 1 ? ` — charged for all ${rosterSize} squad members (PKR ${(product.socialsAddonPkr * rosterSize).toLocaleString()})` : ""}.
-                    </p>
-                  </div>
-                </label>
-              </div>
-            )}
-
             {/* Totals */}
             <div className="glass" style={{ padding: "1.25rem 1.5rem" }}>
               <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.88rem", color: "var(--text-muted)", marginBottom: "0.4rem" }}>
                 <span>{product.name} ({product.priceBasis === "per_team" ? "per team" : "per person"})</span>
                 <span style={{ fontFamily: "var(--font-mono)" }}>PKR {product.pricePkr.toLocaleString()}</span>
               </div>
-              {socialsTotal > 0 && (
-                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.88rem", color: "var(--text-muted)", marginBottom: "0.4rem" }}>
-                  <span>Concert access × {rosterSize}</span>
-                  <span style={{ fontFamily: "var(--font-mono)" }}>PKR {socialsTotal.toLocaleString()}</span>
-                </div>
-              )}
               <div style={{ borderTop: "1px solid var(--border-gold)", paddingTop: "0.6rem", marginTop: "0.4rem", display: "flex", justifyContent: "space-between", fontWeight: 700 }}>
                 <span style={{ color: "var(--silver)" }}>Total to pay</span>
                 <span style={{ fontFamily: "var(--font-mono)", color: "var(--silver)", fontSize: "1.15rem" }}>
@@ -576,7 +546,6 @@ export default function RegisterForm({ products }: { products: Product[] }) {
                 ["Phone", form.phone],
                 ["Institution", institutionLabel],
                 ...(product.isTeamEvent ? [["Team", form.teamName] as [string, string], ["Roster", `${rosterSize} members`] as [string, string]] : []),
-                ["Concert access", form.wantsSocials ? `Yes (×${rosterSize})` : "No"],
                 ["Transaction Ref", form.transactionRef],
                 ["Receipt", screenshotFile ? screenshotFile.name : "Not attached"],
                 ["Amount", `PKR ${total.toLocaleString()}`],
@@ -630,8 +599,8 @@ export default function RegisterForm({ products }: { products: Product[] }) {
                       : "external_college",
                     teamName: form.teamName || undefined,
                     teammates: form.teammates,
-                    wantsSocials: form.wantsSocials,
-                    socialsCount: form.wantsSocials ? rosterSize : 0,
+                    wantsSocials: false,
+                    socialsCount: 0,
                     totalPkr: total,
                     transactionRef: form.transactionRef,
                     screenshotPath,

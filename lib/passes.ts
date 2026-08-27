@@ -81,7 +81,9 @@ export function getPassStyle(tier: PassTier, event: EventKey): PassStyle {
           strapline: "Spectator · 5 September",
           admits: [
             "Auto Show",
+            "Robotic Exhibition",
             "DJ Night",
+            "Fireworks",
             "Not competing in the Hackathon",
           ],
         };
@@ -154,17 +156,10 @@ export function passDays(event: EventKey): { day: string; active: boolean }[] {
 }
 
 /**
- * Concert status. The concert is on Day 3 of the Colosseum only — a PreLaunch
- * pass must say nothing about it at all.
+ * Concert Access was removed by the committee, so no pass advertises it and
+ * there is no upgrade to mention. Kept as a no-op so existing callers compile.
  */
-export function concertLine(tier: PassTier, socials: boolean, event: EventKey): string | null {
-  if (event === "prelaunch") return null;
-  if (tier === "observer") return "Concert included";
-  if (tier === "game_entry" || tier === "cosplay") {
-    return socials
-      ? "Concert included (Socials add-on)"
-      : "Concert NOT included — add the Socials upgrade";
-  }
+export function concertLine(_tier: PassTier, _socials: boolean, _event: EventKey): string | null {
   return null;
 }
 

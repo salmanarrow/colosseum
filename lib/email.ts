@@ -85,9 +85,8 @@ export async function sendTicketEmail(params: TicketEmailParams) {
     ? "PreLaunch · 5 September 2026"
     : "The Colosseum · 2 – 4 October 2026";
   const gameInfo  = params.gameName ? `<p style="color:#A9AFC0;font-size:14px;margin:4px 0 0;">${params.gameName}${params.teamName ? ` · ${params.teamName}` : ""}</p>` : "";
-  const socialsLine = params.socials
-    ? `<p style="color:#B026FF;font-size:13px;margin:8px 0 0;">🎤 Concert access included</p>`
-    : "";
+  // Concert Access was removed — nothing to advertise on the pass card.
+  const socialsLine = "";
 
   const html = `
 <!DOCTYPE html>

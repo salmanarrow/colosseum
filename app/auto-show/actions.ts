@@ -67,7 +67,14 @@ export async function uploadCarPhoto(formData: FormData) {
   }
 }
 
+// Registration is CLOSED. The form is gone from the page, but this is a public
+// HTTP endpoint — refuse here too so a direct POST cannot slip an entry in.
+const AUTO_SHOW_REGISTRATION_OPEN = false;
+
 export async function submitAutoShowRegistration(payload: AutoShowPayload) {
+  if (!AUTO_SHOW_REGISTRATION_OPEN) {
+    return { success: false, error: "Auto Show registration is closed." };
+  }
   try {
     // One entry per plate — resubmitting updates the existing application
     // rather than creating a duplicate for the review queue.

@@ -4,8 +4,7 @@
 // Board-finalized pricing (Aug 2026). Flat prices; NO internal/external split.
 //   PreLaunch  (5 Sept)  — Hackathon Pass 5,000/team (max 3) · Observer 2,500
 //   Colosseum  (2–4 Oct) — Game Entry per title · Observer 3,999
-//   Socials add-on = PKR 1,500 per person, unlocks CONCERT access for
-//   gaming participants (Observer 3,999 already includes it).
+//   Concert Access add-on REMOVED — price is the ticket price, nothing more.
 
 import { readFileSync } from "fs";
 import postgres from "postgres";
@@ -17,7 +16,8 @@ function databaseUrl() {
   return line.slice("DATABASE_URL=".length).trim();
 }
 
-const SOCIALS = 1500;
+// Concert Access add-on removed by the committee — no add-ons remain.
+const SOCIALS = 0;
 
 // slug, name, format, event, category, isTeam, min, max, price, basis, socials, free, order
 const PRODUCTS = [
@@ -29,7 +29,7 @@ const PRODUCTS = [
   ["pubg-squad",       "PUBG Mobile — Squad",   "4-player squad", "colosseum", "flagship", true,  4, 4, 2500, "per_team",   SOCIALS, false, 30],
   ["pubg-solo",        "PUBG Mobile — Solo",    "Solo",           "colosseum", "flagship", false, 1, 1, 1000, "per_person", SOCIALS, false, 31],
   ["free-fire-squad",  "Free Fire — Squad",     "4-player squad", "colosseum", "flagship", true,  4, 4, 2000, "per_team",   SOCIALS, false, 32],
-  ["free-fire-solo",   "Free Fire — Solo",      "Solo",           "colosseum", "flagship", false, 1, 1, 1000, "per_person", SOCIALS, false, 33],
+  ["free-fire-solo",   "Free Fire — Solo",      "Solo",           "colosseum", "flagship", false, 1, 1, 700,  "per_person", SOCIALS, false, 33],
   ["valorant",         "Valorant",              "5v5 squad",      "colosseum", "flagship", true,  5, 6, 2500, "per_team",   SOCIALS, false, 34],
   ["tekken",           "Tekken",                "1v1",            "colosseum", "flagship", false, 1, 1, 2000, "per_person", SOCIALS, false, 35],
   ["fifa",             "FIFA",                  "1v1",            "colosseum", "flagship", false, 1, 1, 2000, "per_person", SOCIALS, false, 36],

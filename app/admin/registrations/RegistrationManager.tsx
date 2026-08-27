@@ -101,7 +101,8 @@ export default function RegistrationManager({
 
   const product = products.find((p) => p.id === f.productId);
   const roster = product?.isTeamEvent ? product.minPlayers : 1;
-  const standardAmount = product ? product.pricePkr + (f.wantsSocials ? product.socialsAddonPkr * roster : 0) : 0;
+  // Concert Access removed — the standard amount is just the ticket price.
+  const standardAmount = product ? product.pricePkr : 0;
   const amount = f.useCustomPrice ? Math.max(0, parseInt(f.customPrice || "0", 10) || 0) : standardAmount;
 
   const filtered = useMemo(() => {
@@ -199,12 +200,6 @@ export default function RegistrationManager({
           </div>
           <input placeholder="Note / reference (e.g. cash at desk)" value={f.note} onChange={(e) => set("note", e.target.value)} style={inputStyle()} />
           <div style={{ display: "flex", gap: "1.25rem", flexWrap: "wrap", alignItems: "center" }}>
-            {product && product.socialsAddonPkr > 0 && (
-              <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer", fontSize: "0.85rem", color: "var(--text-muted)" }}>
-                <input type="checkbox" checked={f.wantsSocials} onChange={(e) => set("wantsSocials", e.target.checked)} style={{ accentColor: "var(--violet)", width: 16, height: 16 }} />
-                Concert access (+{(product.socialsAddonPkr * roster).toLocaleString()})
-              </label>
-            )}
             <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer", fontSize: "0.85rem", color: "var(--text-muted)" }}>
               <input type="checkbox" checked={f.markPaid} onChange={(e) => set("markPaid", e.target.checked)} style={{ accentColor: "var(--violet)", width: 16, height: 16 }} />
               Mark as paid &amp; issue pass

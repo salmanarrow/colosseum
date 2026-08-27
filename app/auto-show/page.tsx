@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
-import AutoShowForm from "./AutoShowForm";
 
 export const metadata: Metadata = {
   title: "Auto Show · The Colosseum",
@@ -26,15 +25,14 @@ export default function AutoShowPage() {
           </h1>
           <p style={{ textAlign: "center", color: "var(--text-muted)", fontSize: "1rem", lineHeight: 1.75, marginBottom: "2.5rem" }}>
             A curated line-up of the twin cities&apos; best builds, parked under the lights at
-            MIUC H-8. <strong style={{ color: "var(--silver)" }}>Invited cars only</strong> — apply below
-            and our team will review your entry. Exhibiting is free.
+            MIUC H-8. <strong style={{ color: "var(--silver)" }}>Invited cars only</strong>. Registration is now closed — the line-up is confirmed.
           </p>
 
           {/* Quick facts */}
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: "0.75rem", marginBottom: "2.5rem" }}>
             {[
-              ["🏁", "Free to exhibit"],
-              ["✅", "Reviewed & invited"],
+              ["🏁", "Line-up confirmed"],
+              ["✅", "Invited exhibitors"],
               ["🎫", "Vehicle gate pass"],
               ["🎆", "Stay for DJ Tokyo"],
             ].map(([icon, label]) => (
@@ -45,13 +43,26 @@ export default function AutoShowPage() {
             ))}
           </div>
 
-          <AutoShowForm />
+          {/* Registration is CLOSED — the form is not rendered at all, so no
+              vehicle can be submitted even if someone finds the old markup. */}
+          <div className="glass glass--red" style={{ padding: "2.5rem 2rem", textAlign: "center" }}>
+            <div style={{ fontSize: "2.5rem", marginBottom: "0.75rem" }}>🏁</div>
+            <p className="display" style={{ fontSize: "clamp(1.5rem, 5vw, 2rem)", color: "var(--red-arena)", marginBottom: "0.75rem" }}>
+              Auto Show Registration Closed
+            </p>
+            <p style={{ color: "var(--text-muted)", lineHeight: 1.7, maxWidth: 460, margin: "0 auto" }}>
+              Entries for the Auto Show are now closed and the line-up is confirmed.
+              Selected exhibitors have been contacted directly with their vehicle gate pass.
+            </p>
+            <p style={{ color: "var(--text-faint)", fontSize: "0.85rem", lineHeight: 1.7, marginTop: "1.25rem" }}>
+              You can still see the cars on the day — the Auto Show is included with
+              any PreLaunch pass.
+            </p>
+            <a href="/tickets" className="btn-primary" style={{ justifyContent: "center", marginTop: "1.5rem", textDecoration: "none" }}>
+              View PreLaunch Passes →
+            </a>
+          </div>
 
-          <p style={{ textAlign: "center", color: "var(--text-faint)", fontSize: "0.82rem", lineHeight: 1.7, marginTop: "1.5rem" }}>
-            Just want to come and look? The Auto Show is included in the{" "}
-            <strong style={{ color: "var(--silver)" }}>PreLaunch Observer Pass</strong> —
-            no car required.
-          </p>
         </div>
       </main>
       <Footer />

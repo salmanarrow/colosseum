@@ -59,7 +59,7 @@ const GAMES = [
     name: "Forza",
     format: "Racing",
     category: "festival",
-    fee: "PKR 1,000",
+    fee: "Included",
     emoji: "🏎️",
   },
 ];

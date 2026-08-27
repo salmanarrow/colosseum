@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { lookupTicketByToken, logScan, upgradeCitizenToGladiator } from "../actions";
+import { lookupTicketByToken, logScan } from "../actions";
 import { getPassStyle, EVENT_META, type PassTier, type EventKey } from "@/lib/passes";
 
 type Game = {
@@ -98,19 +98,6 @@ export default function Scanner({ games }: { games: Game[] }) {
       );
     } else {
       setToast(res.error ?? "Failed");
-    }
-    setBusy(false);
-  }
-
-  async function doUpgrade() {
-    if (!ticket || !gameId) return;
-    setBusy(true);
-    const res = await upgradeCitizenToGladiator(ticket.ticketId, gameId);
-    if (res.success) {
-      setToast(`✅ Upgraded to Gladiator — ${res.gameName} · collected PKR ${res.difference?.toLocaleString()}`);
-      setTicket({ ...ticket, tier: "participant", gameName: res.gameName ?? ticket.gameName });
-    } else {
-      setToast(res.error ?? "Upgrade failed");
     }
     setBusy(false);
   }
@@ -216,40 +203,6 @@ export default function Scanner({ games }: { games: Game[] }) {
             <button className="btn-primary" disabled={busy} onClick={doLogScan} style={{ width: "100%", justifyContent: "center", marginBottom: "1rem" }}>
               ✅ Log Gate Entry
             </button>
-          )}
-
-          {/* Upgrade (Citizen only) */}
-          {ticket.tier === "basic" && (
-            <div style={{ borderTop: "1px solid var(--border-glass)", paddingTop: "1.25rem" }}>
-              <p className="eyebrow" style={{ color: "var(--gold)", marginBottom: "0.6rem" }}>Upgrade to Gladiator</p>
-              <select
-                value={gameId}
-                onChange={(e) => setGameId(e.target.value)}
-                style={{
-                  width: "100%", background: "rgba(22,18,32,0.7)", border: "1px solid var(--border-glass)",
-                  borderRadius: 10, padding: "0.7rem 0.9rem", color: gameId ? "var(--text-primary)" : "var(--text-faint)",
-                  fontSize: "0.9rem", marginBottom: "0.75rem",
-                }}
-              >
-                <option value="">Select a title…</option>
-                {games.map((g) => (
-                  <option key={g.id} value={g.id}>{g.name}</option>
-                ))}
-              </select>
-
-              {selectedGame && (
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "rgba(200,205,217,0.08)", borderRadius: 10, padding: "0.75rem 1rem", marginBottom: "0.75rem" }}>
-                  <span style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>Collect difference</span>
-                  <span style={{ fontFamily: "var(--font-mono)", color: "var(--gold)", fontWeight: 700, fontSize: "1.1rem" }}>
-                    PKR {difference.toLocaleString()}
-                  </span>
-                </div>
-              )}
-
-              <button className="btn-primary" disabled={busy || !gameId} onClick={doUpgrade} style={{ width: "100%", justifyContent: "center" }}>
-                {difference > 0 ? `Collect Cash & Upgrade (PKR ${difference.toLocaleString()})` : "Upgrade (no charge)"}
-              </button>
-            </div>
           )}
 
           {toast && (

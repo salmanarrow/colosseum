@@ -2,6 +2,7 @@ import { db } from "@/db";
 import { tickets, participants, teams, games } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import Nav from "@/components/Nav";
+import { getPassStyle, EVENT_META, type PassTier, type EventKey } from "@/lib/passes";
 
 export default async function VerifyPage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
@@ -10,6 +11,7 @@ export default async function VerifyPage({ params }: { params: Promise<{ token: 
     .select({
       ticketNumber:  tickets.ticketNumber,
       tier:          tickets.tier,
+      event:         tickets.event,
       qrToken:       tickets.qrToken,
       createdAt:     tickets.createdAt,
       participantName:  participants.fullName,
@@ -28,7 +30,9 @@ export default async function VerifyPage({ params }: { params: Promise<{ token: 
   const ticket = result[0];
 
   const isValid  = !!ticket;
-  const tierLabel = ticket?.tier === "participant" ? "Gladiator Pass ⚔️" : "Citizen Pass 🏛️";
+  const passEvent = ((ticket as { event?: string } | undefined)?.event ?? "colosseum") as EventKey;
+  const passStyle = getPassStyle(((ticket?.tier ?? "observer") as PassTier), passEvent);
+  const tierLabel = passStyle.label;
 
   return (
     <>
@@ -82,7 +86,7 @@ export default async function VerifyPage({ params }: { params: Promise<{ token: 
               <div style={{ marginTop: "0.5rem", background: "rgba(176,38,255,0.08)", borderRadius: "8px", padding: "0.75rem 1rem" }}>
                 <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", lineHeight: 1.6 }}>
                   ✓ Admit to all zones.
-                  {ticket.tier === "participant" && " Eligible to compete at game station."}
+                  {(ticket.tier === "game_entry" || ticket.tier === "cosplay" || ticket.tier === "hackathon") && " Eligible to compete."}
                 </p>
               </div>
             </div>
