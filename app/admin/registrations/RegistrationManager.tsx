@@ -141,9 +141,9 @@ export default function RegistrationManager({
     setBusy(false);
   }
 
-  async function remove(teamId: string) {
+  async function remove(paymentId: string) {
     setBusy(true);
-    const res = await deleteRegistration(teamId);
+    const res = await deleteRegistration(paymentId);
     setMsg(res.success ? "Registration deleted." : (res.error ?? "Delete failed."));
     setConfirmId(null); setBusy(false); router.refresh();
   }
@@ -358,18 +358,23 @@ export default function RegistrationManager({
                   </p>
                 ) : null}
 
-                {r.teamId && (
-                  <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                    {confirmId === r.teamId ? (
-                      <span style={{ display: "inline-flex", gap: "0.5rem", alignItems: "center" }}>
-                        <button disabled={busy} onClick={() => remove(r.teamId!)} style={{ background: "var(--red-arena)", color: "#fff", border: "none", borderRadius: 999, padding: "0.3rem 0.8rem", fontSize: "0.72rem", cursor: "pointer" }}>Confirm delete</button>
-                        <button onClick={() => setConfirmId(null)} style={{ background: "transparent", border: "none", color: "var(--text-faint)", fontSize: "0.72rem", cursor: "pointer" }}>Cancel</button>
+                {/* Every registration is deletable — keyed on the payment, so
+                    observer passes (which have no team) are covered too. */}
+                <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", gap: "0.6rem" }}>
+                  {confirmId === r.paymentId ? (
+                    <>
+                      <span style={{ fontSize: "0.72rem", color: "var(--text-faint)", textAlign: "right" }}>
+                        Removes the registration, its payment{r.tickets.length ? ` and ${r.tickets.length} issued pass${r.tickets.length > 1 ? "es" : ""}` : ""}.
                       </span>
-                    ) : (
-                      <button onClick={() => setConfirmId(r.teamId)} style={{ background: "transparent", border: "none", color: "var(--red-arena)", fontSize: "0.75rem", cursor: "pointer" }}>Delete</button>
-                    )}
-                  </div>
-                )}
+                      <button disabled={busy} onClick={() => remove(r.paymentId)} style={{ background: "var(--red-arena)", color: "#fff", border: "none", borderRadius: 999, padding: "0.3rem 0.8rem", fontSize: "0.72rem", cursor: "pointer", whiteSpace: "nowrap" }}>
+                        Confirm delete
+                      </button>
+                      <button onClick={() => setConfirmId(null)} style={{ background: "transparent", border: "none", color: "var(--text-faint)", fontSize: "0.72rem", cursor: "pointer" }}>Cancel</button>
+                    </>
+                  ) : (
+                    <button onClick={() => setConfirmId(r.paymentId)} style={{ background: "transparent", border: "none", color: "var(--red-arena)", fontSize: "0.75rem", cursor: "pointer" }}>Delete</button>
+                  )}
+                </div>
               </div>
             );
           })}

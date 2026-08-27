@@ -702,20 +702,58 @@ export async function createManualRegistration(input: {
 }
 
 // Permanently remove a registration and everything hanging off it.
-// Deletes in FK order: scans -> tickets -> members -> payments -> team.
-export async function deleteRegistration(teamId: string) {
+// Keyed on the PAYMENT, not the team: observer passes have no team row, so a
+// team-keyed delete could never remove them. Deletes in FK order.
+// The participant record is kept if they still have other registrations.
+export async function deleteRegistration(paymentId: string) {
   try {
-    const { teamMembers, ticketScans } = await import("@/db/schema");
-    const { inArray } = await import("drizzle-orm");
+    const { teamMembers, ticketScans, participants } = await import("@/db/schema");
+    const { inArray, and, isNull } = await import("drizzle-orm");
 
-    const ticketIds = (await db.select({ id: tickets.id }).from(tickets).where(eq(tickets.teamId, teamId))).map((t) => t.id);
+    const [payment] = await db
+      .select({ id: payments.id, teamId: payments.teamId, participantId: payments.participantId })
+      .from(payments)
+      .where(eq(payments.id, paymentId))
+      .limit(1);
+    if (!payment) return { success: false, error: "Registration not found." };
+
+    // Collect the passes issued for this registration.
+    const ticketRows = payment.teamId
+      ? await db.select({ id: tickets.id }).from(tickets).where(eq(tickets.teamId, payment.teamId))
+      : payment.participantId
+        ? await db.select({ id: tickets.id }).from(tickets)
+            .where(and(eq(tickets.participantId, payment.participantId), isNull(tickets.teamId)))
+        : [];
+    const ticketIds = ticketRows.map((t) => t.id);
+
     if (ticketIds.length) {
       await db.delete(ticketScans).where(inArray(ticketScans.ticketId, ticketIds));
       await db.delete(tickets).where(inArray(tickets.id, ticketIds));
     }
-    await db.delete(teamMembers).where(eq(teamMembers.teamId, teamId));
-    await db.delete(payments).where(eq(payments.teamId, teamId));
-    await db.delete(teams).where(eq(teams.id, teamId));
+
+    // Remember the roster before the team goes, so orphaned people can be tidied.
+    let memberIds: string[] = [];
+    if (payment.teamId) {
+      memberIds = (await db.select({ participantId: teamMembers.participantId })
+        .from(teamMembers).where(eq(teamMembers.teamId, payment.teamId)))
+        .map((m) => m.participantId);
+      await db.delete(teamMembers).where(eq(teamMembers.teamId, payment.teamId));
+    }
+
+    await db.delete(payments).where(eq(payments.id, paymentId));
+    if (payment.teamId) await db.delete(teams).where(eq(teams.id, payment.teamId));
+
+    // Drop participants left with no payments, no team membership and no passes.
+    const candidates = [...memberIds, ...(payment.participantId ? [payment.participantId] : [])];
+    for (const pid of [...new Set(candidates)]) {
+      const [stillPaying]  = await db.select({ id: payments.id }).from(payments).where(eq(payments.participantId, pid)).limit(1);
+      const [stillOnTeam]  = await db.select({ id: teamMembers.id }).from(teamMembers).where(eq(teamMembers.participantId, pid)).limit(1);
+      const [stillTicketed] = await db.select({ id: tickets.id }).from(tickets).where(eq(tickets.participantId, pid)).limit(1);
+      const [isCaptain]    = await db.select({ id: teams.id }).from(teams).where(eq(teams.captainParticipantId, pid)).limit(1);
+      if (!stillPaying && !stillOnTeam && !stillTicketed && !isCaptain) {
+        await db.delete(participants).where(eq(participants.id, pid));
+      }
+    }
 
     revalidatePath("/admin/registrations");
     revalidatePath("/admin/payments");
