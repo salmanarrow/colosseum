@@ -255,6 +255,16 @@ export default function RegisterForm({ products }: { products: Product[] }) {
               <strong style={{ color: "var(--silver)" }}>rootscolosseum@gmail.com</strong> quoting
               your transaction reference so we can verify your payment.
             </p>
+            {/* Show the actual cause — without it neither the user nor the
+                organisers can tell a bad file from a server misconfiguration. */}
+            <p style={{
+              color: "var(--text-faint)", fontSize: "0.75rem", lineHeight: 1.5,
+              marginTop: "0.6rem", paddingTop: "0.6rem",
+              borderTop: "1px solid rgba(255,45,98,0.25)",
+              fontFamily: "var(--font-mono)", wordBreak: "break-word",
+            }}>
+              Reason: {receiptIssue}
+            </p>
           </div>
         )}
       </div>
