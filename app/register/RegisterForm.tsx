@@ -481,19 +481,32 @@ export default function RegisterForm({ products }: { products: Product[] }) {
 
             {/* Payment instructions */}
             <div className="glass" style={{ padding: "1.25rem 1.5rem", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-              <p className="eyebrow">Pay Via</p>
-              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.88rem" }}>
-                <span style={{ color: "var(--text-muted)" }}>Bank Account</span>
-                <span style={{ fontFamily: "var(--font-mono)", color: "var(--text-faint)" }}>[to be added]</span>
-              </div>
-              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.88rem" }}>
-                <span style={{ color: "var(--text-muted)" }}>EasyPaisa</span>
-                <span style={{ fontFamily: "var(--font-mono)", color: "var(--text-faint)" }}>[to be added]</span>
-              </div>
-              <p style={{ fontSize: "0.82rem", color: "var(--text-muted)", lineHeight: 1.6, marginTop: "0.25rem" }}>
-                📌 Send exactly <strong style={{ color: "var(--silver)" }}>PKR {total.toLocaleString()}</strong> and
-                use your <strong style={{ color: "var(--text-primary)" }}>full name</strong> as the reference.
-                Once confirmed, <strong style={{ color: "var(--violet)" }}>your QR pass is emailed to you</strong>.
+              <p className="eyebrow">Bank Transfer</p>
+
+              {([
+                ["Account Title", "MIUC (Private) Limited"],
+                ["Account Number", "24467902357103"],
+                ["Bank", "Habib Bank Limited (HBL)"],
+              ] as [string, string][]).map(([label, value]) => (
+                <div key={label} style={{ display: "flex", justifyContent: "space-between", gap: "1rem", fontSize: "0.88rem", alignItems: "baseline" }}>
+                  <span style={{ color: "var(--text-muted)", whiteSpace: "nowrap" }}>{label}</span>
+                  <span style={{
+                    fontFamily: label === "Account Number" ? "var(--font-mono)" : "var(--font-body)",
+                    color: label === "Account Number" ? "var(--silver)" : "var(--text-primary)",
+                    fontWeight: label === "Account Number" ? 700 : 500,
+                    letterSpacing: label === "Account Number" ? "0.06em" : undefined,
+                    textAlign: "right", wordBreak: "break-word",
+                  }}>
+                    {value}
+                  </span>
+                </div>
+              ))}
+
+              <p style={{ fontSize: "0.82rem", color: "var(--text-muted)", lineHeight: 1.6, marginTop: "0.25rem", borderTop: "1px solid var(--border-glass)", paddingTop: "0.75rem" }}>
+                📌 Transfer exactly <strong style={{ color: "var(--silver)" }}>PKR {total.toLocaleString()}</strong> to
+                the account above and use your <strong style={{ color: "var(--text-primary)" }}>full name</strong> as
+                the payment reference. Then enter your transaction reference below and attach the receipt —
+                once we verify it, <strong style={{ color: "var(--violet)" }}>your pass is issued and sent to you</strong>.
               </p>
             </div>
 
