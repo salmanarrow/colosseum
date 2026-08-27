@@ -625,6 +625,18 @@ export default function RegisterForm({ products }: { products: Product[] }) {
             >
               {submitting ? "Submitting…" : "◈ Submit Registration"}
             </button>
+
+            {/* The confirm step sits outside the shared nav, so it needs its own
+                way back — otherwise a mistake spotted on review is uncorrectable. */}
+            <button
+              type="button"
+              className="btn-ghost"
+              onClick={back}
+              disabled={submitting}
+              style={{ fontSize: "0.9rem", justifyContent: "center", opacity: submitting ? 0.5 : 1 }}
+            >
+              ← Back to Payment
+            </button>
           </div>
         )}
 
