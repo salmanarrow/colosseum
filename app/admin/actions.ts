@@ -81,21 +81,33 @@ async function issueAndEmailTicket(opts: {
     .where(eq(participants.id, opts.participantId))
     .limit(1);
 
+  let delivered = false;
+  let deliveryError: string | null = null;
+
   if (participant) {
     await sendTicketEmail({
       to:            participant.email,
       recipientName: participant.name,
       ticketNumber:  ticketNum,
       tier:          opts.tier,
+      event:         opts.event,
       gameName:      opts.gameName,
       teamName:      opts.teamName,
       qrToken,
     })
-      .then(() => db.update(tickets).set({ emailedAt: new Date() }).where(eq(tickets.id, ticket.id)))
-      .catch((err) => console.error("Email send failed:", err));
+      .then(async () => {
+        await db.update(tickets).set({ emailedAt: new Date() }).where(eq(tickets.id, ticket.id));
+        delivered = true;
+      })
+      .catch((err: unknown) => {
+        // Never fatal — the pass is stored and downloadable from the admin area,
+        // so a mail outage must not block issuing it. But it must be visible.
+        deliveryError = err instanceof Error ? err.message : String(err);
+        console.error("Email send failed:", deliveryError);
+      });
   }
 
-  return { ticketId: ticket.id, qrToken, ticketNumber: ticketNum };
+  return { ticketId: ticket.id, qrToken, ticketNumber: ticketNum, delivered, deliveryError };
 }
 
 export async function approvePayment(paymentId: string) {
@@ -114,6 +126,7 @@ export async function approvePayment(paymentId: string) {
       .where(eq(payments.id, paymentId));
 
     const { teamMembers, games } = await import("@/db/schema");
+    const results: { delivered: boolean; deliveryError: string | null }[] = [];
 
     if (payment.teamId) {
       // Ticketed competition — one pass per roster member (team-of-one for solos)
@@ -149,7 +162,7 @@ export async function approvePayment(paymentId: string) {
                                    "game_entry" as const;
 
       for (const member of members) {
-        await issueAndEmailTicket({
+        results.push(await issueAndEmailTicket({
           participantId: member.participantId,
           teamId:        payment.teamId,
           tier,
@@ -157,7 +170,7 @@ export async function approvePayment(paymentId: string) {
           socials:       (team?.socialsCount ?? 0) > 0,
           gameName,
           teamName:      team?.teamName,
-        });
+        }));
       }
 
       await db.update(teams).set({ status: "confirmed" }).where(eq(teams.id, payment.teamId));
@@ -178,16 +191,30 @@ export async function approvePayment(paymentId: string) {
              : prod.category === "pass"      ? "observer" : "game_entry";
         }
       }
-      await issueAndEmailTicket({
+      results.push(await issueAndEmailTicket({
         participantId: payment.participantId,
         teamId: null,
         tier: tr,
         event: evt,
-      });
+      }));
     }
 
     revalidatePath("/admin/payments");
-    return { success: true };
+    revalidatePath("/admin/registrations");
+
+    const issued = results.length;
+    const sent = results.filter((r) => r.delivered).length;
+    const firstError = results.find((r) => r.deliveryError)?.deliveryError ?? null;
+    return {
+      success: true,
+      // Surfaced so an admin knows at once whether to send the pass by hand.
+      deliveryNote:
+        issued === 0
+          ? null
+          : sent === issued
+            ? `${issued} pass${issued > 1 ? "es" : ""} issued and emailed.`
+            : `${issued} pass${issued > 1 ? "es" : ""} issued, but ${issued - sent} could not be emailed${firstError ? ` — ${firstError}` : ""}. Send it manually below.`,
+    };
   } catch (err) {
     console.error("approvePayment error:", err);
     return { success: false, error: "Failed to approve payment." };
@@ -465,7 +492,7 @@ export async function getAllPayments() {
   const allTickets = await db
     .select({
       participantId: tk.participantId, teamId: tk.teamId,
-      ticketNumber: tk.ticketNumber, qrToken: tk.qrToken, tier: tk.tier, event: tk.event,
+      id: tk.id, ticketNumber: tk.ticketNumber, qrToken: tk.qrToken, tier: tk.tier, event: tk.event, emailedAt: tk.emailedAt,
     })
     .from(tk);
 
@@ -516,7 +543,7 @@ export async function getAllRegistrations() {
   const allTickets = await db
     .select({
       participantId: tk.participantId, teamId: tk.teamId,
-      ticketNumber: tk.ticketNumber, qrToken: tk.qrToken, tier: tk.tier, event: tk.event,
+      id: tk.id, ticketNumber: tk.ticketNumber, qrToken: tk.qrToken, tier: tk.tier, event: tk.event, emailedAt: tk.emailedAt,
     })
     .from(tk);
 
@@ -948,5 +975,62 @@ export async function setAdminPassword(accessToken: string, adminId: string, pas
   } catch (err) {
     console.error("setAdminPassword error:", err);
     return { success: false, error: "Failed to set password." };
+  }
+}
+
+// ── Pass delivery ───────────────────────────────────────────────────────────
+
+/**
+ * Re-send a single pass by email. Needed because auto-delivery on approval is
+ * best-effort: a mail outage or a typo'd address must be recoverable without
+ * deleting and re-approving the whole registration.
+ */
+export async function resendPass(ticketId: string) {
+  try {
+    const { participants, teams, games } = await import("@/db/schema");
+
+    const [row] = await db
+      .select({
+        ticketNumber: tickets.ticketNumber,
+        tier:         tickets.tier,
+        event:        tickets.event,
+        qrToken:      tickets.qrToken,
+        name:         participants.fullName,
+        email:        participants.email,
+        teamName:     teams.teamName,
+        gameName:     games.name,
+      })
+      .from(tickets)
+      .leftJoin(participants, eq(tickets.participantId, participants.id))
+      .leftJoin(teams,        eq(tickets.teamId,        teams.id))
+      .leftJoin(games,        eq(teams.gameId,          games.id))
+      .where(eq(tickets.id, ticketId))
+      .limit(1);
+
+    if (!row) return { success: false, error: "Pass not found." };
+    if (!row.email) return { success: false, error: "No email address on file for this holder." };
+
+    const tier = (["hackathon", "game_entry", "observer", "cosplay"].includes(row.tier)
+      ? row.tier : "observer") as "hackathon" | "game_entry" | "observer" | "cosplay";
+
+    await sendTicketEmail({
+      to:            row.email,
+      recipientName: row.name ?? "Guest",
+      ticketNumber:  row.ticketNumber,
+      tier,
+      event:         row.event,
+      gameName:      row.gameName ?? undefined,
+      teamName:      row.teamName ?? undefined,
+      qrToken:       row.qrToken,
+    });
+
+    await db.update(tickets).set({ emailedAt: new Date() }).where(eq(tickets.id, ticketId));
+    revalidatePath("/admin/registrations");
+    revalidatePath("/admin/payments");
+    return { success: true, sentTo: row.email };
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error("resendPass error:", msg);
+    return { success: false, error: msg };
   }
 }

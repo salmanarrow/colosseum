@@ -2,9 +2,9 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { createManualRegistration, deleteRegistration } from "../actions";
+import { createManualRegistration, deleteRegistration, resendPass } from "../actions";
 
-export type TicketRef = { ticketNumber: string; qrToken: string; tier: string; event: string };
+export type TicketRef = { id: string; ticketNumber: string; qrToken: string; tier: string; event: string; emailedAt: string | Date | null };
 
 export type Registration = {
   paymentId: string;
@@ -139,6 +139,13 @@ export default function RegistrationManager({
       setAdding(false); router.refresh();
     } else setMsg(res.error ?? "Failed.");
     setBusy(false);
+  }
+
+  async function resend(ticketId: string) {
+    setBusy(true); setMsg("");
+    const res = await resendPass(ticketId);
+    setMsg(res.success ? `Pass emailed to ${res.sentTo}.` : `Send failed: ${res.error}`);
+    setBusy(false); router.refresh();
   }
 
   async function remove(paymentId: string) {
@@ -337,6 +344,29 @@ export default function RegistrationManager({
                           ⬇ {t.ticketNumber.split("-").slice(-1)[0]}
                         </a>
                         {/* Opens WhatsApp with the pass link pre-filled — staff press send */}
+                        <span
+                          title={t.emailedAt ? `Emailed ${new Date(t.emailedAt).toLocaleString("en-PK")}` : "Not emailed yet"}
+                          style={{
+                            fontSize: "0.62rem", letterSpacing: "0.08em", textTransform: "uppercase",
+                            padding: "0.2rem 0.5rem", borderRadius: 999,
+                            background: t.emailedAt ? "rgba(176,38,255,0.14)" : "rgba(255,45,98,0.12)",
+                            color: t.emailedAt ? "var(--violet)" : "var(--red-arena)",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          {t.emailedAt ? "sent" : "not sent"}
+                        </span>
+                        <button
+                          type="button" disabled={busy} onClick={() => resend(t.id)}
+                          title="Email this pass again"
+                          style={{
+                            fontSize: "0.7rem", color: "var(--silver)", background: "transparent",
+                            border: "1px solid var(--border-gold)", borderRadius: 999,
+                            padding: "0.22rem 0.6rem", cursor: "pointer", whiteSpace: "nowrap",
+                          }}
+                        >
+                          ✉ {t.emailedAt ? "Resend" : "Send"}
+                        </button>
                         <a
                           href={waLink(r, t.qrToken)} target="_blank" rel="noopener"
                           title="Send this pass on WhatsApp"

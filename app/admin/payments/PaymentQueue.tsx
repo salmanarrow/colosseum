@@ -77,12 +77,19 @@ function PaymentCard({ p, onAction }: { p: Payment; onAction: () => void }) {
   const [reason,     setReason]     = useState("");
   const [loading,    setLoading]    = useState(false);
   const [error,      setError]      = useState("");
+  const [note,       setNote]       = useState("");
 
   async function handleApprove() {
     setLoading(true);
     const result = await approvePayment(p.paymentId);
-    if (!result.success) setError(result.error ?? "Failed");
-    else onAction();
+    if (!result.success) {
+      setError(result.error ?? "Failed");
+    } else {
+      // Tell the admin at once whether the pass actually went out, so a mail
+      // failure is noticed now rather than when the holder turns up without one.
+      if (result.deliveryNote) setNote(result.deliveryNote);
+      onAction();
+    }
     setLoading(false);
   }
 
@@ -256,6 +263,11 @@ function PaymentCard({ p, onAction }: { p: Payment; onAction: () => void }) {
             </div>
           )}
           {error && <p style={{ color: "var(--red-arena)", fontSize: "0.8rem", marginTop: "0.5rem" }}>{error}</p>}
+          {note && (
+            <p style={{ color: /could not/.test(note) ? "var(--red-arena)" : "var(--violet)", fontSize: "0.8rem", marginTop: "0.5rem", lineHeight: 1.5 }}>
+              {note}
+            </p>
+          )}
         </div>
       )}
     </div>
