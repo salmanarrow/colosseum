@@ -97,8 +97,11 @@ function PassDoc({ data, qrDataUrl }: { data: PassData; qrDataUrl: string }) {
 
           <View style={s.body}>
             <View style={s.left}>
+              {/* No icon glyph here: the PDF uses Helvetica, whose WinAnsi
+                  encoding has no ◈ ▶ ★ ⬢, so they printed as a stray fallback
+                  character. The colour band already identifies the tier. */}
               <Text style={[s.passLabel, { color: style.accent }]}>
-                {style.icon}  {style.label.toUpperCase()}
+                {style.label.toUpperCase()}
               </Text>
               <Text style={[s.strap, { color: style.accentDeep }]}>{style.strapline}</Text>
 
